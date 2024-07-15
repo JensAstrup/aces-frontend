@@ -1,7 +1,7 @@
 import { Comments } from '@aces/components/ui/comments/comments'
+import { Estimate } from '@aces/components/ui/estimate'
 import { IssueDescription } from '@aces/components/ui/issue-description'
 import { Stats } from '@aces/components/ui/stats'
-import { Estimate } from '@aces/components/ui/estimate'
 import { Votes } from '@aces/components/ui/votes'
 
 

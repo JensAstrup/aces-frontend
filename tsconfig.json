@@ -15,7 +15,10 @@
     "plugins": [
       {
         "name": "next"
-      }
+      },
+        {
+            "name": "jest"
+        }
     ],
     "paths": {
       "@aces/*": ["./src/*"]
