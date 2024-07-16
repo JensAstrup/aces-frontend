@@ -1,20 +1,35 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 
 const OAuthRedirectContent = () => {
+  const router = useRouter()
   const searchParams = useSearchParams()
+  const [isAuthCalled, setIsAuthCalled] = useState(false)
 
   useEffect(() => {
     const code = searchParams.get('code')
 
-    if (code) {
-      // eslint-disable-next-line no-console
-      console.log('OAuth code:', code)
-      // You can add any additional logic here, e.g., sending the code to your server
+    if (code && !isAuthCalled) {
+      setIsAuthCalled(true)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      }).then((response) => {
+        if (response.ok) {
+          response.json().then((data) => {
+            localStorage.setItem('accessToken', data.accessToken)
+            router.push(`/issue`)
+          })
+        }
+        throw new Error('Failed to exchange code for access token')
+      })
     }
-  }, [searchParams])
+  }, [searchParams, isAuthCalled])
 
   return (
     <div>
