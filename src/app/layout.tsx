@@ -8,6 +8,7 @@ import './globals.css'
 // eslint-disable-next-line import/order
 import React, { ReactNode } from 'react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 
 
 const fontHeading = Manrope({
@@ -44,6 +45,7 @@ export default function Layout({ children }: LayoutProps) {
         >
           {children}
           <SpeedInsights />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
