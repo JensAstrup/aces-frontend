@@ -1,3 +1,4 @@
+'use client'
 import { Comments } from '@aces/components/ui/comments/comments'
 import { Estimate } from '@aces/components/ui/estimate'
 import { IssueDescription } from '@aces/components/ui/issue-description'
