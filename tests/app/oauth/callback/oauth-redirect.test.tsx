@@ -1,16 +1,13 @@
 import { act, renderHook } from '@testing-library/react-hooks'
-import { useSearchParams } from 'next/navigation'
-import { useRouter } from 'next/router'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import useOAuthRedirect from '@aces/app/oauth/callback/oauth-redirect'
 
 
 jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
-}))
-
-jest.mock('next/router', () => ({
   useRouter: jest.fn(),
+
 }))
 
 describe('useOAuthRedirect', () => {
