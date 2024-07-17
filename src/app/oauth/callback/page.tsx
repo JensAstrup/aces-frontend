@@ -1,17 +1,9 @@
-import React from 'react'
-
-import useOAuthRedirect from '@aces/app/oauth/callback/oauth-redirect'
+import dynamic from 'next/dynamic'
 
 
-const OAuthRedirectContent = () => {
-  useOAuthRedirect()
+const OAuthRedirect = dynamic(() => import('@aces/app/oauth/callback/OAuthComponent'), { ssr: false })
 
-  return (
-    <div>
-      <h1>OAuth Redirect Page</h1>
-      <p>Processing your authentication...</p>
-    </div>
-  )
+
+export default function OAuthCallbackPage() {
+  return <OAuthRedirect />
 }
-
-export default OAuthRedirectContent
