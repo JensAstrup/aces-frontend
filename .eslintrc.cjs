@@ -1,16 +1,22 @@
-const nextConfig = require('eslint-config-next')
+const baseConfig = require('eslint-config-yenz');
 
 module.exports = {
+  "parserOptions": {
+    "project": "./tsconfig.json",
+  },
   "plugins": [
+    ...baseConfig.plugins,
     'jest'
   ],
   "extends": [
-    "next/core-web-vitals",
-    // "plugin:node/recommended"
+    ...baseConfig.extends,
+    "next",
+    "next/core-web-vitals"
   ],
   "rules": {
-    "comma-dangle": ["warn", "always-multiline"],
-    "no-console": 1,
+    ...baseConfig.rules,
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    "no-console": 'off',
     "no-extra-boolean-cast": 0,
     "indent": ["warn", 2],
     "import/order": [
@@ -54,4 +60,4 @@ module.exports = {
       }
     }
   ]
-}
+};

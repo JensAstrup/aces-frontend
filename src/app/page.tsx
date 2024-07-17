@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 import { Button } from '@aces/components/ui/button'
 
 
@@ -15,9 +13,9 @@ export default function Home() {
       <div className="mx-auto max-w-md text-center">
         <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">Ace of Spades</h1>
         <Button className="mt-6 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-          <a href={linearAuthUrl} className="" >Sign in</a>
+          <a className="" href={linearAuthUrl}>Sign in</a>
         </Button>
       </div>
     </div>
-  );
+  )
 }
