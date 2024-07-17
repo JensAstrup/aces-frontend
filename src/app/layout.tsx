@@ -1,14 +1,12 @@
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Manrope } from 'next/font/google'
+import React, { ReactNode } from 'react'
 
 import { ThemeProvider } from '@aces/components/theme-provider'
-// Learn more: https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
 import { cn } from '@aces/lib/utils'
 
 import './globals.css'
-// eslint-disable-next-line import/order
-import React, { ReactNode } from 'react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Analytics } from '@vercel/analytics/react'
 
 
 const fontHeading = Manrope({
