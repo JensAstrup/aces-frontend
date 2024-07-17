@@ -8,6 +8,7 @@ import './globals.css'
 // eslint-disable-next-line import/order
 import React, { ReactNode } from 'react'
 
+
 const fontHeading = Manrope({
   subsets: ['latin'],
   display: 'swap',
@@ -15,13 +16,13 @@ const fontHeading = Manrope({
 })
 
 const fontBody = Manrope({
-  subsets: ['latin'], 
+  subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
 })
 
 interface LayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export default function Layout({ children }: LayoutProps) {
@@ -37,8 +38,8 @@ export default function Layout({ children }: LayoutProps) {
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
           disableTransitionOnChange
+          enableSystem
         >
           {children}
         </ThemeProvider>
