@@ -1,4 +1,3 @@
-const nextConfig = require('eslint-config-next');
 const baseConfig = require('eslint-config-yenz');
 
 module.exports = {
