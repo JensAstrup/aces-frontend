@@ -5,11 +5,6 @@ import IssueDisplay from '@aces/app/issues/issue'
 import { useInitialView } from '@aces/app/voting/use-initial-view'
 import { useSelectedView } from '@aces/app/voting/use-selected-view'
 import useViewsDisplay from '@aces/app/voting/use-views-display'
-import { Icons } from '@aces/components/icons'
-import { Comments } from '@aces/components/ui/comments/comments'
-import IssueSection from '@aces/components/ui/issues/issue-section'
-import { Separator } from '@aces/components/ui/separator'
-import ViewDropdown from '@aces/components/view-dropdown'
 
 
 jest.mock('@aces/app/voting/use-views-display')

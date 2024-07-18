@@ -32,6 +32,15 @@ describe('getIssues', () => {
         title: 'Test Issue',
         description: 'This is a test issue',
         state: { name: 'Open', type: 'default' },
+        comments: {
+          nodes: [
+            {
+              id: 1,
+              body: 'Test comment',
+              user: { id: 1, name: 'Test User', avatarUrl: 'http://example.com/avatar.jpg' }
+            }
+          ]
+        },
         url: 'http://example.com/issue/1'
       }
     ]

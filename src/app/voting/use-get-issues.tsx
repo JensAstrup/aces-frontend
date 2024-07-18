@@ -9,6 +9,17 @@ interface Issue {
       name: string
       type: string
     }
+    comments: {
+        nodes: {
+            id: number
+            body: string
+            user: {
+            id: number
+            name: string
+            avatarUrl: string
+            }
+        }[]
+    }
     url: string
 }
 
