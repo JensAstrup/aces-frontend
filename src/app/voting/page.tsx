@@ -1,8 +1,9 @@
 'use client'
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
-import { View } from '@aces/app/voting/get-favorite-views'
-import getIssues, { Issue } from '@aces/app/voting/use-get-issues'
+import { Issue } from '@aces/app/voting/use-get-issues'
+import { useInitialView } from '@aces/app/voting/use-initial-view'
+import { useSelectedView } from '@aces/app/voting/use-selected-view'
 import useViewsDisplay, { viewsDisplay } from '@aces/app/voting/use-views-display'
 import { Icons } from '@aces/components/icons'
 import { Comments } from '@aces/components/ui/comments/comments'
@@ -12,36 +13,6 @@ import { Separator } from '@aces/components/ui/separator'
 import { Stats } from '@aces/components/ui/stats'
 import { Votes } from '@aces/components/ui/votes'
 import ViewDropdown from '@aces/components/view-dropdown'
-
-
-export function useInitialView(viewsDisplay: viewsDisplay | null) {
-  const { favoriteViews, setSelectedView } = viewsDisplay || {}
-
-  useEffect(() => {
-    if (!favoriteViews || !setSelectedView) return
-    if (favoriteViews.length > 0) {
-      setSelectedView(favoriteViews[0])
-    }
-  }, [favoriteViews, setSelectedView])
-}
-
-export function useSelectedView(isLoading: boolean, setIsLoading: React.Dispatch<boolean>, selectedView: View | null, setIssues: React.Dispatch<Issue[]>) {
-  const logSelectedView = useCallback((view: View | null) => {
-    if (view !== null) {
-      setIsLoading(true)
-      getIssues(view).then((viewIssues) => {
-        setIssues(viewIssues)
-        setIsLoading(false)
-      })
-    }
-  }, [setIssues])
-
-  useEffect(() => {
-    if (selectedView) {
-      logSelectedView(selectedView)
-    }
-  }, [selectedView, logSelectedView])
-}
 
 
 const IssuePage: React.FC = () => {
