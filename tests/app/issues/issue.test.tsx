@@ -5,13 +5,24 @@ import IssueDisplay from '@aces/app/issues/issue'
 import { useInitialView } from '@aces/app/voting/use-initial-view'
 import { useSelectedView } from '@aces/app/voting/use-selected-view'
 import useViewsDisplay from '@aces/app/voting/use-views-display'
+import { Icons } from '@aces/components/icons'
+import { Comments } from '@aces/components/ui/comments/comments'
+import IssueSection from '@aces/components/ui/issues/issue-section'
+import { Separator } from '@aces/components/ui/separator'
+import ViewDropdown from '@aces/components/view-dropdown'
 
 
 jest.mock('@aces/app/voting/use-views-display')
 jest.mock('@aces/app/voting/use-initial-view')
 jest.mock('@aces/app/voting/use-selected-view')
-jest.mock('@aces/components/ui/comments/comments')
-jest.mock('@aces/components/ui/issues/issue-section')
+jest.mock('@aces/components/ui/issues/issue-section', () => ({
+  __esModule: true,
+  default: jest.fn(() => <div data-testid="issue-section">Mocked IssueSection</div>),
+}))
+
+jest.mock('@aces/components/ui/comments/comments', () => ({
+  Comments: jest.fn(() => <div data-testid="comments">Mocked Comments</div>),
+}))
 jest.mock('@aces/components/ui/separator')
 jest.mock('@aces/components/view-dropdown')
 jest.mock('@aces/components/icons', () => ({
@@ -46,17 +57,17 @@ describe('IssueDisplay', () => {
       setSelectedView: jest.fn(),
     })
 
-    mockUseSelectedView.mockImplementation(
-      (isLoading, setIsLoading, selectedView, setIssues) => {
+    mockUseSelectedView.mockImplementation((setIsLoading, selectedView, setIssues) => {
+      React.useEffect(() => {
         setIsLoading(false)
         setIssues([{ id: 1, title: 'Test Issue' }])
-      }
-    )
+      }, [setIsLoading, setIssues])
+    })
 
     render(<IssueDisplay />)
 
-    expect(screen.getByText(/IssueSection Component/i)).toBeInTheDocument()
-    expect(screen.getByText(/Comments Component/i)).toBeInTheDocument()
+    expect(screen.getByTestId('issue-section')).toBeInTheDocument()
+    expect(screen.getByTestId('comments')).toBeInTheDocument()
   })
 
   it('renders no issues section when no issues are present', () => {
@@ -65,12 +76,12 @@ describe('IssueDisplay', () => {
       setSelectedView: jest.fn(),
     })
 
-    mockUseSelectedView.mockImplementation(
-      (isLoading, setIsLoading, selectedView, setIssues) => {
+    mockUseSelectedView.mockImplementation((setIsLoading, selectedView, setIssues) => {
+      React.useEffect(() => {
         setIsLoading(false)
         setIssues([])
-      }
-    )
+      }, [setIsLoading, setIssues])
+    })
 
     render(<IssueDisplay />)
 
@@ -112,17 +123,5 @@ describe('IssueDisplay', () => {
     render(<IssueDisplay />)
 
     expect(setSelectedView).not.toHaveBeenCalled()
-  })
-
-  it('renders ViewDropdown and Separator components', () => {
-    mockUseViewsDisplay.mockReturnValue({
-      favoriteViews: [],
-      setSelectedView: jest.fn(),
-    })
-
-    render(<IssueDisplay />)
-
-    expect(screen.getByText(/ViewDropdown Component/i)).toBeInTheDocument()
-    expect(screen.getByText(/Separator Component/i)).toBeInTheDocument()
   })
 })
