@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Manrope } from 'next/font/google'
 import React, { ReactNode } from 'react'
 
+import { UserProvider } from '@aces/app/oauth/user-context'
 import { ThemeProvider } from '@aces/components/theme-provider'
 import { cn } from '@aces/lib/utils'
 
@@ -41,7 +42,7 @@ export default function Layout({ children }: LayoutProps) {
           disableTransitionOnChange
           enableSystem
         >
-          {children}
+          <UserProvider>{children}</UserProvider>
           <SpeedInsights />
           <Analytics />
         </ThemeProvider>

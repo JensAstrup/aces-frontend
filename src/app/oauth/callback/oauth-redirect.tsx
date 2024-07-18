@@ -23,11 +23,10 @@ const useOAuthRedirect = () => {
         if (response.ok) {
           response.json().then((data) => {
             localStorage.setItem('accessToken', data.accessToken)
-            router.push('/issue')
+            router.push('/voting')
           })
         }
         else {
-          console.error(response.json())
           throw new Error('Failed to exchange code for access token')
         }
       }).catch((error) => {

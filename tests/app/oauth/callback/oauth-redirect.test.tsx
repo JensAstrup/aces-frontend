@@ -70,7 +70,7 @@ describe('useOAuthRedirect', () => {
       })
     )
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith('accessToken', 'test-token')
-    expect(mockRouter.push).toHaveBeenCalledWith('/issue')
+    expect(mockRouter.push).toHaveBeenCalledWith('/voting')
     expect(hookResult?.result.current.isAuthCalled).toBe(true)
   })
 

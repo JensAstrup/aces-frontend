@@ -7,8 +7,8 @@ import { CommentForm } from './form'
 const Comments: React.FC = () => {
   return (
     <div>
-      <h2 className="text-2xl font-bold">Comments</h2>
-      <div className="mt-2 space-y-4">
+      <h2 className="text-2xl font-bold mt-5">Comments</h2>
+      <div className="mt-3 space-y-4">
         <Comment
           avatarSrc="/placeholder-user.jpg"
           comment="Sounds like a great feature! I think it would be really helpful for users to be able to track their water intake and set daily goals."
