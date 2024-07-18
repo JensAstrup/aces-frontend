@@ -16,18 +16,16 @@ const IssueDisplay: React.FC = () => {
   const viewsDisplay: viewsDisplay | null = useViewsDisplay()
   const { favoriteViews, setSelectedView } = viewsDisplay || {}
   const [issues, setIssues] = React.useState<Issue[]>([])
-  type SetIsLoading = React.Dispatch<React.SetStateAction<boolean>>
+  const [isLoading, setIsLoading] = React.useState(true)
 
-  const [isLoading, setIsLoading]: [boolean, SetIsLoading] = React.useState(true)
   useEffect(() => {
-    if (!favoriteViews || !setSelectedView) return
-    if (favoriteViews.length > 0) {
+    if (favoriteViews && setSelectedView && favoriteViews.length > 0) {
       setSelectedView(favoriteViews[0])
     }
   }, [favoriteViews, setSelectedView])
 
   useInitialView(viewsDisplay)
-  useSelectedView(isLoading, setIsLoading, viewsDisplay?.selectedView || null, setIssues)
+  useSelectedView(setIsLoading, viewsDisplay?.selectedView || null, setIssues)
 
   const loadingSection = (
     <div className="flex items-center justify-center min-h-[200px]">
