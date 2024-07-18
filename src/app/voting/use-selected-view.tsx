@@ -4,16 +4,25 @@ import { View } from '@aces/app/voting/get-favorite-views'
 import getIssues, { Issue } from '@aces/app/voting/use-get-issues'
 
 
-export function useSelectedView(isLoading: boolean, setIsLoading: React.Dispatch<boolean>, selectedView: View | null, setIssues: React.Dispatch<Issue[]>) {
+export function useSelectedView(
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  selectedView: View | null,
+  setIssues: React.Dispatch<React.SetStateAction<Issue[]>>
+) {
   const logSelectedView = useCallback((view: View | null) => {
     if (view !== null) {
       setIsLoading(true)
-      getIssues(view).then((viewIssues) => {
-        setIssues(viewIssues)
-        setIsLoading(false)
-      })
+      getIssues(view)
+        .then((viewIssues) => {
+          setIssues(viewIssues)
+          setIsLoading(false)
+        })
+        .catch((error) => {
+          console.error('Failed to fetch issues:', error)
+          setIsLoading(false)
+        })
     }
-  }, [setIssues])
+  }, [setIsLoading, setIssues])
 
   useEffect(() => {
     if (selectedView) {

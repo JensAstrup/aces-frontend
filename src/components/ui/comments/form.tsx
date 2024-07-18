@@ -1,15 +1,20 @@
 import React from 'react'
 
+import { useUser } from '@aces/app/oauth/user-context'
 import { Avatar, AvatarFallback } from '@aces/components/ui/avatar'
 import { Button } from '@aces/components/ui/button'
 import { Textarea } from '@aces/components/ui/textarea'
 
 
 const CommentForm: React.FC = () => {
+  const { user } = useUser()
+  if (!user) {
+    return null
+  }
   return (
     <div className="flex items-start gap-4">
       <Avatar className="w-10 h-10">
-        <AvatarFallback>YS</AvatarFallback>
+        <AvatarFallback>{user.name.substring(0, 1)}</AvatarFallback>
       </Avatar>
       <div className="space-y-2 flex-1">
         <div className="flex items-center justify-between">
