@@ -11,7 +11,6 @@ import { Votes } from '@aces/components/ui/votes'
 const IssuePage: React.FC = () => {
   const viewsDisplay: viewsDisplay | null = useViewsDisplay()
   const { favoriteViews, setSelectedView } = viewsDisplay || {}
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   useEffect(() => {
     if (!favoriteViews || !setSelectedView) return
