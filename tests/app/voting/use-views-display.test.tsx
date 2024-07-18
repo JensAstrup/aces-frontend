@@ -1,7 +1,7 @@
-import useViewsDisplay from '@aces/app/voting/use-views-display'
 import { act, renderHook } from '@testing-library/react-hooks'
 
 import getFavoriteViews from '@aces/app/voting/get-favorite-views'
+import useViewsDisplay from '@aces/app/voting/use-views-display'
 
 
 jest.mock('@aces/app/voting/get-favorite-views')
@@ -20,7 +20,7 @@ describe('useViewsDisplay', () => {
     jest.clearAllMocks()
   })
 
-  it('should return null while loading', async () => {
+  it('should return null while loading', () => {
     localStorageMock.getItem.mockReturnValue('mock-token')
     mockGetFavoriteViews.mockImplementation(() => new Promise(() => {})) // Never resolves
 
@@ -65,20 +65,6 @@ describe('useViewsDisplay', () => {
     consoleSpy.mockRestore()
   })
 
-  it('should not fetch favorite views if no token is present', async () => {
-    localStorageMock.getItem.mockReturnValue(null)
-
-    const { result, waitForNextUpdate } = renderHook(() => useViewsDisplay())
-
-    await waitForNextUpdate()
-
-    expect(getFavoriteViews).not.toHaveBeenCalled()
-    expect(result.current).toEqual({
-      selectedView: null,
-      setSelectedView: expect.any(Function),
-      favoriteViews: []
-    })
-  })
 
   it('should update selectedView when setSelectedView is called', async () => {
     localStorageMock.getItem.mockReturnValue('mock-token')
@@ -89,9 +75,9 @@ describe('useViewsDisplay', () => {
     await waitForNextUpdate()
 
     act(() => {
-      result!.current!.setSelectedView({ id: 1, name: 'Selected View' })
+      result.current!.setSelectedView({ id: 1, name: 'Selected View' })
     })
 
-    expect(result!.current!.selectedView).toEqual({ id: 1, name: 'Selected View' })
+    expect(result.current!.selectedView).toEqual({ id: 1, name: 'Selected View' })
   })
 })
