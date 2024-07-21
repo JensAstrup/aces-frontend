@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import React from 'react'
 
-import { Issue } from '@aces/app/voting/use-get-issues'
+import { Issue } from '@aces/app/interfaces/issue'
 
 import { Comment } from './comment'
 import { CommentForm } from './form'
@@ -33,13 +33,18 @@ const Comments: React.FC<CommentProps> = ({ issue }) => {
   }
   const comments: IComment[] = issue.comments.nodes as IComment[]
   const humanComments = comments.filter(comment => !comment.botActor)
+  // Sort comments by createdAt, descending
+  humanComments.sort((comment1, comment2) => {
+    return dayjs(comment1.createdAt).unix() - dayjs(comment2.createdAt).unix()
+  })
   const commentComponents = humanComments.map((comment) => {
     const humanTime = dayjs(comment.createdAt).fromNow()
+    const separatedName = comment.user!.name.split(' ')
     return (
       <Comment
         avatarSrc={comment.user?.avatarUrl || ''}
         comment={comment.body}
-        fallback=""
+        fallback={separatedName[0][0] + separatedName[1][0]}
         key={comment.id}
         name={comment.user?.name || 'Unknown'}
         time={humanTime}
