@@ -29,6 +29,7 @@
     "null-loader": "^4.0.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-markdown": "^9.0.1",
     "shadcn-ui": "^0.8.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@eslint/js": "^9.3.0",
     "@stylistic/eslint-plugin": "^2.1.0",
+    "@tailwindcss/typography": "^0.5.13",
     "@testing-library/dom": "^10.3.2",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
