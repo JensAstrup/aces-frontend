@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { viewsDisplay } from '@aces/app/voting/use-views-display'
+import { viewsDisplay } from '@aces/app/issues/use-views-display'
 
 
 export function useInitialView(viewsDisplay: viewsDisplay | null) {

@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 
 import IssueDisplay from '@aces/app/issues/issue'
-import useViewsDisplay, { viewsDisplay } from '@aces/app/voting/use-views-display'
+import useViewsDisplay, { viewsDisplay } from '@aces/app/issues/use-views-display'
 import { Estimate } from '@aces/components/ui/estimate'
 import { Stats } from '@aces/components/ui/stats'
 import { Votes } from '@aces/components/ui/votes'

@@ -1,6 +1,8 @@
 # Ace of Spades / Frontend
 This is the frontend for Ace of Spades. It is a Next.js application built with TypeScript.
 
+![Codecov](https://img.shields.io/codecov/c/github/JensAstrup/aces-frontend?style=for-the-badge)
+
 ## Getting Started
 
 First, run the development server:
