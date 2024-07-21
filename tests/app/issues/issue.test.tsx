@@ -59,7 +59,7 @@ describe('IssueDisplay', () => {
           { id: 1, title: 'Issue 1' } as Issue,
           { id: 2, title: 'Issue 2' } as Issue,
         ])
-      }, [])
+      }, [setIsLoading, setIssues])
     })
   })
 
@@ -67,7 +67,7 @@ describe('IssueDisplay', () => {
     mockUseSelectedView.mockImplementation((setIsLoading) => {
       React.useEffect(() => {
         setIsLoading(true)
-      }, [])
+      }, [setIsLoading])
     })
 
     // eslint-disable-next-line react/jsx-no-undef
@@ -86,7 +86,7 @@ describe('IssueDisplay', () => {
       React.useEffect(() => {
         setIsLoading(false)
         setIssues([])
-      }, [])
+      }, [setIsLoading, setIssues])
     })
 
     render(<IssueDisplay />)
