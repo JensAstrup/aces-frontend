@@ -1,15 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
 
 import '@testing-library/jest-dom'
+import { Issue } from '@aces/app/interfaces/issue'
 import IssueDisplay from '@aces/app/issues/issue'
 import { useInitialView } from '@aces/app/issues/use-initial-view'
 import { useSelectedView } from '@aces/app/issues/use-selected-view'
 import useViewsDisplay from '@aces/app/issues/use-views-display'
 
-// Mock the imported components and hooks
+
 jest.mock('@aces/app/issues/use-initial-view')
 jest.mock('@aces/app/issues/use-selected-view')
 jest.mock('@aces/app/issues/use-views-display')
