@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@aces/components/ui/avatar'
 
@@ -23,8 +24,8 @@ const Comment: React.FC<CommentItemProps> = ({ avatarSrc, fallback, name, time, 
           <div className="font-medium flex-1">{name}</div>
           <div className="text-xs text-muted-foreground text-right">{time}</div>
         </div>
-        <div className="prose text-muted-foreground">
-          <p>{comment}</p>
+        <div className="prose prose-invert text-muted-foreground">
+          <ReactMarkdown>{comment}</ReactMarkdown>
         </div>
       </div>
     </div>
