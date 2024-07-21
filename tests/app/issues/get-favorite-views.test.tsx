@@ -1,4 +1,4 @@
-import getFavoriteViews, { View } from '@aces/app/voting/get-favorite-views'
+import getFavoriteViews, { View } from '@aces/app/issues/get-favorite-views'
 
 
 describe('getFavoriteViews', () => {

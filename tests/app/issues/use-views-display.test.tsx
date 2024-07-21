@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 
-import getFavoriteViews from '@aces/app/voting/get-favorite-views'
-import useViewsDisplay from '@aces/app/voting/use-views-display'
+import getFavoriteViews from '@aces/app/issues/get-favorite-views'
+import useViewsDisplay from '@aces/app/issues/use-views-display'
 
 
-jest.mock('@aces/app/voting/get-favorite-views')
+jest.mock('@aces/app/issues/get-favorite-views')
 const mockGetFavoriteViews = getFavoriteViews as jest.Mock
 
 describe('useViewsDisplay', () => {

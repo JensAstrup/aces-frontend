@@ -1,13 +1,15 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import React from 'react'
 
-import { View } from '@aces/app/voting/get-favorite-views'
-import getIssues, { Issue } from '@aces/app/voting/use-get-issues'
-import { useSelectedView } from '@aces/app/voting/use-selected-view'
+import { Issue } from '@aces/app/interfaces/issue'
+import { View } from '@aces/app/issues/get-favorite-views'
+import getIssues from '@aces/app/issues/use-get-issues'
+import { useSelectedView } from '@aces/app/issues/use-selected-view'
 
 
 
-jest.mock('@aces/app/voting/use-get-issues')
+jest.mock('@aces/app/issues/use-get-issues')
+const mockGetIssues = getIssues as jest.Mock
 
 describe('useSelectedView', () => {
   let setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
@@ -21,7 +23,7 @@ describe('useSelectedView', () => {
 
   it('should not call getIssues when selectedView is null', () => {
     renderHook(() => {
-      useSelectedView(setIsLoading, null, setIssues)
+      useSelectedView(setIsLoading, null, [], setIssues, null, jest.fn(), 0)
     })
 
     expect(getIssues).not.toHaveBeenCalled()
@@ -31,21 +33,24 @@ describe('useSelectedView', () => {
 
   it('should call getIssues and update state when selectedView is provided', async () => {
     const mockView: View = { id: 1, name: 'Test View' }
-    const mockIssues: Issue[] = [{ id: 1, title: 'Test Issue' } as Issue];
-    (getIssues as jest.MockedFunction<typeof getIssues>).mockResolvedValue(mockIssues)
+    const mockIssues: Issue[] = [{ id: 1, title: 'Test Issue' } as Issue]
+    const mockApiResult = { issues: mockIssues, nextPage: 'http://example.com/issues?page=2' }
+    mockGetIssues.mockResolvedValue(mockApiResult)
 
     renderHook(() => {
-      useSelectedView(setIsLoading, mockView, setIssues)
+      useSelectedView(setIsLoading, mockView, [], setIssues, null, jest.fn(), 0)
     })
 
     expect(setIsLoading).toHaveBeenCalledWith(true)
-    expect(getIssues).toHaveBeenCalledWith(mockView)
+    expect(getIssues).toHaveBeenCalledWith(mockView, null)
 
     await act(async () => {
       await Promise.resolve()
     })
 
-    expect(setIssues).toHaveBeenCalledWith(mockIssues)
+    expect(setIssues).toHaveBeenCalledTimes(2)
+    expect(setIssues).toHaveBeenNthCalledWith(1, [])
+    expect(setIssues).toHaveBeenNthCalledWith(2, expect.any(Function))
     expect(setIsLoading).toHaveBeenCalledWith(false)
   })
 
@@ -57,11 +62,11 @@ describe('useSelectedView', () => {
     console.error = jest.fn()
 
     renderHook(() => {
-      useSelectedView(setIsLoading, mockView, setIssues)
+      useSelectedView(setIsLoading, mockView, [], setIssues, null, jest.fn(), 0)
     })
 
     expect(setIsLoading).toHaveBeenCalledWith(true)
-    expect(getIssues).toHaveBeenCalledWith(mockView)
+    expect(getIssues).toHaveBeenCalledWith(mockView, null)
 
     await act(async () => {
       await Promise.resolve()
@@ -69,14 +74,14 @@ describe('useSelectedView', () => {
 
     expect(console.error).toHaveBeenCalledWith('Failed to fetch issues:', mockError)
     expect(setIsLoading).toHaveBeenCalledWith(false)
-    expect(setIssues).not.toHaveBeenCalled()
+    expect(setIssues).toHaveBeenCalledWith([])
   })
 
   it('should not call getIssues again if selectedView has not changed', () => {
     const mockView: View = { id: 1, name: 'Test View' }
     const { rerender } = renderHook(
       ({ view }: { view: View | null }) => {
-        useSelectedView(setIsLoading, view, setIssues)
+        useSelectedView(setIsLoading, view, [], setIssues, null, jest.fn(), 0)
       },
       { initialProps: { view: mockView } }
     )

@@ -1,7 +1,7 @@
 import { ListBulletIcon } from '@radix-ui/react-icons'
 import React, { useEffect } from 'react'
 
-import { viewsDisplay } from '@aces/app/voting/use-views-display'
+import { viewsDisplay } from '@aces/app/issues/use-views-display'
 import { Button } from '@aces/components/ui/button'
 import {
   DropdownMenu,
