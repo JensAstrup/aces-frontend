@@ -1,7 +1,8 @@
 import fetch from 'jest-fetch-mock'
 
-import { View } from '@aces/app/voting/get-favorite-views'
-import getIssues, { Issue } from '@aces/app/voting/use-get-issues'
+import { Issue } from '@aces/app/interfaces/issue'
+import { View } from '@aces/app/issues/get-favorite-views'
+import getIssues from '@aces/app/issues/use-get-issues'
 
 
 jest.mock('node-fetch', () => require('jest-fetch-mock'))
@@ -31,6 +32,9 @@ describe('getIssues', () => {
         id: 1,
         title: 'Test Issue',
         description: 'This is a test issue',
+        creator: { id: 1, name: 'Test User' },
+        createdAt: '2021-01-01T00:00:00Z',
+        team: { id: 1, name: 'Test Team' },
         state: { name: 'Open', type: 'default' },
         comments: {
           nodes: [
@@ -48,7 +52,7 @@ describe('getIssues', () => {
     localStorageMock.getItem.mockReturnValue(mockAccessToken)
     fetch.mockResponseOnce(JSON.stringify(mockIssues))
 
-    const result = await getIssues(mockView)
+    const result = await getIssues(mockView, null)
 
     expect(localStorageMock.getItem).toHaveBeenCalledWith('accessToken')
     expect(fetch).toHaveBeenCalledWith(
@@ -66,7 +70,7 @@ describe('getIssues', () => {
     const mockView = { id: 1 } as View
     localStorageMock.getItem.mockReturnValue(null)
 
-    await expect(getIssues(mockView)).rejects.toThrow('No access token found')
+    await expect(getIssues(mockView, null)).rejects.toThrow('No access token found')
   })
 
   it('should handle API errors', async () => {
@@ -77,6 +81,6 @@ describe('getIssues', () => {
     localStorageMock.getItem.mockReturnValue(mockAccessToken)
     fetch.mockRejectOnce(new Error(errorMessage))
 
-    await expect(getIssues(mockView)).rejects.toThrow(errorMessage)
+    await expect(getIssues(mockView, null)).rejects.toThrow(errorMessage)
   })
 })
