@@ -1,10 +1,12 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
+import setRoundIssue from '@aces/app/api/set-round-issue'
 import { Issue } from '@aces/app/interfaces/issue'
 import { useInitialView } from '@aces/app/issues/use-initial-view'
 import { useSelectedView } from '@aces/app/issues/use-selected-view'
-import useViewsDisplay, { viewsDisplay } from '@aces/app/issues/use-views-display'
+import useViewsDisplay, { ViewsDisplay } from '@aces/app/issues/use-views-display'
+import { useUser } from '@aces/app/oauth/user-context'
 import { Icons } from '@aces/components/icons'
 import { Comments } from '@aces/components/ui/comments/comments'
 import IssueSection from '@aces/components/ui/issues/issue-section'
@@ -12,14 +14,18 @@ import { Separator } from '@aces/components/ui/separator'
 import ViewDropdown from '@aces/components/view-dropdown'
 
 
-const IssueDisplay: React.FC = () => {
-  const viewsDisplay: viewsDisplay | null = useViewsDisplay()
+interface IssueDisplayProps {
+  roundId: string
+}
+
+function AuthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
+  const viewsDisplay: ViewsDisplay | null = useViewsDisplay()
   const { favoriteViews, setSelectedView, selectedView } = viewsDisplay || {}
   const [issues, setIssues] = useState<Issue[]>([])
   const [nextPage, setNextPage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [currentIssueIndex, setCurrentIssueIndex] = useState<number>(0)
-
+  const user = useUser()
   useEffect(() => {
     if (favoriteViews && setSelectedView && favoriteViews.length > 0) {
       setSelectedView(favoriteViews[0])
@@ -32,6 +38,18 @@ const IssueDisplay: React.FC = () => {
 
   useInitialView(viewsDisplay)
   useSelectedView(setIsLoading, selectedView!, issues, setIssues, nextPage, setNextPage, currentIssueIndex)
+
+  const updateRoundIssue = useCallback((index: number) => {
+    if (user?.accessToken && issues[index]) {
+      console.log('User is logged in, updating issue:', issues[index].id)
+      console.log('title', issues[index].title)
+      setRoundIssue(roundId, issues[index].id)
+    }
+  }, [user, issues, roundId])
+
+  useEffect(() => {
+    updateRoundIssue(currentIssueIndex)
+  }, [currentIssueIndex, updateRoundIssue])
 
   const handlePrevIssue = (): void => {
     setCurrentIssueIndex(prevIndex => Math.max(0, prevIndex - 1))
@@ -83,13 +101,17 @@ const IssueDisplay: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <ViewDropdown viewsDisplay={viewsDisplay} />
-      </div>
+      {user
+        ? (
+          <div>
+            <ViewDropdown viewsDisplay={viewsDisplay} />
+          </div>
+        )
+        : null}
       <Separator />
       {content}
     </div>
   )
 }
 
-export default IssueDisplay
+export default AuthenticatedIssueDisplay
