@@ -1,8 +1,7 @@
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import WS from 'jest-websocket-mock'
 
 import useWebSocketIssue from '@aces/app/hooks/use-websocket'
-
 
 
 describe('useWebSocketIssue', () => {
@@ -33,7 +32,8 @@ describe('useWebSocketIssue', () => {
 
     await server.connected
 
-    act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
       server.send(JSON.stringify(mockIssue))
     })
 
@@ -49,7 +49,8 @@ describe('useWebSocketIssue', () => {
 
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
       server.send('invalid JSON')
     })
 
@@ -86,13 +87,17 @@ describe('useWebSocketIssue', () => {
     // Create a new server for the new roundId
     const newServer = new WS(`ws://${mockApiHost}?roundId=${newRoundId}`)
 
-    rerender({ roundId: newRoundId })
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      rerender({ roundId: newRoundId })
+    })
 
     await newServer.connected
 
     // Send a message to the new server
     const newIssue = { id: '2', title: 'New Test Issue' }
-    act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
       newServer.send(JSON.stringify(newIssue))
     })
 
