@@ -65,9 +65,6 @@ function AuthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
     </div>
   )
 
-  console.log('issues', issues)
-  console.log('currentIssueIndex', currentIssueIndex)
-
   const issueSection = (
     <div>
       <IssueSection
