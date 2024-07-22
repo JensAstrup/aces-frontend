@@ -7,7 +7,7 @@ import { Textarea } from '@aces/components/ui/textarea'
 
 
 const CommentForm: React.FC = () => {
-  const { user } = useUser()
+  const user = useUser()
   if (!user) {
     return null
   }
