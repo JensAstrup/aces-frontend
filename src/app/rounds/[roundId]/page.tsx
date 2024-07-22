@@ -34,7 +34,7 @@ function RoundPage({ params }: RoundPageProps) {
         {user ? (<AuthenticatedIssueDisplay roundId={params.roundId} />) : <UnauthenticatedIssueDisplay roundId={params.roundId} />}
       </div>
       <div className="space-y-8 md:col-span-2">
-        <Estimate roundId={params.roundId} />
+        <Estimate />
         <Votes />
         <Stats />
       </div>
