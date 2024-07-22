@@ -32,13 +32,6 @@ function UnauthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
       }
     }
 
-    socket.onerror = (error: Event) => {
-      console.error('WebSocket error:', error)
-    }
-
-    socket.onclose = () => {
-      console.log('WebSocket connection closed')
-    }
 
     return () => {
       socket.close()

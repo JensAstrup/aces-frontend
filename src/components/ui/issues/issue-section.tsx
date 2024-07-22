@@ -23,7 +23,7 @@ const IssueSection: React.FC<IssueSectionProps> = ({
   hasPrevIssue,
   hasNextIssue
 }) => {
-  const maxTitleLength = 45
+  const maxTitleLength = 41
   let title = issue.title
   if (title && title.length > maxTitleLength) {
     title = title.substring(0, maxTitleLength) + '...'
