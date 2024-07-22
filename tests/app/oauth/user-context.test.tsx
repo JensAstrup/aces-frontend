@@ -1,8 +1,7 @@
-import { act, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import React from 'react'
 
 import { UserProvider, useUser } from '@aces/app/oauth/user-context'
-
 
 // Mock localStorage
 const localStorageMock = {
@@ -19,42 +18,13 @@ describe('UserProvider', () => {
 
   test('provides user context to children', () => {
     const TestComponent = () => {
-      const { user, setUser } = useUser()
+      const user = useUser()
       return (
         <div>
           <span data-testid="user-name">{user?.name || 'No user'}</span>
-          <button onClick={() => {
-            setUser({ id: '1', name: 'Test User', accessToken: 'token' })
-          }}
-          >
-            Set User
-          </button>
+          <span data-testid="user-token">{user?.accessToken || 'No token'}</span>
         </div>
       )
-    }
-
-    const { getByTestId, getByText } = render(
-      <UserProvider>
-        <TestComponent />
-      </UserProvider>
-    )
-
-    expect(getByTestId('user-name').textContent).toBe('No user')
-
-    act(() => {
-      getByText('Set User').click()
-    })
-
-    expect(getByTestId('user-name').textContent).toBe('Test User')
-  })
-
-  test('loads user from localStorage on mount', () => {
-    const storedUser = { id: '2', name: 'Stored User', accessToken: 'stored-token' }
-    localStorageMock.getItem.mockReturnValue(JSON.stringify(storedUser))
-
-    const TestComponent = () => {
-      const { user } = useUser()
-      return <span data-testid="user-name">{user?.name || 'No user'}</span>
     }
 
     const { getByTestId } = render(
@@ -63,22 +33,26 @@ describe('UserProvider', () => {
       </UserProvider>
     )
 
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('user')
-    expect(getByTestId('user-name').textContent).toBe('Stored User')
+    expect(getByTestId('user-name').textContent).toBe('No user')
+    expect(getByTestId('user-token').textContent).toBe('No token')
   })
 
-  test('throws error when useUser is used outside of UserProvider', () => {
+  test('loads accessToken from localStorage on mount', () => {
+    const storedToken = 'stored-token'
+    localStorageMock.getItem.mockReturnValue(storedToken)
+
     const TestComponent = () => {
-      useUser()
-      return null
+      const user = useUser()
+      return <span data-testid="user-token">{user?.accessToken || 'No token'}</span>
     }
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const { getByTestId } = render(
+      <UserProvider>
+        <TestComponent />
+      </UserProvider>
+    )
 
-    expect(() => {
-      render(<TestComponent />)
-    }).toThrow('useUser must be used within a UserProvider')
-
-    consoleErrorSpy.mockRestore()
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('accessToken')
+    expect(getByTestId('user-token').textContent).toBe(storedToken)
   })
 })
