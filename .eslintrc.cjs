@@ -9,6 +9,7 @@ module.exports = {
     'jest',
   ],
   "extends": [
+    ...baseConfig.extends.filter(config => !config.includes('perfectionist')),
     "next",
     "next/core-web-vitals"
   ],
