@@ -9,7 +9,7 @@ describe('useWebSocketIssue', () => {
   let server: WS
 
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_API_HOST = mockApiHost
+    process.env.NEXT_PUBLIC_WEBSOCKET = mockApiHost
   })
 
   afterEach(() => {
