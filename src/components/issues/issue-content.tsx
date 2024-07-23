@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { Issue } from '@aces/app/interfaces/issue'
+import { Comments } from '@aces/components/comments/comments'
 import { Icons } from '@aces/components/icons'
-import { Comments } from '@aces/components/ui/comments/comments'
-import IssueSection from '@aces/components/ui/issues/issue-section'
+import IssueSection from '@aces/components/issues/issue-section'
 
 
 interface IssueContentProps {

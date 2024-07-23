@@ -10,11 +10,11 @@ import '@testing-library/jest-dom'
 jest.mock('@aces/app/hooks/use-websocket')
 const mockUseWebSocketIssue = useWebSocketIssue as jest.Mock
 
-jest.mock('@aces/components/ui/comments/comments', () => ({
+jest.mock('@aces/components/comments/comments', () => ({
   Comments: () => <div data-testid="comments">Mocked Comments</div>,
 }))
 
-jest.mock('@aces/components/ui/issues/issue-section', () => ({
+jest.mock('@aces/components/issues/issue-section', () => ({
   __esModule: true,
   default: () => <div data-testid="issue-section">Mocked IssueSection</div>,
 }))

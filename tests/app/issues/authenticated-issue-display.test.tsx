@@ -8,7 +8,7 @@ jest.mock('@aces/app/hooks/use-issue-manager')
 jest.mock('@aces/app/issues/use-initial-view')
 jest.mock('@aces/app/issues/use-views-display')
 jest.mock('@aces/app/oauth/user-context')
-jest.mock('@aces/components/issue-content')
+jest.mock('@aces/components/issues/issue-content')
 jest.mock('@aces/components/ui/separator')
 jest.mock('@aces/components/view-dropdown', () => ({
   __esModule: true,
@@ -22,7 +22,7 @@ import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-disp
 const mockUseIssueManager = jest.requireMock('@aces/app/hooks/use-issue-manager')
 const mockUseViewsDisplay = jest.requireMock('@aces/app/issues/use-views-display')
 const mockUseUser = jest.requireMock('@aces/app/oauth/user-context')
-const mockIssueContent = jest.requireMock('@aces/components/issue-content')
+const mockIssueContent = jest.requireMock('@aces/components/issues/issue-content')
 
 describe('AuthenticatedIssueDisplay', () => {
   let container: HTMLDivElement

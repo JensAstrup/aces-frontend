@@ -3,9 +3,9 @@ import { CalendarIcon, ChevronLeft, ChevronRight, ExternalLink, User, Users } fr
 import React from 'react'
 
 import { Issue } from '@aces/app/interfaces/issue'
+import IssueDescription from '@aces/components/issues/issue-description'
 import { Button } from '@aces/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@aces/components/ui/hover-card'
-import IssueDescription from '@aces/components/ui/issues/issue-description'
 
 
 interface IssueSectionProps {

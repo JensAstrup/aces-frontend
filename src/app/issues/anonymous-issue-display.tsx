@@ -3,8 +3,8 @@ import React from 'react'
 
 import useWebSocketIssue from '@aces/app/hooks/use-websocket'
 import { Issue } from '@aces/app/interfaces/issue'
-import { Comments } from '@aces/components/ui/comments/comments'
-import IssueSection from '@aces/components/ui/issues/issue-section'
+import { Comments } from '@aces/components/comments/comments'
+import IssueSection from '@aces/components/issues/issue-section'
 
 
 interface IssueDisplayProps {

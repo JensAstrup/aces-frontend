@@ -6,7 +6,7 @@ import useIssueManager from '@aces/app/hooks/use-issue-manager'
 import { useInitialView } from '@aces/app/issues/use-initial-view'
 import useViewsDisplay, { ViewsDisplay } from '@aces/app/issues/use-views-display'
 import { useUser } from '@aces/app/oauth/user-context'
-import IssueContent from '@aces/components/issue-content'
+import IssueContent from '@aces/components/issues/issue-content'
 import { Separator } from '@aces/components/ui/separator'
 import ViewDropdown from '@aces/components/view-dropdown'
 
