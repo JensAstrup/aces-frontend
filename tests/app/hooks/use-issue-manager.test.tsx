@@ -137,7 +137,7 @@ describe('useIssueManager', () => {
 
   it('should not update round issue when user is null', async () => {
     mockSetRoundIssue.mockClear()
-    const { result, waitForNextUpdate, rerender } = renderHook(
+    const { result, waitForNextUpdate } = renderHook(
       ({ selectedView }) => useIssueManager({ selectedView, user: null, roundId: mockRoundId }),
       { initialProps: { selectedView: mockSelectedView } }
     )
