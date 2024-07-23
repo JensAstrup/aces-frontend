@@ -6,12 +6,11 @@ module.exports = {
   },
   "plugins": [
     ...baseConfig.plugins,
-    'jest'
   ],
   "extends": [
     ...baseConfig.extends,
     "next",
-    "next/core-web-vitals"
+    "next/core-web-vitals",
   ],
   "rules": {
     ...baseConfig.rules,
