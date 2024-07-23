@@ -30,8 +30,7 @@ describe('UnauthenticatedIssueDisplay', () => {
 
     render(<UnauthenticatedIssueDisplay roundId="123" />)
 
-    expect(screen.getByText('Current Issue')).toBeInTheDocument()
-    expect(screen.getByText('Waiting for new issues...')).toBeInTheDocument()
+    expect(screen.getByText('Waiting for round to begin')).toBeInTheDocument()
   })
 
   it('renders current issue when available', () => {
@@ -69,6 +68,6 @@ describe('LoadingDisplay', () => {
   it('renders loading message', () => {
     render(<LoadingDisplay />)
 
-    expect(screen.getByText('Waiting for new issues...')).toBeInTheDocument()
+    expect(screen.getByText('Waiting for round to begin')).toBeInTheDocument()
   })
 })
