@@ -7,10 +7,8 @@ module.exports = {
  "plugins": [
     ...baseConfig.plugins,
     'jest',
-    'perfectionist'
   ],
   "extends": [
-    ...baseConfig.extends.filter(config => !config.includes('perfectionist')),
     "next",
     "next/core-web-vitals"
   ],
