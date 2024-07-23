@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks'
 
 import { useInitialView } from '@aces/app/issues/use-initial-view'
-import { viewsDisplay } from '@aces/app/issues/use-views-display'
+import { ViewsDisplay } from '@aces/app/issues/use-views-display'
 
 
 describe('useInitialView', () => {
@@ -17,7 +17,7 @@ describe('useInitialView', () => {
     const viewsDisplay = {
       favoriteViews: [],
       setSelectedView: mockSetSelectedView,
-    } as unknown as viewsDisplay
+    } as unknown as ViewsDisplay
 
     renderHook(() => {
       useInitialView(viewsDisplay)
@@ -31,7 +31,7 @@ describe('useInitialView', () => {
     const viewsDisplay = {
       favoriteViews: ['view1', 'view2'],
       setSelectedView: mockSetSelectedView,
-    } as unknown as viewsDisplay
+    } as unknown as ViewsDisplay
 
     renderHook(() => {
       useInitialView(viewsDisplay)
@@ -46,7 +46,7 @@ describe('useInitialView', () => {
     const viewsDisplay = {
       favoriteViews: undefined,
       setSelectedView: mockSetSelectedView,
-    } as unknown as viewsDisplay
+    } as unknown as ViewsDisplay
 
     renderHook(() => {
       useInitialView(viewsDisplay)
@@ -57,7 +57,7 @@ describe('useInitialView', () => {
     const viewsDisplay2 = {
       favoriteViews: ['view1'],
       setSelectedView: undefined,
-    } as unknown as viewsDisplay
+    } as unknown as ViewsDisplay
 
     renderHook(() => {
       useInitialView(viewsDisplay2)

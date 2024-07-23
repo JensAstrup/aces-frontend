@@ -1,20 +1,32 @@
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import useOAuthRedirect from '@aces/app/oauth/callback/oauth-redirect'
+import useAuth from '@aces/app/oauth/use-authenticate'
+import createRound from '@aces/app/rounds/createRound'
 
 
 jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
   useRouter: jest.fn(),
+}))
 
+jest.mock('@aces/app/oauth/use-authenticate', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}))
+
+jest.mock('@aces/app/rounds/createRound', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }))
 
 describe('useOAuthRedirect', () => {
   let mockRouter: { push: jest.Mock }
   let mockSearchParams: URLSearchParams
-  let mockFetch: jest.Mock
-  let mockLocalStorage: { setItem: jest.Mock }
+  let mockHandleAuth: jest.Mock
+  let mockIsAuthCalled: boolean
+  let mockCreateRound: jest.Mock
 
   beforeEach(() => {
     mockRouter = {
@@ -25,15 +37,12 @@ describe('useOAuthRedirect', () => {
     mockSearchParams = new URLSearchParams();
     (useSearchParams as jest.Mock).mockReturnValue(mockSearchParams)
 
-    mockFetch = jest.fn()
-    global.fetch = mockFetch as unknown as typeof fetch
+    mockHandleAuth = jest.fn()
+    mockIsAuthCalled = false;
+    (useAuth as jest.Mock).mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: mockIsAuthCalled })
 
-    mockLocalStorage = {
-      setItem: jest.fn(),
-    }
-    Object.defineProperty(global, 'localStorage', {
-      value: mockLocalStorage,
-    })
+    mockCreateRound = jest.fn();
+    (createRound as jest.Mock).mockImplementation(mockCreateRound)
 
     process.env.NEXT_PUBLIC_API_URL = 'http://test-api.com'
   })
@@ -42,86 +51,78 @@ describe('useOAuthRedirect', () => {
     jest.clearAllMocks()
   })
 
-  test('should not call fetch when there is no code', () => {
+  it('should not call handleAuth when there is no code', () => {
     renderHook(() => useOAuthRedirect())
-    expect(mockFetch).not.toHaveBeenCalled()
+    expect(mockHandleAuth).not.toHaveBeenCalled()
   })
 
-  test('should call fetch when there is a code', async () => {
+  it('should call handleAuth when there is a code', async () => {
     mockSearchParams.append('code', 'test-code')
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ accessToken: 'test-token' }),
-    })
-
-    let hookResult: { result: { current: { isAuthCalled: boolean } } } | undefined
-
+    mockHandleAuth.mockResolvedValueOnce(undefined)
+    mockCreateRound.mockResolvedValueOnce('test-round-id')
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
-      hookResult = renderHook(() => useOAuthRedirect())
-    })
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      'http://test-api.com/auth',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ code: 'test-code' }),
-      })
-    )
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('accessToken', 'test-token')
-    expect(mockRouter.push).toHaveBeenCalledWith('/voting')
-    expect(hookResult?.result.current.isAuthCalled).toBe(true)
-  })
-
-  test('should handle fetch error', () => {
-    mockSearchParams.append('code', 'test-code')
-    mockFetch.mockRejectedValueOnce(new Error('Fetch error'))
-
-    console.error = jest.fn()
-
-    let hookResult: { result: { current: { isAuthCalled: boolean } } } | undefined
-
-
-    act(() => {
-      hookResult = renderHook(() => useOAuthRedirect())
-    })
-
-    expect(console.error).toHaveBeenCalled()
-    expect(hookResult?.result.current.isAuthCalled).toBe(true)
-  })
-
-  test('should handle non-ok response', () => {
-    mockSearchParams.append('code', 'test-code')
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      json: () => Promise.resolve({ error: 'Auth failed' }),
-    })
-
-    console.error = jest.fn()
-
-    let hookResult: { result: { current: { isAuthCalled: boolean } } } | undefined
-
-
-    act(() => {
-      hookResult = renderHook(() => useOAuthRedirect())
-    })
-
-    expect(console.error).toHaveBeenCalled()
-    expect(hookResult?.result.current.isAuthCalled).toBe(true)
-  })
-
-  test('should not call fetch multiple times for the same code', () => {
-    mockSearchParams.append('code', 'test-code')
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ accessToken: 'test-token' }),
-    })
-
-    act(() => {
       renderHook(() => useOAuthRedirect())
     })
 
-    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
+    expect(mockCreateRound).toHaveBeenCalled()
+    expect(mockRouter.push).toHaveBeenCalledWith('/rounds/test-round-id')
+  })
+
+  it('should handle handleAuth error', async () => {
+    mockSearchParams.append('code', 'test-code')
+    mockHandleAuth.mockRejectedValueOnce(new Error('Auth error'))
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderHook(() => useOAuthRedirect())
+    })
+
+    expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Authentication failed:', expect.any(Error))
+    expect(mockCreateRound).not.toHaveBeenCalled()
+    expect(mockRouter.push).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should handle createRound error', async () => {
+    mockSearchParams.append('code', 'test-code')
+    mockHandleAuth.mockResolvedValueOnce(undefined)
+    mockCreateRound.mockRejectedValueOnce(new Error('Create round error'))
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderHook(() => useOAuthRedirect())
+    })
+
+    expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
+    expect(mockCreateRound).toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Authentication failed:', expect.any(Error))
+    expect(mockRouter.push).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should not call handleAuth multiple times for the same code', async () => {
+    mockSearchParams.append('code', 'test-code')
+    mockHandleAuth.mockResolvedValueOnce(undefined)
+    mockCreateRound.mockResolvedValueOnce('test-round-id');
+    (useAuth as jest.Mock).mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: true })
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderHook(() => useOAuthRedirect())
+    })
+
+    expect(mockHandleAuth).not.toHaveBeenCalled()
+    expect(mockCreateRound).not.toHaveBeenCalled()
+    expect(mockRouter.push).not.toHaveBeenCalled()
   })
 })

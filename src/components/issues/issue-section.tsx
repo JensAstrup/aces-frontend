@@ -3,17 +3,17 @@ import { CalendarIcon, ChevronLeft, ChevronRight, ExternalLink, User, Users } fr
 import React from 'react'
 
 import { Issue } from '@aces/app/interfaces/issue'
+import IssueDescription from '@aces/components/issues/issue-description'
 import { Button } from '@aces/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@aces/components/ui/hover-card'
-import IssueDescription from '@aces/components/ui/issues/issue-description'
 
 
 interface IssueSectionProps {
   issue: Issue
-  onPrevIssue: () => void
-  onNextIssue: () => void
-  hasPrevIssue: boolean
-  hasNextIssue: boolean
+  onPrevIssue?: () => void
+  onNextIssue?: () => void
+  hasPrevIssue?: boolean
+  hasNextIssue?: boolean
 }
 
 const IssueSection: React.FC<IssueSectionProps> = ({
@@ -23,7 +23,7 @@ const IssueSection: React.FC<IssueSectionProps> = ({
   hasPrevIssue,
   hasNextIssue
 }) => {
-  const maxTitleLength = 31
+  const maxTitleLength = 41
   let title = issue.title
   if (title && title.length > maxTitleLength) {
     title = title.substring(0, maxTitleLength) + '...'
@@ -32,7 +32,7 @@ const IssueSection: React.FC<IssueSectionProps> = ({
 
   const titleHoverCard = (
     <HoverCard>
-      <HoverCardTrigger>{title}</HoverCardTrigger>
+      <HoverCardTrigger className="cursor-default">{title}</HoverCardTrigger>
       <HoverCardContent>
         <div className="space-y-1">
           <h4 className="text-sm font-semibold">{issue.title}</h4>
@@ -68,6 +68,27 @@ const IssueSection: React.FC<IssueSectionProps> = ({
     </HoverCard>
   )
 
+  const issueNavigation = (
+    <div className="flex gap-2">
+      <Button
+        disabled={!hasPrevIssue}
+        onClick={onPrevIssue}
+        size="icon"
+        variant="outline"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <Button
+        disabled={!hasNextIssue}
+        onClick={onNextIssue}
+        size="icon"
+        variant="outline"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+
 
   return (
     <div>
@@ -78,24 +99,9 @@ const IssueSection: React.FC<IssueSectionProps> = ({
           </h2>
           <a href={issue.url}><ExternalLink className="ml-2" /></a>
         </div>
-        <div className="flex gap-2">
-          <Button
-            disabled={!hasPrevIssue}
-            onClick={onPrevIssue}
-            size="icon"
-            variant="outline"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            disabled={!hasNextIssue}
-            onClick={onNextIssue}
-            size="icon"
-            variant="outline"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {
+          onPrevIssue && onNextIssue ? issueNavigation : null
+        }
       </div>
       <IssueDescription description={issue.description} />
     </div>

@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 
-import { viewsDisplay } from '@aces/app/issues/use-views-display'
+import { ViewsDisplay } from '@aces/app/issues/use-views-display'
 
 
-export function useInitialView(viewsDisplay: viewsDisplay | null) {
+
+export function useInitialView(viewsDisplay: ViewsDisplay | null) {
   const { favoriteViews, setSelectedView } = viewsDisplay || {}
 
   useEffect(() => {
