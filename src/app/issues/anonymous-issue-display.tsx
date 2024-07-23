@@ -1,10 +1,10 @@
 'use client'
 import React from 'react'
 
-import useWebSocketIssue from '@aces/app/hooks/use-websocket'
 import { Issue } from '@aces/app/interfaces/issue'
 import { Comments } from '@aces/components/comments/comments'
 import IssueSection from '@aces/components/issues/issue-section'
+import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
 
 
 interface IssueDisplayProps {

@@ -18,7 +18,11 @@ const config = {
     'ts-jest': {
       tsconfig: 'tsconfig.jest.json'
     }
-  }
+  },
+  coveragePathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/src/components/'
+    ]
 }
 
 export default config

@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 
 
 
-jest.mock('@aces/app/hooks/use-issue-manager')
+jest.mock('@aces/lib/hooks/use-issue-manager')
 jest.mock('@aces/app/issues/use-initial-view')
 jest.mock('@aces/app/issues/use-views-display')
 jest.mock('@aces/app/oauth/user-context')
@@ -19,7 +19,7 @@ jest.mock('react-markdown')
 import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
 
 
-const mockUseIssueManager = jest.requireMock('@aces/app/hooks/use-issue-manager')
+const mockUseIssueManager = jest.requireMock('@aces/lib/hooks/use-issue-manager')
 const mockUseViewsDisplay = jest.requireMock('@aces/app/issues/use-views-display')
 const mockUseUser = jest.requireMock('@aces/app/oauth/user-context')
 const mockIssueContent = jest.requireMock('@aces/components/issues/issue-content')

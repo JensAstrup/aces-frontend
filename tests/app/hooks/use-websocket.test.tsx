@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import WS from 'jest-websocket-mock'
 
-import useWebSocketIssue from '@aces/app/hooks/use-websocket'
+import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
 
 
 describe('useWebSocketIssue', () => {

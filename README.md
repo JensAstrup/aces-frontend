@@ -16,4 +16,8 @@ First, run the development server:
 yarn dev
 ```
 
+## Patterns
+- No logic should be in the components. All logic should be in the `app` or `lib` directories.
+- Hooks are stored in the `lib/hooks` directory.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

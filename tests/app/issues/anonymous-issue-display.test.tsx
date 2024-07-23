@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
-import useWebSocketIssue from '@aces/app/hooks/use-websocket'
 import { Issue } from '@aces/app/interfaces/issue'
 import UnauthenticatedIssueDisplay, { CurrentIssueDisplay, LoadingDisplay } from '@aces/app/issues/anonymous-issue-display'
+import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
 import '@testing-library/jest-dom'
 
 
-jest.mock('@aces/app/hooks/use-websocket')
+jest.mock('@aces/lib/hooks/use-websocket')
 const mockUseWebSocketIssue = useWebSocketIssue as jest.Mock
 
 jest.mock('@aces/components/comments/comments', () => ({

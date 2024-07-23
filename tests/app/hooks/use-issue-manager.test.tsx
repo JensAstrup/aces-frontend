@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 
 import setRoundIssue from '@aces/app/api/set-round-issue'
-import useIssueManager from '@aces/app/hooks/use-issue-manager'
+import useIssueManager from '@aces/lib/hooks/use-issue-manager'
 
 
 jest.mock('@aces/app/issues/use-get-issues', () => ({
