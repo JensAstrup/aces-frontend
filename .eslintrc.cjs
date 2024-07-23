@@ -4,9 +4,8 @@ module.exports = {
   "parserOptions": {
     "project": "./tsconfig.json",
   },
-  "plugins": [
+ "plugins": [
     ...baseConfig.plugins,
-    'jest'
   ],
   "extends": [
     ...baseConfig.extends,
