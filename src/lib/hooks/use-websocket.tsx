@@ -8,7 +8,7 @@ function useWebSocketIssue(roundId: string): Issue | null {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API_HOST}?roundId=${roundId}`)
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
 
     socket.onopen = () => {
       console.log('WebSocket connection established')
