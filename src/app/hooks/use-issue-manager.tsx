@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import setRoundIssue from '@aces/app/api/set-round-issue'
 import { Issue } from '@aces/app/interfaces/issue'
@@ -13,20 +13,30 @@ interface UseIssueManagerProps {
   roundId: string
 }
 
-export function useIssueManager({ selectedView, user, roundId }: UseIssueManagerProps) {
+function useIssueManager({ selectedView, user, roundId }: UseIssueManagerProps) {
   const [issues, setIssues] = useState<Issue[]>([])
   const [nextPage, setNextPage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [currentIssueIndex, setCurrentIssueIndex] = useState<number>(0)
+  const isInitialMount = useRef(true)
 
-  if (!selectedView) {
-    selectedView = null
-  }
-
-  useSelectedView(setIsLoading, selectedView, issues, setIssues, nextPage, setNextPage, currentIssueIndex)
+  useSelectedView(
+    setIsLoading,
+    selectedView || null,
+    issues,
+    setIssues,
+    nextPage,
+    setNextPage,
+    currentIssueIndex
+  )
 
   useEffect(() => {
-    setCurrentIssueIndex(0)
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+    }
+    else {
+      setCurrentIssueIndex(0)
+    }
   }, [selectedView])
 
   const updateRoundIssue = useCallback((index: number) => {
@@ -36,16 +46,18 @@ export function useIssueManager({ selectedView, user, roundId }: UseIssueManager
   }, [user, issues, roundId])
 
   useEffect(() => {
-    updateRoundIssue(currentIssueIndex)
-  }, [currentIssueIndex, updateRoundIssue])
+    if (!isLoading && issues.length > 0) {
+      updateRoundIssue(currentIssueIndex)
+    }
+  }, [currentIssueIndex, updateRoundIssue, isLoading, issues])
 
-  const handlePrevIssue = (): void => {
+  const handlePrevIssue = useCallback((): void => {
     setCurrentIssueIndex(prevIndex => Math.max(0, prevIndex - 1))
-  }
+  }, [])
 
-  const handleNextIssue = (): void => {
+  const handleNextIssue = useCallback((): void => {
     setCurrentIssueIndex(prevIndex => Math.min(issues.length - 1, prevIndex + 1))
-  }
+  }, [issues.length])
 
   return {
     issues,
