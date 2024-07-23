@@ -81,11 +81,9 @@ describe('useWebSocketIssue', () => {
 
     const newRoundId = '456'
 
-    // Close the first server before creating a new one
     server.close()
 
-    // Create a new server for the new roundId
-    const newServer = new WS(`ws://${mockApiHost}?roundId=${newRoundId}`)
+    const newServer = new WS(`${mockApiHost}?roundId=${newRoundId}`)
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
@@ -94,7 +92,6 @@ describe('useWebSocketIssue', () => {
 
     await newServer.connected
 
-    // Send a message to the new server
     const newIssue = { id: '2', title: 'New Test Issue' }
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
