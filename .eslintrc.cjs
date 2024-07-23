@@ -4,13 +4,15 @@ module.exports = {
   "parserOptions": {
     "project": "./tsconfig.json",
   },
-  "plugins": [
+ "plugins": [
     ...baseConfig.plugins,
+    'jest',
+    'perfectionist'
   ],
   "extends": [
-    ...baseConfig.extends,
+    ...baseConfig.extends.filter(config => !config.includes('perfectionist')),
     "next",
-    "next/core-web-vitals",
+    "next/core-web-vitals"
   ],
   "rules": {
     ...baseConfig.rules,
