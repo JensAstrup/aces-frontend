@@ -5,11 +5,11 @@ import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
 
 
 describe('useWebSocketIssue', () => {
-  const mockApiHost = 'example.com'
+  const mockApiHost = 'ws://example.com'
   let server: WS
 
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_API_HOST = mockApiHost
+    process.env.NEXT_PUBLIC_WEBSOCKET = mockApiHost
   })
 
   afterEach(() => {
@@ -18,7 +18,7 @@ describe('useWebSocketIssue', () => {
 
   it('should initialize with null currentIssue', async () => {
     const mockRoundId = '123'
-    server = new WS(`ws://${mockApiHost}?roundId=${mockRoundId}`)
+    server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const { result } = renderHook(() => useWebSocketIssue(mockRoundId))
     await server.connected
     expect(result.current).toBeNull()
@@ -26,7 +26,7 @@ describe('useWebSocketIssue', () => {
 
   it('should update currentIssue when receiving a valid message', async () => {
     const mockRoundId = '123'
-    server = new WS(`ws://${mockApiHost}?roundId=${mockRoundId}`)
+    server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const mockIssue = { id: '1', title: 'Test Issue' }
     const { result } = renderHook(() => useWebSocketIssue(mockRoundId))
 
@@ -42,7 +42,7 @@ describe('useWebSocketIssue', () => {
 
   it('should handle error when receiving an invalid message', async () => {
     const mockRoundId = '123'
-    server = new WS(`ws://${mockApiHost}?roundId=${mockRoundId}`)
+    server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const { result } = renderHook(() => useWebSocketIssue(mockRoundId))
 
     await server.connected
@@ -62,7 +62,7 @@ describe('useWebSocketIssue', () => {
 
   it('should close WebSocket connection on cleanup', async () => {
     const mockRoundId = '123'
-    server = new WS(`ws://${mockApiHost}?roundId=${mockRoundId}`)
+    server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const { unmount } = renderHook(() => useWebSocketIssue(mockRoundId))
     await server.connected
     unmount()
@@ -71,7 +71,7 @@ describe('useWebSocketIssue', () => {
 
   it('should recreate WebSocket connection when roundId changes', async () => {
     const initialRoundId = '123'
-    server = new WS(`ws://${mockApiHost}?roundId=${initialRoundId}`)
+    server = new WS(`${mockApiHost}?roundId=${initialRoundId}`)
 
     const { result, rerender } = renderHook(({ roundId }) => useWebSocketIssue(roundId), {
       initialProps: { roundId: initialRoundId },
@@ -81,11 +81,9 @@ describe('useWebSocketIssue', () => {
 
     const newRoundId = '456'
 
-    // Close the first server before creating a new one
     server.close()
 
-    // Create a new server for the new roundId
-    const newServer = new WS(`ws://${mockApiHost}?roundId=${newRoundId}`)
+    const newServer = new WS(`${mockApiHost}?roundId=${newRoundId}`)
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
@@ -94,7 +92,6 @@ describe('useWebSocketIssue', () => {
 
     await newServer.connected
 
-    // Send a message to the new server
     const newIssue = { id: '2', title: 'New Test Issue' }
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
