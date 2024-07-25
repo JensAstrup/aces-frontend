@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import setRoundIssue from '@aces/app/api/set-round-issue'
 import { Issue } from '@aces/app/interfaces/issue'
+import User from '@aces/app/interfaces/user'
 import { View } from '@aces/app/issues/get-favorite-views'
 import { useSelectedView } from '@aces/app/issues/use-selected-view'
-import { User } from '@aces/app/oauth/user-context'
 
 
 interface UseIssueManagerProps {
@@ -41,7 +41,9 @@ function useIssueManager({ selectedView, user, roundId }: UseIssueManagerProps) 
 
   const updateRoundIssue = useCallback((index: number) => {
     if (user?.accessToken && issues[index]) {
-      setRoundIssue(roundId, issues[index].id)
+      setRoundIssue(roundId, issues[index].id).catch((error) => {
+        console.error('Failed to update round issue', error)
+      })
     }
   }, [user, issues, roundId])
 
