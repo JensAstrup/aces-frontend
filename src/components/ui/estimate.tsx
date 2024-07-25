@@ -1,9 +1,41 @@
+import { useVote } from '@aces/app/api/set-vote'
+import { Issue } from '@aces/app/interfaces/issue'
 import { Button } from '@aces/components/ui/button'
+import { Toaster } from '@aces/components/ui/toaster'
+import { useToast } from '@aces/components/ui/use-toast'
 
 
-function Estimate() {
-  const handleEstimate = (point: number) => {
-    console.log('point', point)
+interface EstimateProps {
+    roundId: string
+    issue: Issue
+}
+
+function Estimate({ roundId, issue }: EstimateProps) {
+  const { toast } = useToast()
+
+  const { trigger, isMutating } = useVote(roundId)
+
+  async function handleVote(voteNumber: number) {
+    try {
+      const result = await trigger({ point: voteNumber, issueId: issue.id })
+      if (result.error) {
+        throw new Error(result.error)
+      }
+      toast({
+        title: 'Success',
+        description: 'Your vote has been recorded',
+        duration: 3000,
+      })
+    }
+    catch (error) {
+      console.error('Error setting vote:', error)
+      toast({
+        title: 'Error',
+        description: 'An error occurred while setting the vote',
+        duration: 5000,
+        variant: 'destructive',
+      })
+    }
   }
 
   return (
@@ -14,15 +46,15 @@ function Estimate() {
           <Button
             data-point={point}
             key={point}
-            onClick={() => {
-              handleEstimate(point)
-            }}
+            onClick={() => handleVote(point)}
             size="lg"
+            disabled={isMutating}
           >
             {point}
           </Button>
         ))}
       </div>
+      <Toaster />
     </div>
   )
 }
