@@ -8,6 +8,8 @@ import { useUser } from '@aces/app/oauth/user-context'
 import { Estimate } from '@aces/components/ui/estimate'
 import { Stats } from '@aces/components/ui/stats'
 import { Votes } from '@aces/components/ui/votes'
+import useIssueManager from '@aces/lib/hooks/use-issue-manager'
+import useRegisterViewer from '@aces/lib/hooks/use-register-viewer'
 
 
 
@@ -17,8 +19,13 @@ interface RoundPageProps {
 
 function RoundPage({ params }: RoundPageProps) {
   const viewsDisplay: ViewsDisplay | null = useViewsDisplay()
-  const { favoriteViews, setSelectedView } = viewsDisplay || {}
-  const user = useUser()
+  const { user, isLoading } = useUser()
+  const { favoriteViews, setSelectedView, selectedView } = viewsDisplay || {}
+  useRegisterViewer({ roundId: params.roundId }, isLoading ? undefined : user)
+  const {
+    issues,
+    currentIssueIndex,
+  } = useIssueManager({ selectedView, user, roundId: params.roundId })
 
   useEffect(() => {
     if (!favoriteViews || !setSelectedView) return
@@ -33,7 +40,7 @@ function RoundPage({ params }: RoundPageProps) {
         {user ? (<AuthenticatedIssueDisplay roundId={params.roundId} />) : <UnauthenticatedIssueDisplay roundId={params.roundId} />}
       </div>
       <div className="space-y-8 md:col-span-2">
-        <Estimate />
+        <Estimate roundId={params.roundId} issue={issues[currentIssueIndex]} />
         <Votes />
         <Stats />
       </div>
