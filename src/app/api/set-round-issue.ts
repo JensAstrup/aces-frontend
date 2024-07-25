@@ -1,4 +1,4 @@
-async function setRoundIssue(roundId: string, issueId: number) {
+async function setRoundIssue(roundId: string, issueId: string) {
   const accessToken = localStorage.getItem('accessToken')
   if (!accessToken) {
     throw new Error('No access token found')
@@ -11,8 +11,7 @@ async function setRoundIssue(roundId: string, issueId: number) {
     },
     body: JSON.stringify({ issue: issueId })
   })
-  const NO_CONTENT = 204
-  if (response.status !== NO_CONTENT) {
+  if (!response.ok) {
     throw new Error('Failed to set issue')
   }
 }
