@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import getFavoriteViews, { View } from '@aces/app/issues/get-favorite-views'
 
@@ -13,8 +13,13 @@ const useViewsDisplay = (): ViewsDisplay | null => {
   const [selectedView, setSelectedView] = useState<View | null>(null)
   const [favoriteViews, setFavoriteViews] = useState<View[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const isFetching = useRef(false)
 
   const fetchFavoriteViews = useCallback(async () => {
+    if (isFetching.current) {
+      return
+    }
+    isFetching.current = true
     const token = localStorage.getItem('accessToken')
     if (token) {
       try {
@@ -26,6 +31,7 @@ const useViewsDisplay = (): ViewsDisplay | null => {
       }
     }
     setIsLoading(false)
+    isFetching.current = false
   }, [])
 
   useEffect(() => {
