@@ -18,7 +18,7 @@ interface IssueDisplayProps {
 function AuthenticatedIssueDisplay({ roundId }: IssueDisplayProps): React.ReactElement {
   const viewsDisplay: ViewsDisplay | null = useViewsDisplay()
   const { favoriteViews, setSelectedView, selectedView } = viewsDisplay || {}
-  const user = useUser()
+  const { user } = useUser()
 
   useEffect(() => {
     if (favoriteViews && setSelectedView && favoriteViews.length > 0) {

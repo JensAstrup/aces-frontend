@@ -1,35 +1,47 @@
 'use client'
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
+import User from '@aces/app/interfaces/user'
 
-interface User {
-  id: string
-  name: string
-  accessToken: string
+
+interface UserContextType {
+  user: User | null
+  isLoading: boolean
+  error: Error | null
 }
 
 interface UserProviderProps {
-    children: ReactNode[] | ReactNode
+  children: ReactNode[] | ReactNode
 }
 
-const UserContext = createContext<User | null>(null)
+const UserContext = createContext<UserContextType>({ user: null, isLoading: true, error: null })
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    // You could load the user from localStorage here if needed
-    const loadUser = () => {
-      const accessToken = localStorage.getItem('accessToken')
-      if (accessToken) {
-        setUser({ id: '', name: '', accessToken })
+    const loadUser = async () => {
+      try {
+        setIsLoading(true)
+        const accessToken = localStorage.getItem('accessToken')
+        if (accessToken) {
+          setUser({ id: '', name: '', accessToken })
+        }
+      }
+      catch (err) {
+        setError(err instanceof Error ? err : new Error('An unknown error occurred'))
+      }
+      finally {
+        setIsLoading(false)
       }
     }
     loadUser()
   }, [])
 
   return (
-    <UserContext.Provider value={user}>
+    <UserContext.Provider value={{ user, isLoading, error }}>
       {children}
     </UserContext.Provider>
   )
@@ -40,4 +52,3 @@ export const useUser = () => {
 }
 
 export default UserProvider
-export type { User }
