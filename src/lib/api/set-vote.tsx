@@ -11,14 +11,15 @@ type VoteError = {
 
 async function fetcher(url: string, { arg }: { arg: { point: number, issueId: string } }): Promise<VoteResponse> {
   const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
+  const guestToken = localStorage.getItem('guestToken')
+  if (!accessToken && !guestToken) {
     throw new Error('Access token not found')
   }
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${accessToken}`,
+      'Authorization': `${accessToken || guestToken}`,
     },
     body: JSON.stringify({ vote: arg.point, issueId: arg.issueId }),
   })

@@ -66,6 +66,7 @@ function useIssueManager({ selectedView, user, roundId }: UseIssueManagerProps) 
     issues,
     isLoading,
     currentIssueIndex,
+    setCurrentIssueIndex,
     handlePrevIssue,
     handleNextIssue,
   }

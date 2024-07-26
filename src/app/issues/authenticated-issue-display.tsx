@@ -1,14 +1,13 @@
-// AuthenticatedIssueDisplay.tsx
 'use client'
 import React, { useEffect } from 'react'
 
-import { useInitialView } from '@aces/app/issues/use-initial-view'
-import useViewsDisplay, { ViewsDisplay } from '@aces/app/issues/use-views-display'
-import { useUser } from '@aces/app/oauth/user-context'
 import IssueContent from '@aces/components/issues/issue-content'
 import { Separator } from '@aces/components/ui/separator'
 import ViewDropdown from '@aces/components/view-dropdown'
+import { useInitialView } from '@aces/lib/hooks/use-initial-view'
 import useIssueManager from '@aces/lib/hooks/use-issue-manager'
+import useViewsDisplay, { ViewsDisplay } from '@aces/lib/hooks/use-views-display'
+import { useUser } from '@aces/lib/hooks/user-context'
 
 
 interface IssueDisplayProps {

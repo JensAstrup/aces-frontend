@@ -1,12 +1,12 @@
 'use client'
 import React from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
 import { Comments } from '@aces/components/comments/comments'
 import { Icons } from '@aces/components/icons'
 import IssueSection from '@aces/components/issues/issue-section'
 import { Separator } from '@aces/components/ui/separator'
-import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
+import { Issue } from '@aces/interfaces/issue'
+import useWebSocketIssue from '@aces/lib/hooks/use-websocket-issue'
 
 
 interface IssueDisplayProps {
@@ -35,11 +35,11 @@ function LoadingDisplay() {
 
 
 function UnauthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
-  const currentIssue = useWebSocketIssue(roundId)
+  const { issue } = useWebSocketIssue(roundId)
 
   return (
     <div className="space-y-6">
-      {currentIssue ? <CurrentIssueDisplay issue={currentIssue} /> : <LoadingDisplay />}
+      {issue ? <CurrentIssueDisplay issue={issue} /> : <LoadingDisplay />}
     </div>
   )
 }
