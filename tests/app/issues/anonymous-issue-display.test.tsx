@@ -1,13 +1,16 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
 import UnauthenticatedIssueDisplay, { CurrentIssueDisplay, LoadingDisplay } from '@aces/app/issues/anonymous-issue-display'
-import useWebSocketIssue from '@aces/lib/hooks/use-websocket'
+import { Issue } from '@aces/interfaces/issue'
+import useWebSocketIssue from '@aces/lib/hooks/use-websocket-issue'
 import '@testing-library/jest-dom'
 
 
-jest.mock('@aces/lib/hooks/use-websocket')
+jest.mock('@aces/lib/hooks/use-websocket-issue', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}))
 const mockUseWebSocketIssue = useWebSocketIssue as jest.Mock
 
 jest.mock('@aces/components/comments/comments', () => ({
@@ -26,7 +29,7 @@ describe('UnauthenticatedIssueDisplay', () => {
   }
 
   it('renders loading state when there is no current issue', () => {
-    mockUseWebSocketIssue.mockReturnValue(null)
+    mockUseWebSocketIssue.mockReturnValue({ issue: null })
 
     render(<UnauthenticatedIssueDisplay roundId="123" />)
 
@@ -34,7 +37,7 @@ describe('UnauthenticatedIssueDisplay', () => {
   })
 
   it('renders current issue when available', () => {
-    mockUseWebSocketIssue.mockReturnValue(mockIssue)
+    mockUseWebSocketIssue.mockReturnValue({ issue: mockIssue })
 
     render(<UnauthenticatedIssueDisplay roundId="123" />)
 

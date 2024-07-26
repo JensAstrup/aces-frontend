@@ -2,12 +2,13 @@ import { act, screen } from '@testing-library/react'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
+import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
 
 
 jest.mock('@aces/lib/hooks/use-issue-manager')
-jest.mock('@aces/app/issues/use-initial-view')
-jest.mock('@aces/app/issues/use-views-display')
-jest.mock('@aces/app/oauth/user-context')
+jest.mock('@aces/lib/hooks/use-initial-view')
+jest.mock('@aces/lib/hooks//use-views-display')
+jest.mock('@aces/lib/hooks/user-context')
 jest.mock('@aces/components/issues/issue-content')
 jest.mock('@aces/components/ui/separator')
 jest.mock('@aces/components/view-dropdown', () => ({
@@ -16,12 +17,10 @@ jest.mock('@aces/components/view-dropdown', () => ({
 }))
 jest.mock('react-markdown')
 
-import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
-
 
 const mockUseIssueManager = jest.requireMock('@aces/lib/hooks/use-issue-manager')
-const mockUseViewsDisplay = jest.requireMock('@aces/app/issues/use-views-display')
-const mockUseUser = jest.requireMock('@aces/app/oauth/user-context')
+const mockUseViewsDisplay = jest.requireMock('@aces/lib/hooks/use-views-display')
+const mockUseUser = jest.requireMock('@aces/lib/hooks/user-context')
 const mockIssueContent = jest.requireMock('@aces/components/issues/issue-content')
 
 describe('AuthenticatedIssueDisplay', () => {
@@ -34,7 +33,6 @@ describe('AuthenticatedIssueDisplay', () => {
     document.body.appendChild(container)
     root = createRoot(container)
 
-    // Default mock implementations
     mockUseViewsDisplay.default.mockReturnValue({
       favoriteViews: [],
       setSelectedView: jest.fn(),
@@ -64,23 +62,21 @@ describe('AuthenticatedIssueDisplay', () => {
     })
   }
 
-  it('renders without crashing', () => {
-    renderComponent()
-    expect(screen.getByTestId('issue-content')).toBeInTheDocument()
-  })
-
   it('does not render ViewDropdown when user is not authenticated', () => {
+    mockUseUser.useUser.mockReturnValue({ user: null })
     renderComponent()
     expect(screen.queryByTestId('view-dropdown')).not.toBeInTheDocument()
   })
 
   it('renders ViewDropdown when user is authenticated', () => {
-    mockUseUser.useUser.mockReturnValue({ id: 'test-user' })
+    mockUseUser.useUser.mockReturnValue({ user: { id: '123' } })
     renderComponent()
     expect(screen.getByTestId('view-dropdown')).toBeInTheDocument()
   })
 
   it('calls setSelectedView with first favorite view when available', async () => {
+    const mockUser = { id: 'test-user' }
+    mockUseUser.useUser.mockReturnValue({ user: mockUser })
     const mockSetSelectedView = jest.fn()
     mockUseViewsDisplay.default.mockReturnValue({
       favoriteViews: [{ id: 'view1' }],
@@ -98,6 +94,8 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('passes correct props to IssueContent', () => {
+    const mockUser = { id: 'test-user' }
+    mockUseUser.useUser.mockReturnValue({ user: mockUser })
     const mockIssueManagerReturn = {
       issues: [{ id: 'issue1' }],
       isLoading: false,
@@ -118,7 +116,7 @@ describe('AuthenticatedIssueDisplay', () => {
   it('calls useIssueManager with correct props', () => {
     const mockUser = { id: 'test-user' }
     const mockSelectedView = { id: 'view1' }
-    mockUseUser.useUser.mockReturnValue(mockUser)
+    mockUseUser.useUser.mockReturnValue({ user: mockUser })
     mockUseViewsDisplay.default.mockReturnValue({
       favoriteViews: [],
       setSelectedView: jest.fn(),
