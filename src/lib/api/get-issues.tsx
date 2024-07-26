@@ -1,5 +1,5 @@
-import { IssuesApiResult } from '@aces/app/interfaces/issues-api-result'
-import { View } from '@aces/app/issues/get-favorite-views'
+import { IssuesApiResult } from '@aces/interfaces/issues-api-result'
+import { View } from '@aces/lib/api/views/get-favorite-views'
 
 
 async function getIssues(view: View, nextPage: string | null): Promise<IssuesApiResult> {

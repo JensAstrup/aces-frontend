@@ -2,10 +2,10 @@ import dayjs from 'dayjs'
 import { CalendarIcon, ChevronLeft, ChevronRight, ExternalLink, User, Users } from 'lucide-react'
 import React from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
 import IssueDescription from '@aces/components/issues/issue-description'
 import { Button } from '@aces/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@aces/components/ui/hover-card'
+import { Issue } from '@aces/interfaces/issue'
 
 
 interface IssueSectionProps {

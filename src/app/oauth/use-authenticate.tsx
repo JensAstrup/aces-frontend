@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 
-import createRound from '@aces/app/rounds/createRound'
+import createRound from '@aces/lib/api/createRound'
+
 
 
 function useAuth() {
@@ -23,9 +24,9 @@ function useAuth() {
       if (response.ok) {
         const data = await response.json()
         localStorage.setItem('accessToken', data.accessToken)
-        const roundId = await createRound()
+        // const roundId = await createRound()
         setIsAuthCalled(true)
-        return roundId
+        // return roundId
       }
       else {
         throw new Error('Failed to exchange code for access token')

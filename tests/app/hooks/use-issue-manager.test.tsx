@@ -4,7 +4,7 @@ import setRoundIssue from '@aces/app/api/set-round-issue'
 import useIssueManager from '@aces/lib/hooks/use-issue-manager'
 
 
-jest.mock('@aces/app/issues/use-get-issues', () => ({
+jest.mock('@aces/app/issues/get-issues', () => ({
   __esModule: true,
   default: jest.fn(() => Promise.resolve({
     issues: [{ id: 1, title: 'Issue 1' }, { id: 2, title: 'Issue 2' }, { id: 3, title: 'Issue 3' }],

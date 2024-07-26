@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
-import { View } from '@aces/app/issues/get-favorite-views'
-import getIssues from '@aces/app/issues/use-get-issues'
+import { Issue } from '@aces/interfaces/issue'
+import { View } from '@aces/interfaces/view'
+import getIssues from '@aces/lib/api/get-issues'
+
 
 
 export function useSelectedView(

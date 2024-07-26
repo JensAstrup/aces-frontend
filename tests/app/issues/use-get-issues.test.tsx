@@ -2,7 +2,7 @@ import fetch from 'jest-fetch-mock'
 
 import { Issue } from '@aces/app/interfaces/issue'
 import { View } from '@aces/app/issues/get-favorite-views'
-import getIssues from '@aces/app/issues/use-get-issues'
+import getIssues from '@aces/app/issues/get-issues'
 
 
 jest.mock('node-fetch', () => require('jest-fetch-mock'))

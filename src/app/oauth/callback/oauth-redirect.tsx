@@ -3,35 +3,37 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 
 import useAuth from '@aces/app/oauth/use-authenticate'
-import createRound from '@aces/app/rounds/createRound'
+import useCreateRound from '@aces/lib/hooks/use-create-round'
 
 
 const useOAuthRedirect = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { handleAuth, isAuthCalled } = useAuth()
+  const { roundId, isLoading, isError, mutate } = useCreateRound()
 
   useEffect(() => {
     const code = searchParams.get('code')
     if (code && !isAuthCalled) {
       handleAuth(code)
         .then(() => {
-          return createRound()
-        })
-        .then((roundId) => {
-          console.log('roundId', roundId)
-          if (roundId) {
-            router.push(`/rounds/${roundId}`)
-          }
+          return mutate()
         })
         .catch((error) => {
           console.error('Authentication failed:', error)
           // Handle error (e.g., redirect to error page)
         })
     }
-  }, [searchParams, isAuthCalled, handleAuth, router])
+  }, [searchParams, isAuthCalled, handleAuth, mutate])
 
-  return { isAuthCalled }
+  useEffect(() => {
+    if (roundId) {
+      console.log('roundId', roundId)
+      router.push(`/rounds/${roundId}`)
+    }
+  }, [roundId, router])
+
+  return { isAuthCalled, isLoading, isError }
 }
 
 export default useOAuthRedirect

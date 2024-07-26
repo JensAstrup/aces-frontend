@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { useUser } from '@aces/app/oauth/user-context'
 import { Avatar, AvatarFallback } from '@aces/components/ui/avatar'
 import { Button } from '@aces/components/ui/button'
 import { Textarea } from '@aces/components/ui/textarea'
+import { useUser } from '@aces/lib/hooks/user-context'
 
 
 const CommentForm: React.FC = () => {

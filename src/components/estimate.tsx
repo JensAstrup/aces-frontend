@@ -1,8 +1,8 @@
-import { useVote } from '@aces/app/api/set-vote'
-import { Issue } from '@aces/app/interfaces/issue'
 import { Button } from '@aces/components/ui/button'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
+import { Issue } from '@aces/interfaces/issue'
+import { useVote } from '@aces/lib/api/set-vote'
 
 
 interface EstimateProps {

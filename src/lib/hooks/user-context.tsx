@@ -1,7 +1,8 @@
 'use client'
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
-import User from '@aces/app/interfaces/user'
+import User from '@aces/interfaces/user'
+
 
 
 interface UserContextType {

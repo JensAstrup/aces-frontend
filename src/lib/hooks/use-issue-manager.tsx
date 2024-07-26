@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import setRoundIssue from '@aces/app/api/set-round-issue'
-import { Issue } from '@aces/app/interfaces/issue'
-import User from '@aces/app/interfaces/user'
-import { View } from '@aces/app/issues/get-favorite-views'
-import { useSelectedView } from '@aces/app/issues/use-selected-view'
+import { Issue } from '@aces/interfaces/issue'
+import User from '@aces/interfaces/user'
+import { View } from '@aces/interfaces/view'
+import setRoundIssue from '@aces/lib/api/set-round-issue'
+import { useSelectedView } from '@aces/lib/hooks/use-selected-view'
+
 
 
 interface UseIssueManagerProps {

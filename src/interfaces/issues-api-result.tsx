@@ -1,4 +1,4 @@
-import { Issue } from '@aces/app/interfaces/issue'
+import { Issue } from '@aces/interfaces/issue'
 
 
 interface IssuesApiResult {

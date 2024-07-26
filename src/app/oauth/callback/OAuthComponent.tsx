@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense } from 'react'
+import React from 'react'
 
 import useOAuthRedirect from '@aces/app/oauth/callback/oauth-redirect'
 import { Icons } from '@aces/components/icons'

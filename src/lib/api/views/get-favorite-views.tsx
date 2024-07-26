@@ -1,7 +1,5 @@
-interface View {
-    id: number
-    name: string
-}
+import { View } from '@aces/interfaces/view'
+
 
 async function getFavoriteViews(token: string) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/views`, {

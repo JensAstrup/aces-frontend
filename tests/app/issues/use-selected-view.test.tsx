@@ -3,12 +3,12 @@ import React from 'react'
 
 import { Issue } from '@aces/app/interfaces/issue'
 import { View } from '@aces/app/issues/get-favorite-views'
-import getIssues from '@aces/app/issues/use-get-issues'
+import getIssues from '@aces/app/issues/get-issues'
 import { useSelectedView } from '@aces/app/issues/use-selected-view'
 
 
 
-jest.mock('@aces/app/issues/use-get-issues')
+jest.mock('@aces/app/issues/get-issues')
 const mockGetIssues = getIssues as jest.Mock
 
 describe('useSelectedView', () => {
@@ -57,7 +57,7 @@ describe('useSelectedView', () => {
   it('should handle errors when fetching issues fails', async () => {
     const mockView: View = { id: 1, name: 'Test View' }
     const mockError = new Error('Failed to fetch');
-    (getIssues as jest.MockedFunction<typeof getIssues>).mockRejectedValue(mockError)
+    (getIssues).mockRejectedValue(mockError)
 
     console.error = jest.fn()
 

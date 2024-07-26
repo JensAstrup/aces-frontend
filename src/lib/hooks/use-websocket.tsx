@@ -1,7 +1,7 @@
-// hooks/useWebSocketIssue.js
 import { useEffect, useState } from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
+import { Issue } from '@aces/interfaces/issue'
+
 
 
 function useWebSocketIssue(roundId: string): Issue | null {

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import getFavoriteViews, { View } from '@aces/app/issues/get-favorite-views'
+import { View } from '@aces/interfaces/view'
+import getFavoriteViews from '@aces/lib/api/views/get-favorite-views'
+
 
 
 interface ViewsDisplay {

@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 
-import User from '@aces/app/interfaces/user'
+import User from '@aces/interfaces/user'
 
 
 interface ViewerData {
@@ -37,6 +37,7 @@ const useRegisterViewer = (viewerData: ViewerData, user: User | null | undefined
   )
 
   return {
+    data,
     isRegistered: !!data,
     error: shouldRegister ? error : null,
   }
