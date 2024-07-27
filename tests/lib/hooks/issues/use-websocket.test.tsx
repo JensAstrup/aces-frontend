@@ -32,7 +32,7 @@ describe('useWebSocketIssue', () => {
 
     await server.connected
 
-    await act(async () => {
+    await act(() => {
       server.send(JSON.stringify(mockIssue))
     })
 

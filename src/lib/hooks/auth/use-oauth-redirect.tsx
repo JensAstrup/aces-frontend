@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 
 import useAuth from '@aces/app/oauth/use-authenticate'
-import useCreateRound from '@aces/lib/hooks/use-create-round'
+import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 
 
 const useOAuthRedirect = () => {
