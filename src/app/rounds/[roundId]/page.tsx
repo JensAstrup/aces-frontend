@@ -3,9 +3,9 @@ import React from 'react'
 
 import IssueDisplay from '@aces/app/rounds/[roundId]/IssueDisplay'
 import { RoundSidebar } from '@aces/components/rounds/sidebar'
+import { useUser } from '@aces/lib/hooks//auth/user-context'
+import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
-import useRegisterViewer from '@aces/lib/hooks/use-register-viewer'
-import { useUser } from '@aces/lib/hooks/user-context'
 
 
 interface RoundPageProps {
