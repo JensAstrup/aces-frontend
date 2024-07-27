@@ -23,7 +23,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUser = () => {
       try {
         setIsLoading(true)
         const accessToken = localStorage.getItem('accessToken')

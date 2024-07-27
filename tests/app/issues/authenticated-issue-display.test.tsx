@@ -1,134 +1,142 @@
-import { act, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
-import { createRoot } from 'react-dom/client'
 
 import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
+import { View } from '@aces/interfaces/view'
+import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
+import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
+import { useUser } from '@aces/lib/hooks/user-context'
 
 
-jest.mock('@aces/lib/hooks/use-issue-manager')
-jest.mock('@aces/lib/hooks/use-initial-view')
-jest.mock('@aces/lib/hooks//use-views-display')
 jest.mock('@aces/lib/hooks/user-context')
-jest.mock('@aces/components/issues/issue-content')
-jest.mock('@aces/components/ui/separator')
-jest.mock('@aces/components/view-dropdown', () => ({
-  __esModule: true,
-  default: jest.fn(() => <div data-testid="view-dropdown">Mocked ViewDropdown</div>),
-}))
-jest.mock('react-markdown')
-
-
-const mockUseIssueManager = jest.requireMock('@aces/lib/hooks/use-issue-manager')
-const mockUseViewsDisplay = jest.requireMock('@aces/lib/hooks/use-views-display')
-const mockUseUser = jest.requireMock('@aces/lib/hooks/user-context')
-const mockIssueContent = jest.requireMock('@aces/components/issues/issue-content')
+jest.mock('@aces/lib/hooks/issues/issues-context')
+jest.mock('@aces/lib/api/views/get-favorite-views')
+jest.mock('@aces/lib/api/get-issues-for-view')
+jest.mock('@aces/lib/hooks/rounds/use-set-round-issue')
+jest.mock('@aces/components/issues/issue-content', () => () => <div data-testid="issue-content" />)
+jest.mock('@aces/components/ui/separator', () => ({ Separator: () => <hr data-testid="separator" /> }))
+jest.mock('@aces/components/view-dropdown', () => ({ __esModule: true, default: () => <div data-testid="view-dropdown" /> }))
+jest.mock('@aces/components/rounds/loading-round', () => () => <div data-testid="loading-round" />)
+jest.mock('@aces/components/rounds/round-error', () => () => <div data-testid="round-error" />)
 
 describe('AuthenticatedIssueDisplay', () => {
-  let container: HTMLDivElement
-  let root: ReturnType<typeof createRoot>
+  const mockDispatch = jest.fn()
+  const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
+  const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
+  const mockUseGetFavoriteViews = useGetFavoriteViews as jest.MockedFunction<typeof useGetFavoriteViews>
+  const mockUseGetIssuesForView = useGetIssuesForView as jest.MockedFunction<typeof useGetIssuesForView>
+  const mockUseSetRoundIssue = useSetRoundIssue as jest.MockedFunction<typeof useSetRoundIssue>
 
   beforeEach(() => {
     jest.clearAllMocks()
-    container = document.createElement('div')
-    document.body.appendChild(container)
-    root = createRoot(container)
-
-    mockUseViewsDisplay.default.mockReturnValue({
-      favoriteViews: [],
-      setSelectedView: jest.fn(),
-      selectedView: null
+    mockUseIssues.mockReturnValue({
+      state: {
+        selectedView: null,
+        currentIssueIndex: 0,
+        issues: [],
+        nextPage: null,
+        isLoading: false
+      },
+      dispatch: mockDispatch
     })
-    mockUseUser.useUser.mockReturnValue(null)
-    mockUseIssueManager.default.mockReturnValue({
-      issues: [],
+    mockUseUser.mockReturnValue({ user: null, error: null, isLoading: false })
+    mockUseGetFavoriteViews.mockReturnValue({
       isLoading: false,
-      currentIssueIndex: 0,
-      handlePrevIssue: jest.fn(),
-      handleNextIssue: jest.fn()
+      favoriteViews: undefined,
+      isError: undefined
     })
-    mockIssueContent.default.mockImplementation(() => <div data-testid="issue-content" />)
+    mockUseGetIssuesForView.mockReturnValue({
+      data: null, error: null,
+      isLoading: false
+    })
+    mockUseSetRoundIssue.mockReturnValue({
+      error: null,
+      data: undefined,
+      isLoading: false
+    })
   })
 
-  afterEach(() => {
-    act(() => {
-      root.unmount()
+  it('renders LoadingRound when views are loading', () => {
+    mockUseGetFavoriteViews.mockReturnValue({
+      isLoading: true,
+      favoriteViews: undefined,
+      isError: undefined
     })
-    document.body.removeChild(container)
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+    expect(screen.getByTestId('loading-round')).toBeInTheDocument()
   })
 
-  const renderComponent = () => {
-    act(() => {
-      root.render(<AuthenticatedIssueDisplay roundId="test-round" />)
+  it('renders RoundError when there is an issue error', () => {
+    mockUseGetIssuesForView.mockReturnValue({
+      data: null, error: new Error('Test error'),
+      isLoading: false
     })
-  }
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+    expect(screen.getByTestId('round-error')).toBeInTheDocument()
+  })
 
-  it('does not render ViewDropdown when user is not authenticated', () => {
-    mockUseUser.useUser.mockReturnValue({ user: null })
-    renderComponent()
-    expect(screen.queryByTestId('view-dropdown')).not.toBeInTheDocument()
+  it('renders RoundError when there is a current issue error', () => {
+    mockUseSetRoundIssue.mockReturnValue({
+      error: new Error('Test error'),
+      data: undefined,
+      isLoading: false
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+    expect(screen.getByTestId('round-error')).toBeInTheDocument()
   })
 
   it('renders ViewDropdown when user is authenticated', () => {
-    mockUseUser.useUser.mockReturnValue({ user: { id: '123' } })
-    renderComponent()
+    mockUseUser.mockReturnValue({
+      user: { id: 'test-user', accessToken: '' },
+      isLoading: false,
+      error: null
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
     expect(screen.getByTestId('view-dropdown')).toBeInTheDocument()
   })
 
-  it('calls setSelectedView with first favorite view when available', async () => {
-    const mockUser = { id: 'test-user' }
-    mockUseUser.useUser.mockReturnValue({ user: mockUser })
-    const mockSetSelectedView = jest.fn()
-    mockUseViewsDisplay.default.mockReturnValue({
-      favoriteViews: [{ id: 'view1' }],
-      setSelectedView: mockSetSelectedView,
-      selectedView: null
-    })
-
-    renderComponent()
-
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
-    })
-
-    expect(mockSetSelectedView).toHaveBeenCalledWith({ id: 'view1' })
-  })
-
-  it('passes correct props to IssueContent', () => {
-    const mockUser = { id: 'test-user' }
-    mockUseUser.useUser.mockReturnValue({ user: mockUser })
-    const mockIssueManagerReturn = {
-      issues: [{ id: 'issue1' }],
+  it('does not render ViewDropdown when user is not authenticated', () => {
+    mockUseUser.mockReturnValue({
+      user: null,
       isLoading: false,
-      currentIssueIndex: 0,
-      handlePrevIssue: jest.fn(),
-      handleNextIssue: jest.fn()
-    }
-    mockUseIssueManager.default.mockReturnValue(mockIssueManagerReturn)
-
-    renderComponent()
-
-    expect(mockIssueContent.default).toHaveBeenCalledWith(
-      expect.objectContaining(mockIssueManagerReturn),
-      expect.anything()
-    )
+      error: null
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+    expect(screen.queryByTestId('view-dropdown')).not.toBeInTheDocument()
   })
 
-  it('calls useIssueManager with correct props', () => {
-    const mockUser = { id: 'test-user' }
-    const mockSelectedView = { id: 'view1' }
-    mockUseUser.useUser.mockReturnValue({ user: mockUser })
-    mockUseViewsDisplay.default.mockReturnValue({
-      favoriteViews: [],
-      setSelectedView: jest.fn(),
-      selectedView: mockSelectedView
+  it('renders IssueContent when selectedView is present', () => {
+    mockUseIssues.mockReturnValue({
+      state: {
+        selectedView: { id: 'test-view' } as unknown as View,
+        currentIssueIndex: 0,
+        issues: [],
+        nextPage: null,
+        isLoading: false
+      },
+      dispatch: mockDispatch
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+    expect(screen.getByTestId('issue-content')).toBeInTheDocument()
+  })
+
+  it('updates issues when fetchedIssues change', async () => {
+    const mockFetchedIssues = {
+      issues: [{ id: 'issue1' }, { id: 'issue2' }],
+      nextPage: 'next-page-token'
+    }
+    mockUseGetIssuesForView.mockReturnValue({
+      data: mockFetchedIssues, error: null,
+      isLoading: false
     })
 
-    renderComponent()
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
 
-    expect(mockUseIssueManager.default).toHaveBeenCalledWith({
-      selectedView: mockSelectedView,
-      user: mockUser,
-      roundId: 'test-round'
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_ISSUES', payload: mockFetchedIssues.issues })
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_NEXT_PAGE', payload: mockFetchedIssues.nextPage })
     })
   })
 })

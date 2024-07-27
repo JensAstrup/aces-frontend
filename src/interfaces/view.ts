@@ -1,5 +1,5 @@
 interface View {
-    id: number
+    id: string
     name: string
     url: string
     token: string

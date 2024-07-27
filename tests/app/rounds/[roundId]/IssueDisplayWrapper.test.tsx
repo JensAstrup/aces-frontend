@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
-import IssueDisplay from '@aces/app/rounds/[roundId]/IssueDisplayWrapper'
+import IssueDisplay from '@aces/app/rounds/[roundId]/IssueDisplay'
 import '@testing-library/jest-dom'
 
 // Mock the imported components
