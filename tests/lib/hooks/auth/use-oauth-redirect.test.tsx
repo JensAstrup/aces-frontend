@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react'
+import { renderHook, waitFor } from '@testing-library/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import useAuth from '@aces/app/oauth/use-authenticate'
@@ -23,8 +23,10 @@ describe('useOAuthRedirect', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseRouter.mockReturnValue({ push: mockPush } as any)
-    mockUseSearchParams.mockReturnValue({ get: mockGet } as any)
+    // @ts-expect-error Mocking return value as needed for testing
+    mockUseRouter.mockReturnValue({ push: mockPush })
+    // @ts-expect-error Mocking return value as needed for testing
+    mockUseSearchParams.mockReturnValue({ get: mockGet })
     mockUseAuth.mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: false })
     mockUseCreateRound.mockReturnValue({
       roundId: undefined,
@@ -34,10 +36,12 @@ describe('useOAuthRedirect', () => {
     })
   })
 
-  it('should not call handleAuth when there is no code', () => {
+  it('should not call handleAuth when there is no code', async () => {
     mockGet.mockReturnValue(null)
     renderHook(() => useOAuthRedirect())
-    expect(mockHandleAuth).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(mockHandleAuth).not.toHaveBeenCalled()
+    })
   })
 
   it('should call handleAuth when there is a code and auth has not been called', async () => {
@@ -47,21 +51,21 @@ describe('useOAuthRedirect', () => {
 
     renderHook(() => useOAuthRedirect())
 
-    await act(async () => {
-      await Promise.resolve()
+    await waitFor(() => {
+      expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
+      expect(mockMutate).toHaveBeenCalled()
     })
-
-    expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
-    expect(mockMutate).toHaveBeenCalled()
   })
 
-  it('should not call handleAuth when auth has already been called', () => {
+  it('should not call handleAuth when auth has already been called', async () => {
     mockGet.mockReturnValue('test-code')
     mockUseAuth.mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: true })
 
     renderHook(() => useOAuthRedirect())
 
-    expect(mockHandleAuth).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(mockHandleAuth).not.toHaveBeenCalled()
+    })
   })
 
   it('should handle authentication failure', async () => {
@@ -71,15 +75,13 @@ describe('useOAuthRedirect', () => {
 
     renderHook(() => useOAuthRedirect())
 
-    await act(async () => {
-      await Promise.resolve()
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Authentication failed:', expect.any(Error))
     })
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Authentication failed:', expect.any(Error))
     consoleErrorSpy.mockRestore()
   })
 
-  it('should redirect to the round page when roundId is available', () => {
+  it('should redirect to the round page when roundId is available', async () => {
     mockUseCreateRound.mockReturnValue({
       roundId: 'test-round-id',
       isLoading: false,
@@ -89,7 +91,9 @@ describe('useOAuthRedirect', () => {
 
     renderHook(() => useOAuthRedirect())
 
-    expect(mockPush).toHaveBeenCalledWith('/rounds/test-round-id')
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/rounds/test-round-id')
+    })
   })
 
   it('should return correct values', () => {

@@ -53,3 +53,5 @@ export const useUser = () => {
 }
 
 export default UserProvider
+export { UserContext }
+export type { UserContextType, UserProviderProps }
