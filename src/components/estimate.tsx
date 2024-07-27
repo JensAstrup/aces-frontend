@@ -28,7 +28,6 @@ function Estimate({ roundId, issue }: EstimateProps) {
       })
     }
     catch (error) {
-      console.error('Error setting vote:', error)
       toast({
         title: 'Error',
         description: 'An error occurred while setting the vote',
