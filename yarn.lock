@@ -1502,11 +1502,6 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.10.tgz#04ffa7f406ab628f7f7e97ca23e290cd8ab15efc"
   integrity sha512-IfYcSBWE3hLpBg8+X2SEa8LVkJdJEkT2Ese2aaLs3ptGdVtABxndrMaxuFlQ1qdFf9Q5rDvDpxI3WwgvKFAsQA==
 
-"@types/uuid@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-10.0.0.tgz#e9c07fe50da0f53dc24970cca94d619ff03f6f6d"
-  integrity sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==
-
 "@types/yargs-parser@*":
   version "21.0.3"
   resolved "https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-21.0.3.tgz"
@@ -3186,10 +3181,10 @@ eslint-config-next@14.2.5:
     eslint-plugin-react "^7.33.2"
     eslint-plugin-react-hooks "^4.5.0 || 5.0.0-canary-7118f5dd7-20230705"
 
-eslint-config-yenz@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.npmjs.org/eslint-config-yenz/-/eslint-config-yenz-5.4.0.tgz"
-  integrity sha512-rNwqh81J/8Sr799N4LXyI1vWfga0eWBP9tmF6ILQpHMzCrNbmRvA/1SC4BpgWlrjslwwnsfWtFzHeGu5fhctmQ==
+eslint-config-yenz@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-yenz/-/eslint-config-yenz-5.5.0.tgz#771d02e0a2e5e1a01e97c902836f98f75186c98f"
+  integrity sha512-5SVb2P7UB5qJMs5+DmLeIy5C/ngRrf4bxlx6P8bUZgRVzUVA+YDUzvyacuh5E+96H0F2wPDyh0zxf3JrjKKJ2A==
   dependencies:
     "@eslint/js" "^9.3.0"
     "@stylistic/eslint-plugin" "^2.1.0"
@@ -6728,11 +6723,6 @@ slash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
-
-sonner@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/sonner/-/sonner-1.5.0.tgz#af359f817063318415326b33aab54c5d17c747b7"
-  integrity sha512-FBjhG/gnnbN6FY0jaNnqZOMmB73R+5IiyYAw8yBj7L54ER7HB3fOSE5OFiQiE2iXWxeXKvg6fIP4LtVppHEdJA==
 
 source-map-js@^1.0.2, source-map-js@^1.2.0:
   version "1.2.0"
