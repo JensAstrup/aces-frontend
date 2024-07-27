@@ -3,7 +3,6 @@ import useSWR from 'swr'
 import { View } from '@aces/interfaces/view'
 
 
-
 async function fetcher(url: string, token: string): Promise<View[]> {
   const response = await fetch(url, {
     headers: {
