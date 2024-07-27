@@ -16,15 +16,15 @@ describe('useWebSocketIssue', () => {
     WS.clean()
   })
 
-  it('should initialize with null currentIssue', async () => {
+  it('should initialize with null issue and isLoading true', async () => {
     const mockRoundId = '123'
     server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const { result } = renderHook(() => useWebSocketIssue(mockRoundId))
     await server.connected
-    expect(result.current).toBeNull()
+    expect(result.current).toEqual({ issue: null, isLoading: true })
   })
 
-  it('should update currentIssue when receiving a valid message', async () => {
+  it('should update issue and set isLoading to false when receiving a valid message', async () => {
     const mockRoundId = '123'
     server = new WS(`${mockApiHost}?roundId=${mockRoundId}`)
     const mockIssue = { id: '1', title: 'Test Issue' }
@@ -32,12 +32,11 @@ describe('useWebSocketIssue', () => {
 
     await server.connected
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       server.send(JSON.stringify(mockIssue))
     })
 
-    expect(result.current).toEqual(mockIssue)
+    expect(result.current).toEqual({ issue: mockIssue, isLoading: false })
   })
 
   it('should handle error when receiving an invalid message', async () => {
@@ -49,13 +48,12 @@ describe('useWebSocketIssue', () => {
 
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       server.send('invalid JSON')
     })
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error parsing websocket message:', expect.any(Error))
-    expect(result.current).toBeNull()
+    expect(result.current).toEqual({ issue: null, isLoading: false })
 
     consoleErrorSpy.mockRestore()
   })
@@ -85,7 +83,6 @@ describe('useWebSocketIssue', () => {
 
     const newServer = new WS(`${mockApiHost}?roundId=${newRoundId}`)
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       rerender({ roundId: newRoundId })
     })
@@ -93,12 +90,11 @@ describe('useWebSocketIssue', () => {
     await newServer.connected
 
     const newIssue = { id: '2', title: 'New Test Issue' }
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       newServer.send(JSON.stringify(newIssue))
     })
 
-    expect(result.current).toEqual(newIssue)
+    expect(result.current).toEqual({ issue: newIssue, isLoading: false })
 
     newServer.close()
   })
