@@ -3,8 +3,8 @@ import React from 'react'
 
 import RoundPage from '@aces/app/rounds/[roundId]/page'
 import User from '@aces/interfaces/user'
-import useRegisterViewer from '@aces/lib/hooks/use-register-viewer'
-import { useUser } from '@aces/lib/hooks/user-context'
+import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
+import { useUser } from '@aces/lib/hooks/auth/user-context'
 
 
 jest.mock('@aces/app/rounds/[roundId]/IssueDisplay', () => ({
@@ -38,8 +38,8 @@ jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
   )
 }))
 
-jest.mock('@aces/lib/hooks/user-context')
-jest.mock('@aces/lib/hooks/use-register-viewer')
+jest.mock('@aces/lib/hooks/auth/user-context')
+jest.mock('@aces/lib/hooks/auth/use-register-viewer')
 
 describe('RoundPage', () => {
   const mockUseUser = useUser as jest.MockedFunction<typeof useUser>

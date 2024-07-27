@@ -5,12 +5,12 @@ import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-disp
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
+import { useUser } from '@aces/lib/hooks/auth/user-context'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
-import { useUser } from '@aces/lib/hooks/user-context'
 
 
-jest.mock('@aces/lib/hooks/user-context')
+jest.mock('@aces/lib/hooks/auth/user-context')
 jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/api/views/get-favorite-views')
 jest.mock('@aces/lib/api/get-issues-for-view')
