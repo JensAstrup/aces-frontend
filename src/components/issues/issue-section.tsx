@@ -10,16 +10,14 @@ import { Issue } from '@aces/interfaces/issue'
 
 interface IssueSectionProps {
   issue: Issue
-  onPrevIssue?: () => void
-  onNextIssue?: () => void
+  handleNavigate?: (direction: 'next' | 'previous') => void
   hasPrevIssue?: boolean
   hasNextIssue?: boolean
 }
 
 const IssueSection: React.FC<IssueSectionProps> = ({
   issue,
-  onPrevIssue,
-  onNextIssue,
+  handleNavigate,
   hasPrevIssue,
   hasNextIssue
 }) => {
@@ -68,26 +66,33 @@ const IssueSection: React.FC<IssueSectionProps> = ({
     </HoverCard>
   )
 
-  const issueNavigation = (
-    <div className="flex gap-2">
-      <Button
-        disabled={!hasPrevIssue}
-        onClick={onPrevIssue}
-        size="icon"
-        variant="outline"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <Button
-        disabled={!hasNextIssue}
-        onClick={onNextIssue}
-        size="icon"
-        variant="outline"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-    </div>
-  )
+  let issueNavigation = null
+  if (handleNavigate) {
+    issueNavigation = (
+      <div className="flex gap-2">
+        <Button
+          disabled={!hasPrevIssue}
+          onClick={() => {
+            handleNavigate('previous')
+          }}
+          size="icon"
+          variant="outline"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          disabled={!hasNextIssue}
+          onClick={() => {
+            handleNavigate('next')
+          }}
+          size="icon"
+          variant="outline"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    )
+  }
 
 
   return (
@@ -100,7 +105,7 @@ const IssueSection: React.FC<IssueSectionProps> = ({
           <a href={issue.url}><ExternalLink className="ml-2" /></a>
         </div>
         {
-          onPrevIssue && onNextIssue ? issueNavigation : null
+          issueNavigation
         }
       </div>
       <IssueDescription description={issue.description} />

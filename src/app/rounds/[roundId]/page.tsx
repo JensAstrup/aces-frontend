@@ -1,9 +1,12 @@
 'use client'
 import React from 'react'
 
-import IssueDisplay from '@aces/app/rounds/[roundId]/IssueDisplayWrapper'
-import useRoundPageLogic from '@aces/app/rounds/[roundId]/useRoundPageLogic'
+import IssueDisplay from '@aces/app/rounds/[roundId]/IssueDisplay'
 import { RoundSidebar } from '@aces/components/rounds/sidebar'
+import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
+import useRegisterViewer from '@aces/lib/hooks/use-register-viewer'
+import { useUser } from '@aces/lib/hooks/user-context'
+
 
 
 
@@ -13,7 +16,9 @@ interface RoundPageProps {
 
 function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const { roundId } = params
-  const { user, currentIssue, isIssueLoading } = useRoundPageLogic(roundId)
+  const { user, isLoading: isUserLoading } = useUser()
+  useRegisterViewer({ roundId }, isUserLoading ? undefined : user)
+
 
   return (
     <div className="grid md:grid-cols-5 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
@@ -24,11 +29,11 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
         />
       </div>
       <div className="space-y-8 md:col-span-2">
-        <RoundSidebar
-          roundId={roundId}
-          currentIssue={currentIssue}
-          isIssueLoading={isIssueLoading}
-        />
+        <IssuesProvider>
+          <RoundSidebar
+            roundId={roundId}
+          />
+        </IssuesProvider>
       </div>
     </div>
   )

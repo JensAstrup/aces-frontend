@@ -2,11 +2,11 @@
 import React from 'react'
 
 import { Comments } from '@aces/components/comments/comments'
-import { Icons } from '@aces/components/icons'
 import IssueSection from '@aces/components/issues/issue-section'
+import LoadingRound from '@aces/components/rounds/loading-round'
 import { Separator } from '@aces/components/ui/separator'
 import { Issue } from '@aces/interfaces/issue'
-import useWebSocketIssue from '@aces/lib/hooks/use-websocket-issue'
+import useWebSocketIssue from '@aces/lib/hooks/issues/use-websocket-issue'
 
 
 interface IssueDisplayProps {
@@ -24,25 +24,16 @@ function CurrentIssueDisplay({ issue }: { issue: Issue }) {
   )
 }
 
-function LoadingDisplay() {
-  return (
-    <div className="flex flex-col items-center justify-center space-y-4 min-h-[200px]">
-      <h2 className="font-bold font-heading text-xl">Waiting for round to begin</h2>
-      <Icons.spinner className="h-8 w-8 animate-spin" />
-    </div>
-  )
-}
-
 
 function UnauthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
   const { issue } = useWebSocketIssue(roundId)
 
   return (
     <div className="space-y-6">
-      {issue ? <CurrentIssueDisplay issue={issue} /> : <LoadingDisplay />}
+      {issue ? <CurrentIssueDisplay issue={issue} /> : <LoadingRound />}
     </div>
   )
 }
 
 export default UnauthenticatedIssueDisplay
-export { CurrentIssueDisplay, LoadingDisplay }
+export { CurrentIssueDisplay }
