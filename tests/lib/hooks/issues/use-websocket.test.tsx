@@ -32,7 +32,7 @@ describe('useWebSocketIssue', () => {
 
     await server.connected
 
-    await act(() => {
+    act(() => {
       server.send(JSON.stringify(mockIssue))
     })
 
@@ -48,7 +48,7 @@ describe('useWebSocketIssue', () => {
 
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    await act(async () => {
+    act(() => {
       server.send('invalid JSON')
     })
 
@@ -83,14 +83,14 @@ describe('useWebSocketIssue', () => {
 
     const newServer = new WS(`${mockApiHost}?roundId=${newRoundId}`)
 
-    await act(async () => {
+    act(() => {
       rerender({ roundId: newRoundId })
     })
 
     await newServer.connected
 
     const newIssue = { id: '2', title: 'New Test Issue' }
-    await act(async () => {
+    act(() => {
       newServer.send(JSON.stringify(newIssue))
     })
 

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { UserProvider, useUser } from '@aces/lib/hooks/auth/user-context'
@@ -32,7 +32,7 @@ describe('UserProvider', () => {
     expect(screen.getByTestId('loading')).toBeInTheDocument()
   })
 
-  it('renders user when user is available', async () => {
+  it('renders user when user is available', () => {
     (useUser as jest.Mock).mockReturnValue({ user: { id: '', name: '', accessToken: 'fake-token' }, isLoading: false, error: null })
 
     render(
@@ -45,7 +45,7 @@ describe('UserProvider', () => {
     expect(screen.getByTestId('user')).toHaveTextContent('fake-token')
   })
 
-  it('renders no user when user is null', async () => {
+  it('renders no user when user is null', () => {
     (useUser as jest.Mock).mockReturnValue({ user: null, isLoading: false, error: null })
 
     render(
@@ -57,7 +57,7 @@ describe('UserProvider', () => {
     expect(screen.getByTestId('no-user')).toBeInTheDocument()
   })
 
-  it('handles error state', async () => {
+  it('handles error state', () => {
     (useUser as jest.Mock).mockReturnValue({ user: null, isLoading: false, error: new Error('Error loading user') })
 
     render(

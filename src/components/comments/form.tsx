@@ -3,7 +3,7 @@ import React from 'react'
 import { Avatar, AvatarFallback } from '@aces/components/ui/avatar'
 import { Button } from '@aces/components/ui/button'
 import { Textarea } from '@aces/components/ui/textarea'
-import { useUser } from '@aces/lib/hooks/user-context'
+import { useUser } from '@aces/lib/hooks/auth/user-context'
 
 
 const CommentForm: React.FC = () => {

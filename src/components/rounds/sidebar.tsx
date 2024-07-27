@@ -4,9 +4,9 @@ import { Estimate } from '@aces/components/estimate'
 import { Icons } from '@aces/components/icons'
 import { Stats } from '@aces/components/ui/stats'
 import { Votes } from '@aces/components/votes'
+import { useUser } from '@aces/lib/hooks/auth/user-context'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import useWebSocketIssue from '@aces/lib/hooks/issues/use-websocket-issue'
-import { useUser } from '@aces/lib/hooks/user-context'
 
 
 interface RoundSidebarProps {

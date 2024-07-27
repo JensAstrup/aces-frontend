@@ -4,7 +4,7 @@ import { Manrope } from 'next/font/google'
 import React, { ReactNode } from 'react'
 
 import { ThemeProvider } from '@aces/components/theme-provider'
-import UserProvider from '@aces/lib/hooks/user-context'
+import UserProvider from '@aces/lib/hooks/auth/user-context'
 import { cn } from '@aces/lib/utils'
 
 import './globals.css'

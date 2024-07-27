@@ -21,7 +21,7 @@ describe('useGetFavoriteViews', () => {
     jest.resetAllMocks()
   })
 
-  it('should return favorite views when fetch is successful', async () => {
+  it('should return favorite views when fetch is successful', () => {
     const mockViews: View[] = [
       { id: '1', name: 'View 1' },
       { id: '2', name: 'View 2' },
@@ -87,13 +87,14 @@ describe('useGetFavoriteViews', () => {
 
     let capturedFetcher: ((args: [string, string]) => Promise<View[]>) | undefined
 
+    // @ts-expect-error Mocking return value as needed for testing
     mockedUseSWR.mockImplementation((key, fetcher) => {
       capturedFetcher = fetcher as (args: [string, string]) => Promise<View[]>
       return {
         data: [],
         error: undefined,
         isLoading: false,
-      } as any
+      }
     })
 
     renderHook(() => useGetFavoriteViews(mockToken))
@@ -118,21 +119,19 @@ describe('useGetFavoriteViews', () => {
 
     let capturedFetcher: ((args: [string, string]) => Promise<View[]>) | undefined
 
+    // @ts-expect-error Mocking return value as needed for testing
     mockedUseSWR.mockImplementation((key, fetcher) => {
       capturedFetcher = fetcher as (args: [string, string]) => Promise<View[]>
       return {
         data: undefined,
         error: new Error('Failed to fetch favorite views'),
         isLoading: false,
-      } as any
+      }
     })
 
     const { result } = renderHook(() => useGetFavoriteViews(mockToken))
 
-    expect(capturedFetcher).toBeDefined()
-    if (capturedFetcher) {
-      await expect(capturedFetcher([`${mockApiUrl}/views`, mockToken])).rejects.toThrow('Failed to fetch favorite views')
-    }
+    await expect(capturedFetcher!([`${mockApiUrl}/views`, mockToken])).rejects.toThrow('Failed to fetch favorite views')
 
     expect(result.current.isError).toBeInstanceOf(Error)
     expect(result.current.isError?.message).toBe('Failed to fetch favorite views')
