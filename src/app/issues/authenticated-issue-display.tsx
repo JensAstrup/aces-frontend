@@ -1,6 +1,5 @@
 'use client'
 import React, { useCallback, useEffect } from 'react'
-import useSWR from 'swr'
 
 import IssueContent from '@aces/components/issues/issue-content'
 import LoadingRound from '@aces/components/rounds/loading-round'

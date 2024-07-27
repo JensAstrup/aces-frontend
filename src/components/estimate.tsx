@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { Button } from '@aces/components/ui/button'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
@@ -6,16 +8,26 @@ import { useVote } from '@aces/lib/api/set-vote'
 
 
 interface EstimateProps {
-    roundId: string
-    issue: Issue
+  roundId: string
+  issue: Issue | null
 }
 
 function Estimate({ roundId, issue }: EstimateProps) {
   const { toast } = useToast()
-
   const { trigger, isMutating } = useVote(roundId)
 
   async function handleVote(voteNumber: number) {
+    if (!issue || !issue.id) {
+      console.error('No issue or issue ID available')
+      toast({
+        title: 'Error',
+        description: 'Unable to vote: No issue selected',
+        duration: 5000,
+        variant: 'destructive',
+      })
+      return
+    }
+
     try {
       const result = await trigger({ point: voteNumber, issueId: issue.id })
       if (result.error) {
@@ -28,6 +40,7 @@ function Estimate({ roundId, issue }: EstimateProps) {
       })
     }
     catch (error) {
+      console.error('Error setting vote:', error)
       toast({
         title: 'Error',
         description: 'An error occurred while setting the vote',
@@ -35,6 +48,10 @@ function Estimate({ roundId, issue }: EstimateProps) {
         variant: 'destructive',
       })
     }
+  }
+
+  if (!issue) {
+    return <div>No issue selected</div>
   }
 
   return (

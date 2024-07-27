@@ -8,8 +8,6 @@ import useRegisterViewer from '@aces/lib/hooks/use-register-viewer'
 import { useUser } from '@aces/lib/hooks/user-context'
 
 
-
-
 interface RoundPageProps {
   params: { roundId: string }
 }
@@ -21,21 +19,21 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
 
 
   return (
-    <div className="grid md:grid-cols-5 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
-      <div className="md:col-span-3">
-        <IssueDisplay
-          user={user}
-          roundId={roundId}
-        />
-      </div>
-      <div className="space-y-8 md:col-span-2">
-        <IssuesProvider>
+    <IssuesProvider>
+      <div className="grid md:grid-cols-5 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
+        <div className="md:col-span-3">
+          <IssueDisplay
+            user={user}
+            roundId={roundId}
+          />
+        </div>
+        <div className="space-y-8 md:col-span-2">
           <RoundSidebar
             roundId={roundId}
           />
-        </IssuesProvider>
+        </div>
       </div>
-    </div>
+    </IssuesProvider>
   )
 }
 
