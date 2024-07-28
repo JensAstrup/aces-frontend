@@ -1,0 +1,71 @@
+import React, { ReactNode, createContext, useContext, useReducer } from 'react'
+
+import { Issue } from '@aces/interfaces/issue'
+import { View } from '@aces/interfaces/view'
+
+
+interface IssuesState {
+  issues: Issue[]
+  currentIssueIndex: number
+  selectedView: View | null
+  nextPage: string | null
+  isLoading: boolean
+}
+
+type Action =
+  | { type: 'SET_ISSUES', payload: Issue[] }
+  | { type: 'SET_CURRENT_ISSUE_INDEX', payload: number }
+  | { type: 'SET_SELECTED_VIEW', payload: View | null }
+  | { type: 'SET_NEXT_PAGE', payload: string | null }
+  | { type: 'SET_LOADING', payload: boolean }
+  | { type: 'APPEND_ISSUES', payload: Issue[] }
+
+const initialState: IssuesState = {
+  issues: [],
+  currentIssueIndex: 0,
+  selectedView: null,
+  nextPage: null,
+  isLoading: false,
+}
+
+function issuesReducer(state: IssuesState, action: Action): IssuesState {
+  switch (action.type) {
+  case 'SET_ISSUES':
+    return { ...state, issues: action.payload, isLoading: false }
+  case 'SET_CURRENT_ISSUE_INDEX':
+    return { ...state, currentIssueIndex: action.payload, isLoading: false }
+  case 'SET_SELECTED_VIEW':
+    return { ...state, selectedView: action.payload, issues: [], currentIssueIndex: 0, nextPage: null, isLoading: true }
+  case 'SET_NEXT_PAGE':
+    return { ...state, nextPage: action.payload }
+  case 'SET_LOADING':
+    return { ...state, isLoading: action.payload }
+  case 'APPEND_ISSUES':
+    return { ...state, issues: [...state.issues, ...action.payload] }
+  default:
+    return state
+  }
+}
+
+const IssuesContext = createContext<{
+  state: IssuesState
+  dispatch: React.Dispatch<Action>
+} | undefined>(undefined)
+
+export function IssuesProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(issuesReducer, initialState)
+
+  return (
+    <IssuesContext.Provider value={{ state, dispatch }}>
+      {children}
+    </IssuesContext.Provider>
+  )
+}
+
+export function useIssues() {
+  const context = useContext(IssuesContext)
+  if (context === undefined) {
+    throw new Error('useIssues must be used within an IssuesProvider')
+  }
+  return context
+}

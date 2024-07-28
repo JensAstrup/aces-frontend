@@ -56,7 +56,8 @@ module.exports = {
     {
       files: ["**/*.test.*"],
       rules: {
-        "no-magic-numbers": "off"
+        "no-magic-numbers": "off",
+        "react/display-name": "off",
       }
     }
   ]

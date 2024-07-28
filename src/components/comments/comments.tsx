@@ -2,10 +2,10 @@ import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import React from 'react'
 
-import { Issue } from '@aces/app/interfaces/issue'
 
-import { Comment } from './comment'
-import { CommentForm } from './form'
+import { Comment } from '@aces/components/comments/comment'
+import { CommentForm } from '@aces/components/comments/form'
+import { Issue } from '@aces/interfaces/issue'
 
 
 dayjs.extend(RelativeTime)
