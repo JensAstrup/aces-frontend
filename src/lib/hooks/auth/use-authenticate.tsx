@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
 
-
 function useAuth() {
   const [isAuthCalled, setIsAuthCalled] = useState(false)
   const authCalledRef = useRef(false)
@@ -22,9 +21,7 @@ function useAuth() {
       if (response.ok) {
         const data = await response.json()
         localStorage.setItem('accessToken', data.accessToken)
-        // const roundId = await createRound()
         setIsAuthCalled(true)
-        // return roundId
       }
       else {
         throw new Error('Failed to exchange code for access token')
