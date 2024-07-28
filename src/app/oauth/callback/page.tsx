@@ -2,7 +2,7 @@
 import React from 'react'
 
 import { Icons } from '@aces/components/icons'
-import useOAuthRedirect from '@aces/lib/hooks/use-oauth-redirect'
+import useOAuthRedirect from '@aces/lib/hooks/auth/use-oauth-redirect'
 
 
 export default function OAuthCallbackPage() {
