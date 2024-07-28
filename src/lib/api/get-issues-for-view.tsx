@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import useSWR, { SWRResponse } from 'swr'
 
 import { View } from '@aces/interfaces/view'
 
@@ -25,11 +25,16 @@ function useGetIssuesForView(selectedView: View | null) {
   }
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const result = useSWR(selectedView?.id ? [`${API_URL}/views/${selectedView.id}/issues`, accessToken] : null, ([url, accessToken]) => {
+  const result: SWRResponse | undefined = useSWR(selectedView?.id ? [`${API_URL}/views/${selectedView.id}/issues`, accessToken] : null, ([url, accessToken]) => {
     return fetcher(url, accessToken)
   })
   return {
-    ...result
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    data: result?.data,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    error: result?.error,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isLoading: result?.isLoading,
   }
 }
 

@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
+import { Issue } from '@aces/interfaces/issue'
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
@@ -15,9 +16,39 @@ jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/api/views/get-favorite-views')
 jest.mock('@aces/lib/api/get-issues-for-view')
 jest.mock('@aces/lib/hooks/rounds/use-set-round-issue')
-jest.mock('@aces/components/issues/issue-content', () => () => <div data-testid="issue-content" />)
+jest.mock('@aces/components/issues/issue-content', () => ({ __esModule: true, default: ({ handleNavigate }: { handleNavigate: (direction: 'next' | 'previous') => void }) => (
+  <div data-testid="issue-content">
+    <button
+      onClick={() => {
+        handleNavigate('next')
+      }}
+      data-testid="next-issue"
+    >
+Next
+    </button>
+    <button
+      onClick={() => {
+        handleNavigate('previous')
+      }}
+      data-testid="prev-issue"
+    >
+Previous
+    </button>
+  </div>
+) }))
 jest.mock('@aces/components/ui/separator', () => ({ Separator: () => <hr data-testid="separator" /> }))
-jest.mock('@aces/components/view-dropdown', () => ({ __esModule: true, default: () => <div data-testid="view-dropdown" /> }))
+jest.mock('@aces/components/view-dropdown', () => ({ __esModule: true, default: ({ setSelectedView }: { setSelectedView: (view: View) => void }) => (
+  <div data-testid="view-dropdown">
+    <button
+      onClick={() => {
+        setSelectedView({ id: 'new-view' } as View)
+      }}
+      data-testid="select-view"
+    >
+Select View
+    </button>
+  </div>
+) }))
 jest.mock('@aces/components/rounds/loading-round', () => () => <div data-testid="loading-round" />)
 jest.mock('@aces/components/rounds/round-error', () => () => <div data-testid="round-error" />)
 
@@ -47,7 +78,6 @@ describe('AuthenticatedIssueDisplay', () => {
       favoriteViews: undefined,
       isError: undefined
     })
-    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: null, error: null,
       isLoading: false
@@ -70,7 +100,6 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('renders RoundError when there is an issue error', () => {
-    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: null, error: new Error('Test error'),
       isLoading: false
@@ -112,7 +141,7 @@ describe('AuthenticatedIssueDisplay', () => {
   it('renders IssueContent when selectedView is present', () => {
     mockUseIssues.mockReturnValue({
       state: {
-        selectedView: { id: 'test-view' } as unknown as View,
+        selectedView: { id: 'test-view' } as View,
         currentIssueIndex: 0,
         issues: [],
         nextPage: null,
@@ -129,7 +158,6 @@ describe('AuthenticatedIssueDisplay', () => {
       issues: [{ id: 'issue1' }, { id: 'issue2' }],
       nextPage: 'next-page-token'
     }
-    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: mockFetchedIssues, error: null,
       isLoading: false
@@ -140,6 +168,92 @@ describe('AuthenticatedIssueDisplay', () => {
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_ISSUES', payload: mockFetchedIssues.issues })
       expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_NEXT_PAGE', payload: mockFetchedIssues.nextPage })
+    })
+  })
+
+  it('handles view selection', async () => {
+    mockUseUser.mockReturnValue({
+      user: { id: 'test-user', accessToken: '' },
+      isLoading: false,
+      error: null
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+
+    const selectViewButton = screen.getByTestId('select-view')
+    fireEvent.click(selectViewButton)
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_SELECTED_VIEW', payload: { id: 'new-view' } })
+    })
+  })
+
+  it('handles navigation to next issue', async () => {
+    mockUseIssues.mockReturnValue({
+      state: {
+        selectedView: { id: 'test-view' } as View,
+        currentIssueIndex: 0,
+        issues: [{ id: 'issue1' }, { id: 'issue2' }] as Issue[],
+        nextPage: null,
+        isLoading: false
+      },
+      dispatch: mockDispatch
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+
+    const nextButton = screen.getByTestId('next-issue')
+    fireEvent.click(nextButton)
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_CURRENT_ISSUE_INDEX', payload: 1 })
+    })
+  })
+
+  it('handles navigation to previous issue', async () => {
+    mockUseIssues.mockReturnValue({
+      state: {
+        selectedView: { id: 'test-view' } as View,
+        currentIssueIndex: 1,
+        issues: [{ id: 'issue1' }, { id: 'issue2' }] as Issue[],
+        nextPage: null,
+        isLoading: false
+      },
+      dispatch: mockDispatch
+    })
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+
+    const prevButton = screen.getByTestId('prev-issue')
+    fireEvent.click(prevButton)
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_CURRENT_ISSUE_INDEX', payload: 0 })
+    })
+  })
+
+  it('updates selected view when setView is called with a function', async () => {
+    const initialView = { id: 'initial-view' } as View
+    mockUseIssues.mockReturnValue({
+      state: {
+        selectedView: initialView,
+        currentIssueIndex: 0,
+        issues: [],
+        nextPage: null,
+        isLoading: false
+      },
+      dispatch: mockDispatch
+    })
+    mockUseUser.mockReturnValue({
+      user: { id: 'test-user', accessToken: '' },
+      isLoading: false,
+      error: null
+    })
+
+    render(<AuthenticatedIssueDisplay roundId="test-round" />)
+
+    const selectViewButton = screen.getByTestId('select-view')
+    fireEvent.click(selectViewButton)
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_SELECTED_VIEW', payload: { id: 'new-view' } })
     })
   })
 })
