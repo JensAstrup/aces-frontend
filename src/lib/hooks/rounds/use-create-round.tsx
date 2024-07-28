@@ -17,13 +17,9 @@ const fetcher = async (url: string, accessToken: string): Promise<string> => {
 
 const useCreateRound = () => {
   const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Error('No access token found')
-  }
+  const params = accessToken ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, accessToken] : null
   const { data: roundId, error, mutate } = useSWR<string, Error>(
-    `${process.env.NEXT_PUBLIC_API_URL}/rounds/`,
-    fetcher,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
+    params, fetcher, { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
   return {
