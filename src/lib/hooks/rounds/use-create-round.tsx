@@ -1,4 +1,5 @@
-
+'use client'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
 
@@ -16,11 +17,14 @@ const fetcher = async (url: string, accessToken: string): Promise<string> => {
 }
 
 const useCreateRound = () => {
-  const accessToken = localStorage.getItem('accessToken')
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    setAccessToken(localStorage.getItem('accessToken'))
+  }, [])
+
   const params = accessToken ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, accessToken] : null
-  const { data: roundId, error, mutate } = useSWR<string, Error>(
-    params, fetcher, { revalidateOnFocus: false, shouldRetryOnError: false }
-  )
+  const { data: roundId, error, mutate } = useSWR<string, Error>(params, ([url, token]) => fetcher(url, token), { revalidateOnFocus: false, shouldRetryOnError: false })
 
   return {
     roundId,
