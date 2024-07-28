@@ -1,6 +1,5 @@
-'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import useAuth from '@aces/lib/hooks/auth/use-authenticate'
 import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
@@ -9,31 +8,43 @@ import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 const useOAuthRedirect = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { handleAuth, isAuthCalled } = useAuth()
-  const { roundId, isLoading, isError, mutate } = useCreateRound()
+  const { handleAuth } = useAuth()
+  const [authError, setAuthError] = useState<Error | null>(null)
+  const [shouldCreateRound, setShouldCreateRound] = useState(false)
+
+  const { roundId, isLoading, isError } = useCreateRound(shouldCreateRound)
 
   useEffect(() => {
     const code = searchParams.get('code')
-    if (code && !isAuthCalled) {
+    if (code) {
       handleAuth(code)
         .then(() => {
-          return mutate()
+          let access_token
+          try {
+            access_token = localStorage.getItem('accessToken')
+          }
+          catch (err) {
+            console.error(err)
+          }
+          setShouldCreateRound(!!access_token)
         })
-        .catch((error) => {
-          console.error('Authentication failed:', error)
-          // Handle error (e.g., redirect to error page)
+        .catch((err) => {
+          setAuthError(err)
         })
     }
-  }, [searchParams, isAuthCalled, handleAuth, mutate])
+  }, [searchParams, handleAuth])
 
   useEffect(() => {
     if (roundId) {
-      console.log('roundId', roundId)
+      console.log('Round created, redirecting:', roundId)
       router.push(`/rounds/${roundId}`)
     }
   }, [roundId, router])
 
-  return { isAuthCalled, isLoading, isError }
+  return {
+    isLoading: isLoading || shouldCreateRound,
+    error: authError || (isError ? new Error('Failed to create round') : null)
+  }
 }
 
 export default useOAuthRedirect

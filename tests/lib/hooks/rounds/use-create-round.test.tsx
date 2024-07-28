@@ -1,20 +1,12 @@
-import { renderHook } from '@testing-library/react'
-import { useEffect, useState } from 'react'
+import { act, renderHook } from '@testing-library/react'
 import useSWR from 'swr'
 
 import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 
 
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useState: jest.fn(),
-  useEffect: jest.fn(),
-}))
 jest.mock('swr')
 
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
-const mockedUseState = useState as jest.MockedFunction<typeof useState>
-const mockedUseEffect = useEffect as jest.MockedFunction<typeof useEffect>
 
 describe('useCreateRound', () => {
   const mockApiUrl = 'https://api.example.com'
@@ -29,8 +21,6 @@ describe('useCreateRound', () => {
     })
     jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {})
 
-    mockedUseState.mockReturnValue([mockAccessToken, jest.fn()])
-    mockedUseEffect.mockImplementation(cb => cb())
     // @ts-expect-error Only needed for testing purposes
     mockedUseSWR.mockReturnValue({
       data: undefined,
@@ -51,11 +41,11 @@ describe('useCreateRound', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useCreateRound())
+    const { result } = renderHook(() => useCreateRound(true))
 
     expect(result.current.roundId).toBe(mockRoundId)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
     expect(mockedUseSWR).toHaveBeenCalledWith(
       [`${mockApiUrl}/rounds`, mockAccessToken],
       expect.any(Function),
@@ -71,11 +61,11 @@ describe('useCreateRound', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useCreateRound())
+    const { result } = renderHook(() => useCreateRound(true))
 
     expect(result.current.roundId).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
   })
 
   it('should handle error state', () => {
@@ -87,15 +77,25 @@ describe('useCreateRound', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useCreateRound())
+    const { result } = renderHook(() => useCreateRound(true))
 
     expect(result.current.roundId).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBe(mockError)
+    expect(result.current.isError).toBe(true)
   })
 
-  it('should store roundId in localStorage', async () => {
+  it('should not fetch when shouldFetch is false', () => {
+    const { result } = renderHook(() => useCreateRound(false))
+
+    expect(result.current.roundId).toBeUndefined()
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.isError).toBe(false)
+    expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function), expect.any(Object))
+  })
+
+  it('should store roundId in localStorage when fetcher is called', async () => {
     const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: jest.fn().mockResolvedValue({ id: mockRoundId }),
     })
     global.fetch = mockFetch as unknown as typeof fetch
@@ -112,14 +112,38 @@ describe('useCreateRound', () => {
       }
     })
 
-    renderHook(() => useCreateRound())
+    renderHook(() => useCreateRound(true))
 
     expect(capturedFetcher).toBeDefined()
-    if (capturedFetcher) {
-      await capturedFetcher(`${mockApiUrl}/rounds`, mockAccessToken)
-    }
+    await act(async () => {
+      await capturedFetcher!(`${mockApiUrl}/rounds`, mockAccessToken)
+    })
 
     expect(localStorage.setItem).toHaveBeenCalledWith('round', mockRoundId)
+  })
+
+  it('should throw an error when fetch fails', async () => {
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: false,
+    })
+    global.fetch = mockFetch as unknown as typeof fetch
+
+    let capturedFetcher: ((url: string, accessToken: string) => Promise<string>) | undefined
+
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockImplementation((key, fetcher) => {
+      capturedFetcher = fetcher as (url: string, accessToken: string) => Promise<string>
+      return {
+        data: undefined,
+        error: undefined,
+        mutate: jest.fn(),
+      }
+    })
+
+    renderHook(() => useCreateRound(true))
+
+    expect(capturedFetcher).toBeDefined()
+    await expect(capturedFetcher!(`${mockApiUrl}/rounds`, mockAccessToken)).rejects.toThrow('Failed to create round')
   })
 
   it('should return mutate function', () => {
@@ -131,32 +155,8 @@ describe('useCreateRound', () => {
       mutate: mockMutate,
     })
 
-    const { result } = renderHook(() => useCreateRound())
+    const { result } = renderHook(() => useCreateRound(true))
 
     expect(result.current.mutate).toBe(mockMutate)
-  })
-
-  it('should set accessToken from localStorage on mount', () => {
-    const setAccessToken = jest.fn()
-    mockedUseState.mockReturnValueOnce([null, setAccessToken])
-
-    renderHook(() => useCreateRound())
-
-    expect(localStorage.getItem).toHaveBeenCalledWith('accessToken')
-    expect(setAccessToken).toHaveBeenCalledWith(mockAccessToken)
-  })
-
-  it('should not call useSWR when accessToken is null', () => {
-    mockedUseState.mockReturnValueOnce([null, jest.fn()])
-    // @ts-expect-error - ignore for testing purposes
-    mockedUseSWR.mockReturnValue({
-      data: undefined,
-      error: undefined,
-      mutate: jest.fn(),
-    })
-
-    renderHook(() => useCreateRound())
-
-    expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function), expect.any(Object))
   })
 })

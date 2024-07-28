@@ -1,5 +1,4 @@
 'use client'
-import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
 
@@ -11,25 +10,25 @@ const fetcher = async (url: string, accessToken: string): Promise<string> => {
       'Authorization': accessToken
     },
   })
+
+  if (!response.ok) throw new Error('Failed to create round')
+
   const data = await response.json()
   localStorage.setItem('round', data.id)
   return data.id
 }
 
-const useCreateRound = () => {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-
-  useEffect(() => {
-    setAccessToken(localStorage.getItem('accessToken'))
-  }, [])
-
-  const params = accessToken ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, accessToken] : null
-  const { data: roundId, error, mutate } = useSWR<string, Error>(params, ([url, token]) => fetcher(url, token), { revalidateOnFocus: false, shouldRetryOnError: false })
+const useCreateRound = (shouldFetch: boolean) => {
+  const accessToken = localStorage.getItem('accessToken')
+  const { data: roundId, error, mutate } = useSWR<string, Error>(
+    shouldFetch ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, accessToken] : null, ([url, accessToken]: [string, string]) => fetcher(url, accessToken),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  )
 
   return {
     roundId,
-    isLoading: !error && !roundId,
-    isError: error,
+    isLoading: shouldFetch && !error && !roundId,
+    isError: !!error,
     mutate
   }
 }
