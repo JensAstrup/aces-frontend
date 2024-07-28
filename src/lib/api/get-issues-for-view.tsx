@@ -3,14 +3,7 @@ import useSWR from 'swr'
 import { View } from '@aces/interfaces/view'
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-const fetcher = async (url: string) => {
-  const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Error('No access token found')
-  }
-
+const fetcher = async (url: string, accessToken: string) => {
   const response = await fetch(url, {
     headers: {
       Authorization: `${accessToken}`,
@@ -26,13 +19,17 @@ const fetcher = async (url: string) => {
 
 
 function useGetIssuesForView(selectedView: View | null) {
-  const { data, error, isLoading } = useSWR(selectedView?.id ? `${API_URL}/views/${selectedView.id}/issues` : null, (url) => {
-    return fetcher(url)
+  const accessToken = localStorage.getItem('accessToken')
+  if (!accessToken) {
+    throw new Error('No access token found')
+  }
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
+  const result = useSWR(selectedView?.id ? [`${API_URL}/views/${selectedView.id}/issues`, accessToken] : null, ([url, accessToken]) => {
+    return fetcher(url, accessToken)
   })
   return {
-    data,
-    error,
-    isLoading
+    ...result
   }
 }
 

@@ -47,6 +47,7 @@ describe('AuthenticatedIssueDisplay', () => {
       favoriteViews: undefined,
       isError: undefined
     })
+    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: null, error: null,
       isLoading: false
@@ -69,6 +70,7 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('renders RoundError when there is an issue error', () => {
+    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: null, error: new Error('Test error'),
       isLoading: false
@@ -127,6 +129,7 @@ describe('AuthenticatedIssueDisplay', () => {
       issues: [{ id: 'issue1' }, { id: 'issue2' }],
       nextPage: 'next-page-token'
     }
+    // @ts-expect-error Mocking return value as needed for testing
     mockUseGetIssuesForView.mockReturnValue({
       data: mockFetchedIssues, error: null,
       isLoading: false

@@ -1,14 +1,9 @@
 import useSWR from 'swr'
 
 
-const API_URL: string = process.env.NEXT_PUBLIC_API_URL!
 
-async function setRoundIssueFetcher(url: string, roundId: string, issueId: string) {
-  const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Error('No access token found')
-  }
-  const response = await fetch(`${API_URL}/rounds/${roundId}/issue`, {
+async function setRoundIssueFetcher(url: string, issueId: string, accessToken: string) {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,14 +18,20 @@ async function setRoundIssueFetcher(url: string, roundId: string, issueId: strin
 }
 
 function useSetRoundIssue(roundId: string, issueId: string) {
-  const shouldFetch = !!roundId && !!issueId
-  const { data, error, isLoading } = useSWR(shouldFetch ? [`${API_URL}/rounds/${roundId}/issue`, roundId, issueId] : null, ([url, roundId, issueId]) => {
-    return setRoundIssueFetcher(url, roundId, issueId)
+  const API_URL: string = process.env.NEXT_PUBLIC_API_URL!
+  const accessToken = localStorage.getItem('accessToken')
+  const shouldFetch = !!roundId && !!issueId && !!accessToken
+  const requestParams: [string, string, string] | null = shouldFetch ? [`${API_URL}/rounds/${roundId}/issue`, issueId, accessToken] : null
+  const result = useSWR(requestParams, ([url, issueId, accessToken]) => {
+    return setRoundIssueFetcher(url, issueId, accessToken)
   })
   return {
-    data,
-    error,
-    isLoading
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    data: result?.data,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    error: result?.error,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    isLoading: result?.isLoading ?? false
   }
 }
 
