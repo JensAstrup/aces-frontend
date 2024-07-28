@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import useAuth from '@aces/app/oauth/use-authenticate'
+import useAuth from '@aces/lib/hooks/auth/use-authenticate'
 import useOAuthRedirect from '@aces/lib/hooks/auth/use-oauth-redirect'
 import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 
