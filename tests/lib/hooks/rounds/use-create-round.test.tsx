@@ -1,5 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
-import { act } from 'react'
+import { renderHook } from '@testing-library/react'
 import useSWR from 'swr'
 
 import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
@@ -7,117 +6,158 @@ import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 
 jest.mock('swr')
 
-const mockUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
+const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
 
 describe('useCreateRound', () => {
-  const mockFetch = jest.fn()
-  const mockLocalStorage = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-  }
+  const mockApiUrl = 'https://api.example.com'
+  const mockAccessToken = 'mock-access-token'
+  const mockRoundId = 'round-123'
 
   beforeEach(() => {
+    process.env.NEXT_PUBLIC_API_URL = mockApiUrl
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'accessToken') return mockAccessToken
+      return null
+    })
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
     jest.resetAllMocks()
-    global.fetch = mockFetch as unknown as typeof global.fetch
-    Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
-    process.env.NEXT_PUBLIC_API_URL = 'http://test-api.com'
   })
 
-  it('should throw an error when no access token is found', async () => {
-    mockLocalStorage.getItem.mockReturnValue(null)
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSWR.mockReturnValue({
-      data: undefined,
-      error: new Error('No access token found'),
-      mutate: jest.fn()
-    })
-
-    const { result } = renderHook(() => useCreateRound())
-
-    await waitFor(() => {
-      expect(result.current.isError).toBeTruthy()
-    })
-
-    expect(result.current.isError).toEqual(new Error('No access token found'))
-  })
-
-  it('should create a round successfully', async () => {
-    const mockAccessToken = 'mock-access-token'
-    const mockRoundId = 'mock-round-id'
-    mockLocalStorage.getItem.mockReturnValue(mockAccessToken)
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSWR.mockReturnValue({
+  it('should return roundId when fetch is successful', () => {
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockReturnValue({
       data: mockRoundId,
       error: undefined,
-      mutate: jest.fn()
+      mutate: jest.fn(),
     })
 
     const { result } = renderHook(() => useCreateRound())
 
-    await waitFor(() => {
-      expect(result.current.roundId).toBe(mockRoundId)
-    })
-
+    expect(result.current.roundId).toBe(mockRoundId)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBe(undefined)
+    expect(result.current.isError).toBeUndefined()
+    expect(mockedUseSWR).toHaveBeenCalledWith(
+      `${mockApiUrl}/rounds/`,
+      expect.any(Function),
+      { revalidateOnFocus: false, shouldRetryOnError: false }
+    )
   })
 
-  it('should handle API errors', async () => {
-    const mockAccessToken = 'mock-access-token'
-    mockLocalStorage.getItem.mockReturnValue(mockAccessToken)
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSWR.mockReturnValue({
-      data: undefined,
-      error: new Error('API Error'),
-      mutate: jest.fn()
-    })
-
-    const { result } = renderHook(() => useCreateRound())
-
-    await waitFor(() => {
-      expect(result.current.isError).toBeTruthy()
-    })
-
-    expect(result.current.isError).toEqual(new Error('API Error'))
-  })
-
-  it('should return loading state', () => {
-    mockLocalStorage.getItem.mockReturnValue('mock-access-token')
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSWR.mockReturnValue({
+  it('should handle loading state', () => {
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
-      mutate: jest.fn()
+      mutate: jest.fn(),
     })
 
     const { result } = renderHook(() => useCreateRound())
 
-    expect(result.current.isLoading).toBe(true)
     expect(result.current.roundId).toBeUndefined()
-    expect(result.current.isError).toBe(undefined)
+    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isError).toBeUndefined()
   })
 
-  it('should allow manual revalidation', async () => {
-    const mockRoundId = 'mock-round-id'
+  it('should handle error state', () => {
+    const mockError = new Error('Failed to create round')
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockReturnValue({
+      data: undefined,
+      error: mockError,
+      mutate: jest.fn(),
+    })
+
+    const { result } = renderHook(() => useCreateRound())
+
+    expect(result.current.roundId).toBeUndefined()
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.isError).toBe(mockError)
+  })
+
+  it('should throw an error when access token is not found', () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
+
+    expect(() => {
+      renderHook(() => useCreateRound())
+    }).toThrow('No access token found')
+  })
+
+  it('should call fetcher with correct arguments', async () => {
+    const mockFetch = jest.fn().mockResolvedValue({
+      json: jest.fn().mockResolvedValue({ id: mockRoundId }),
+    })
+    global.fetch = mockFetch as unknown as typeof fetch
+
+    let capturedFetcher: ((url: string, accessToken: string) => Promise<string>) | undefined
+
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockImplementation((key, fetcher) => {
+      capturedFetcher = fetcher as (url: string, accessToken: string) => Promise<string>
+      return {
+        data: mockRoundId,
+        error: undefined,
+        mutate: jest.fn(),
+      }
+    })
+
+    renderHook(() => useCreateRound())
+
+    expect(capturedFetcher).toBeDefined()
+    if (capturedFetcher) {
+      await capturedFetcher(`${mockApiUrl}/rounds/`, mockAccessToken)
+    }
+
+    expect(mockFetch).toHaveBeenCalledWith(`${mockApiUrl}/rounds/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': mockAccessToken
+      },
+    })
+  })
+
+  it('should store roundId in localStorage', async () => {
+    const mockFetch = jest.fn().mockResolvedValue({
+      json: jest.fn().mockResolvedValue({ id: mockRoundId }),
+    })
+    global.fetch = mockFetch as unknown as typeof fetch
+
+    let capturedFetcher: ((url: string, accessToken: string) => Promise<string>) | undefined
+
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockImplementation((key, fetcher) => {
+      capturedFetcher = fetcher as (url: string, accessToken: string) => Promise<string>
+      return {
+        data: mockRoundId,
+        error: undefined,
+        mutate: jest.fn(),
+      }
+    })
+
+    renderHook(() => useCreateRound())
+
+    expect(capturedFetcher).toBeDefined()
+    if (capturedFetcher) {
+      await capturedFetcher(`${mockApiUrl}/rounds/`, mockAccessToken)
+    }
+
+    expect(localStorage.setItem).toHaveBeenCalledWith('round', mockRoundId)
+  })
+
+  it('should return mutate function', () => {
     const mockMutate = jest.fn()
-    mockLocalStorage.getItem.mockReturnValue('mock-access-token')
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSWR.mockReturnValue({
+    // @ts-expect-error Only needed for testing purposes
+    mockedUseSWR.mockReturnValue({
       data: mockRoundId,
       error: undefined,
-      mutate: mockMutate
+      mutate: mockMutate,
     })
 
     const { result } = renderHook(() => useCreateRound())
 
-    await waitFor(() => {
-      expect(result.current.roundId).toBe(mockRoundId)
-    })
-
-    act(() => {
-      result.current.mutate()
-    })
-
-    expect(mockMutate).toHaveBeenCalledTimes(1)
+    expect(result.current.mutate).toBe(mockMutate)
   })
 })

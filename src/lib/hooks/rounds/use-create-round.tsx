@@ -1,11 +1,8 @@
+
 import useSWR from 'swr'
 
 
-const fetcher = async (url: string): Promise<string> => {
-  const accessToken = localStorage.getItem('accessToken')
-  if (!accessToken) {
-    throw new Error('No access token found')
-  }
+const fetcher = async (url: string, accessToken: string): Promise<string> => {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -19,6 +16,10 @@ const fetcher = async (url: string): Promise<string> => {
 }
 
 const useCreateRound = () => {
+  const accessToken = localStorage.getItem('accessToken')
+  if (!accessToken) {
+    throw new Error('No access token found')
+  }
   const { data: roundId, error, mutate } = useSWR<string, Error>(
     `${process.env.NEXT_PUBLIC_API_URL}/rounds/`,
     fetcher,
