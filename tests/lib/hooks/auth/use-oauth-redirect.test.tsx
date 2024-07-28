@@ -7,7 +7,7 @@ import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 
 
 jest.mock('next/navigation')
-jest.mock('@aces/app/oauth/use-authenticate')
+jest.mock('@aces/lib/hooks/auth/use-authenticate')
 jest.mock('@aces/lib/hooks/rounds/use-create-round')
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
