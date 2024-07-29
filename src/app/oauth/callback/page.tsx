@@ -1,9 +1,21 @@
-import dynamic from 'next/dynamic'
+'use client'
 
+import React, { Suspense } from 'react'
 
-const OAuthRedirect = dynamic(() => import('@aces/app/oauth/callback/OAuthComponent'), { ssr: false })
+import OAuthRedirectComponent from '@aces/app/oauth/callback/RedirectComponent'
+import { Icons } from '@aces/components/icons'
 
 
 export default function OAuthCallbackPage() {
-  return <OAuthRedirect />
+  return (
+    <Suspense
+      fallback={(
+        <div className="flex items-center justify-center h-screen w-screen">
+          <Icons.spinner className="animate-spin" />
+        </div>
+      )}
+    >
+      <OAuthRedirectComponent />
+    </Suspense>
+  )
 }
