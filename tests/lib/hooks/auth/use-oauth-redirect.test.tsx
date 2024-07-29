@@ -1,6 +1,5 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor } from '@testing-library/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React from 'react'
 
 import useAuth from '@aces/lib/hooks/auth/use-authenticate'
 import useOAuthRedirect from '@aces/lib/hooks/auth/use-oauth-redirect'
