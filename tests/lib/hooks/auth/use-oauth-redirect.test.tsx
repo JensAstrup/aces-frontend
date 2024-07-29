@@ -19,20 +19,20 @@ describe('useOAuthRedirect', () => {
   const mockPush = jest.fn()
   const mockGet = jest.fn()
   const mockHandleAuth = jest.fn()
-  const mockMutate = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseRouter.mockReturnValue({ push: mockPush })
-    // @ts-expect-error Mocking return value as needed for testing
-    mockUseSearchParams.mockReturnValue({ get: mockGet })
-    mockUseAuth.mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: false })
+    mockUseRouter.mockReturnValue({ push: mockPush } as unknown as ReturnType<typeof useRouter>)
+    mockUseSearchParams.mockReturnValue({ get: mockGet } as unknown as ReturnType<typeof useSearchParams>)
+    mockUseAuth.mockReturnValue({
+      handleAuth: mockHandleAuth,
+      isAuthCalled: false
+    })
+    // @ts-expect-error Only needed for testing purposes
     mockUseCreateRound.mockReturnValue({
       roundId: undefined,
       isLoading: false,
-      isError: undefined,
-      mutate: mockMutate,
+      isError: false,
     })
   })
 
@@ -44,49 +44,51 @@ describe('useOAuthRedirect', () => {
     })
   })
 
-  it('should call handleAuth when there is a code and auth has not been called', async () => {
+  it('should call handleAuth when there is a code', async () => {
     mockGet.mockReturnValue('test-code')
     mockHandleAuth.mockResolvedValue(undefined)
-    mockMutate.mockResolvedValue(undefined)
 
     renderHook(() => useOAuthRedirect())
 
     await waitFor(() => {
       expect(mockHandleAuth).toHaveBeenCalledWith('test-code')
-      expect(mockMutate).toHaveBeenCalled()
     })
   })
 
-  it('should not call handleAuth when auth has already been called', async () => {
+  it('should set shouldCreateRound to true when authentication succeeds and access token is present', async () => {
     mockGet.mockReturnValue('test-code')
-    mockUseAuth.mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: true })
+    mockHandleAuth.mockResolvedValue(undefined)
 
-    renderHook(() => useOAuthRedirect())
+    const mockLocalStorage = {
+      getItem: jest.fn().mockReturnValue('mock-access-token'),
+    }
+    Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
+
+    const { result } = renderHook(() => useOAuthRedirect())
 
     await waitFor(() => {
-      expect(mockHandleAuth).not.toHaveBeenCalled()
+      expect(result.current.isLoading).toBe(true)
     })
   })
 
   it('should handle authentication failure', async () => {
     mockGet.mockReturnValue('test-code')
-    mockHandleAuth.mockRejectedValue(new Error('Auth failed'))
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const mockError = new Error('Auth failed')
+    mockHandleAuth.mockRejectedValue(mockError)
 
-    renderHook(() => useOAuthRedirect())
+    const { result } = renderHook(() => useOAuthRedirect())
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Authentication failed:', expect.any(Error))
+      expect(result.current.error).toBe(mockError)
     })
-    consoleErrorSpy.mockRestore()
   })
 
   it('should redirect to the round page when roundId is available', async () => {
+    // @ts-expect-error Only needed for testing purposes
     mockUseCreateRound.mockReturnValue({
       roundId: 'test-round-id',
       isLoading: false,
-      isError: undefined,
-      mutate: mockMutate,
+      isError: false,
     })
 
     renderHook(() => useOAuthRedirect())
@@ -96,21 +98,37 @@ describe('useOAuthRedirect', () => {
     })
   })
 
-  it('should return correct values', () => {
-    mockUseAuth.mockReturnValue({ handleAuth: mockHandleAuth, isAuthCalled: true })
+  it('should return error when round creation fails', async () => {
+    mockGet.mockReturnValue('test-code')
+    mockHandleAuth.mockResolvedValue(undefined)
+    // @ts-expect-error Only needed for testing purposes
     mockUseCreateRound.mockReturnValue({
       roundId: undefined,
-      isLoading: true,
-      isError: undefined,
-      mutate: mockMutate,
+      isLoading: false,
+      isError: true,
     })
 
     const { result } = renderHook(() => useOAuthRedirect())
 
-    expect(result.current).toEqual({
-      isAuthCalled: true,
+    await waitFor(() => {
+      expect(result.current.error).toEqual(new Error('Failed to create round'))
+    })
+  })
+
+  it('should return correct loading state', async () => {
+    mockGet.mockReturnValue('test-code')
+    mockHandleAuth.mockResolvedValue(undefined)
+    // @ts-expect-error Only needed for testing purposes
+    mockUseCreateRound.mockReturnValue({
+      roundId: undefined,
       isLoading: true,
-      isError: undefined,
+      isError: false,
+    })
+
+    const { result } = renderHook(() => useOAuthRedirect())
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(true)
     })
   })
 })
