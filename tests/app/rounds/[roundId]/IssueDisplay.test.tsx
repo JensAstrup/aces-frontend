@@ -41,7 +41,7 @@ describe('IssueDisplay', () => {
     render(<IssueDisplay user={null} roundId={mockRoundId} />)
 
     const UnauthenticatedIssueDisplay = jest.requireMock('@aces/app/issues/anonymous-issue-display').default
-    expect(UnauthenticatedIssueDisplay).toHaveBeenCalledWith({ roundId: mockRoundId }, {})
+    expect(UnauthenticatedIssueDisplay).toHaveBeenCalled()
   })
 
   it('passes roundId to AuthenticatedIssueDisplay', () => {

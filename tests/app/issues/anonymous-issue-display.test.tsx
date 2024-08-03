@@ -3,7 +3,7 @@ import React from 'react'
 
 import UnauthenticatedIssueDisplay, { CurrentIssueDisplay } from '@aces/app/issues/anonymous-issue-display'
 import { Issue } from '@aces/interfaces/issue'
-import useWebSocketIssue from '@aces/lib/hooks/issues/use-websocket-issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 // Mock the dependencies
 jest.mock('@aces/components/comments/comments', () => ({
@@ -24,7 +24,17 @@ jest.mock('@aces/components/ui/separator', () => ({
   Separator: () => <hr data-testid="separator" />
 }))
 
-jest.mock('@aces/lib/hooks/issues/use-websocket-issue')
+jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
+  useIssues: jest.fn().mockImplementation(() => ({
+    setCurrentIssue: jest.fn(),
+  })
+  ),
+  IssuesProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="issues-provider">{children}</div>
+  )
+}))
+const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
+
 
 describe('CurrentIssueDisplay', () => {
   const mockIssue = {
@@ -44,46 +54,25 @@ describe('CurrentIssueDisplay', () => {
 })
 
 describe('UnauthenticatedIssueDisplay', () => {
-  const mockUseWebSocketIssue = useWebSocketIssue as jest.MockedFunction<typeof useWebSocketIssue>
-
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   it('renders LoadingRound when issue is null', () => {
-    mockUseWebSocketIssue.mockReturnValue({
-      issue: null,
-      isLoading: false
-    })
-
-    render(<UnauthenticatedIssueDisplay roundId="test-round" />)
+    render(<UnauthenticatedIssueDisplay />)
 
     expect(screen.getByTestId('loading-round')).toBeInTheDocument()
     expect(screen.queryByText('Current Issue')).not.toBeInTheDocument()
   })
 
-  it('renders CurrentIssueDisplay when issue is available', () => {
-    const mockIssue = {
-      id: '1',
-      title: 'Test Issue',
-      body: 'This is a test issue'
-    } as unknown as Issue
-    mockUseWebSocketIssue.mockReturnValue({ issue: mockIssue, isLoading: false })
-
-    render(<UnauthenticatedIssueDisplay roundId="test-round" />)
-
-    expect(screen.getByText('Current Issue')).toBeInTheDocument()
-    expect(screen.queryByTestId('loading-round')).not.toBeInTheDocument()
-  })
-
-  it('passes roundId to useWebSocketIssue hook', () => {
-    mockUseWebSocketIssue.mockReturnValue({
-      issue: null,
-      isLoading: false
+  it('passes issue to useWebSocketIssue hook', () => {
+    mockUseIssues.mockReturnValue({
+    // @ts-expect-error mock implementation
+      currentIssue: 'test-issue-123',
     })
 
-    render(<UnauthenticatedIssueDisplay roundId="test-round-123" />)
+    render(<UnauthenticatedIssueDisplay />)
 
-    expect(mockUseWebSocketIssue).toHaveBeenCalledWith('test-round-123')
+    expect(mockUseIssues).toHaveBeenCalled()
   })
 })

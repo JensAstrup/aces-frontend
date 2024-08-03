@@ -7,7 +7,7 @@ import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
 import { useUser } from '@aces/lib/hooks/auth/user-context'
-import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { IssuesState, useIssues } from '@aces/lib/hooks/issues/issues-context'
 import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
 
 
@@ -62,6 +62,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: null,
@@ -69,7 +70,7 @@ describe('AuthenticatedIssueDisplay', () => {
         issues: [],
         nextPage: null,
         isLoading: false
-      },
+      } as IssuesState,
       dispatch: mockDispatch
     })
     mockUseUser.mockReturnValue({ user: null, error: null, isLoading: false })
@@ -139,6 +140,7 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('renders IssueContent when selectedView is present', () => {
+    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: { id: 'test-view' } as View,
@@ -188,6 +190,7 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('handles navigation to next issue', async () => {
+    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: { id: 'test-view' } as View,
@@ -209,6 +212,7 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('handles navigation to previous issue', async () => {
+    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: { id: 'test-view' } as View,
@@ -231,6 +235,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('updates selected view when setView is called with a function', async () => {
     const initialView = { id: 'initial-view' } as View
+    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: initialView,
