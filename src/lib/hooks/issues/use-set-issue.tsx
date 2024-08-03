@@ -8,7 +8,7 @@ interface useSetIssueProps {
 }
 
 function useSetIssue({ issue }: useSetIssueProps): void {
-  const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
+  const [, setCurrentIssue] = useState<Issue | null>(null)
   setCurrentIssue(issue)
 }
 
