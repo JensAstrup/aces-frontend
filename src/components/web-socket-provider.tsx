@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
+import { SockMessagePayload, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
 
 
@@ -22,6 +24,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   onError
 }) => {
   const { setCurrentIssue } = useIssues()
+  const { setVotes } = useVotes()
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
     if (message) {
@@ -36,7 +39,9 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         if (onVoteReceived) {
           console.log('Vote received from WebSocket:', message.payload)
         }
-        console.log('Vote received from WebSocket:', message)
+        // eslint-disable-next-line no-case-declarations
+        const data = message.payload as VoteUpdatedPayload
+        setVotes(data.votes)
         break
       case 'error':
         if (onError) {

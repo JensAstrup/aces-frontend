@@ -40,8 +40,6 @@ function issuesReducer(state: IssuesState, action: Action): IssuesState {
     return { ...state, nextPage: action.payload }
   case 'SET_LOADING':
     return { ...state, isLoading: action.payload }
-  case 'APPEND_ISSUES':
-    return { ...state, issues: [...state.issues, ...action.payload] }
   default:
     return state
   }
