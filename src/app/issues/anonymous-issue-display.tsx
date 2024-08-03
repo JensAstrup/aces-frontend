@@ -6,12 +6,8 @@ import IssueSection from '@aces/components/issues/issue-section'
 import LoadingRound from '@aces/components/rounds/loading-round'
 import { Separator } from '@aces/components/ui/separator'
 import { Issue } from '@aces/interfaces/issue'
-import useWebSocketIssue from '@aces/lib/hooks/issues/use-websocket-issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
-
-interface IssueDisplayProps {
-    roundId: string
-}
 
 function CurrentIssueDisplay({ issue }: { issue: Issue }) {
   return (
@@ -25,12 +21,12 @@ function CurrentIssueDisplay({ issue }: { issue: Issue }) {
 }
 
 
-function UnauthenticatedIssueDisplay({ roundId }: IssueDisplayProps) {
-  const { issue } = useWebSocketIssue(roundId)
+function UnauthenticatedIssueDisplay() {
+  const { currentIssue } = useIssues()
 
   return (
     <div className="space-y-6">
-      {issue ? <CurrentIssueDisplay issue={issue} /> : <LoadingRound />}
+      {currentIssue ? <CurrentIssueDisplay issue={currentIssue} /> : <LoadingRound />}
     </div>
   )
 }

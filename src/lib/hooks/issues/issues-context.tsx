@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useContext, useReducer } from 'react'
+import React, { ReactNode, createContext, useCallback, useContext, useReducer, useState } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
 import { View } from '@aces/interfaces/view'
@@ -50,22 +50,34 @@ function issuesReducer(state: IssuesState, action: Action): IssuesState {
 const IssuesContext = createContext<{
   state: IssuesState
   dispatch: React.Dispatch<Action>
-} | undefined>(undefined)
+  currentIssue: Issue | null
+  setCurrentIssue: (issue: Issue | null) => void
+    } | undefined>(undefined)
 
-export function IssuesProvider({ children }: { children: ReactNode }) {
+function IssuesProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(issuesReducer, initialState)
 
+  const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
+
+  const setCurrentIssueCallback = useCallback((issue: Issue | null) => {
+    console.log('Setting current issue:', issue)
+    setCurrentIssue(issue)
+  }, [])
+
   return (
-    <IssuesContext.Provider value={{ state, dispatch }}>
+    <IssuesContext.Provider value={{ state, dispatch, currentIssue, setCurrentIssue: setCurrentIssueCallback }}>
       {children}
     </IssuesContext.Provider>
   )
 }
 
-export function useIssues() {
+function useIssues() {
   const context = useContext(IssuesContext)
   if (context === undefined) {
     throw new Error('useIssues must be used within an IssuesProvider')
   }
   return context
 }
+
+export { IssuesProvider, useIssues }
+export type { IssuesState }

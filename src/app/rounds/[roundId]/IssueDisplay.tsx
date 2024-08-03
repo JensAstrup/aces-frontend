@@ -13,7 +13,7 @@ interface IssueDisplayWrapperProps {
 export function IssueDisplay({ user, roundId }: IssueDisplayWrapperProps): JSX.Element {
   return user
     ? <AuthenticatedIssueDisplay roundId={roundId} />
-    : <UnauthenticatedIssueDisplay roundId={roundId} />
+    : <UnauthenticatedIssueDisplay />
 }
 
 export default IssueDisplay
