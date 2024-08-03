@@ -3,6 +3,7 @@ import React from 'react'
 
 import RoundPage from '@aces/app/rounds/[roundId]/page'
 import User from '@aces/interfaces/user'
+import * as setVoteModule from '@aces/lib/api/set-vote'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import { useUser } from '@aces/lib/hooks/auth/user-context'
 
@@ -25,25 +26,37 @@ jest.mock('@aces/app/rounds/[roundId]/IssueDisplay', () => ({
 jest.mock('@aces/components/rounds/sidebar', () => ({
   RoundSidebar: ({ roundId }: { roundId: string }) => (
     <div data-testid="round-sidebar">
-      RoundSidebar:
+RoundSidebar:
       {' '}
       {roundId}
     </div>
   )
 }))
 
+jest.mock('@aces/components/web-socket-provider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="web-socket-provider">{children}</div>
+  )
+}))
+
 jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
+  useIssues: jest.fn().mockImplementation(() => ({
+    setCurrentIssue: jest.fn(),
+  })),
   IssuesProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="issues-provider">{children}</div>
   )
 }))
 
+jest.mock('@aces/lib/api/set-vote')
 jest.mock('@aces/lib/hooks/auth/user-context')
 jest.mock('@aces/lib/hooks/auth/use-register-viewer')
 
 describe('RoundPage', () => {
   const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
   const mockUseRegisterViewer = useRegisterViewer as jest.MockedFunction<typeof useRegisterViewer>
+  const mockUseVote = jest.spyOn(setVoteModule, 'useVote')
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -54,17 +67,19 @@ describe('RoundPage', () => {
       data: undefined,
       isRegistered: false
     })
+    mockUseVote.mockReturnValue({ trigger: jest.fn() } as unknown as ReturnType<typeof setVoteModule.useVote>)
   })
 
-  it('renders correctly with no user', () => {
+  it('should render correctly with no user', () => {
     render(<RoundPage params={{ roundId: 'test-round' }} />)
 
     expect(screen.getByTestId('issues-provider')).toBeInTheDocument()
+    expect(screen.getByTestId('web-socket-provider')).toBeInTheDocument()
     expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: No user - test-round')
     expect(screen.getByTestId('round-sidebar')).toHaveTextContent('RoundSidebar: test-round')
   })
 
-  it('renders correctly with a user', () => {
+  it('should render correctly with a user', () => {
     mockUseUser.mockReturnValue({ user: { id: 'test-user', accessToken: '' }, isLoading: false, error: null })
 
     render(<RoundPage params={{ roundId: 'test-round' }} />)
@@ -72,7 +87,7 @@ describe('RoundPage', () => {
     expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: test-user - test-round')
   })
 
-  it('calls useRegisterViewer with correct arguments when user is loaded', () => {
+  it('should call useRegisterViewer with correct arguments when user is loaded', () => {
     const mockUser = { id: 'test-user', accessToken: 'test-token' }
     mockUseUser.mockReturnValue({ user: mockUser, isLoading: false, error: null })
 
@@ -81,7 +96,7 @@ describe('RoundPage', () => {
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: 'test-round' }, mockUser)
   })
 
-  it('calls useRegisterViewer with undefined user when user is loading', () => {
+  it('should call useRegisterViewer with undefined user when user is loading', () => {
     mockUseUser.mockReturnValue({ user: null, isLoading: true, error: null })
 
     render(<RoundPage params={{ roundId: 'test-round' }} />)
@@ -89,11 +104,27 @@ describe('RoundPage', () => {
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: 'test-round' }, undefined)
   })
 
-  it('renders correctly when user is loading', () => {
+  it('should render correctly when user is loading', () => {
     mockUseUser.mockReturnValue({ user: null, isLoading: true, error: null })
 
     render(<RoundPage params={{ roundId: 'test-round' }} />)
 
     expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: No user - test-round')
+  })
+
+  it('should call useVote with correct roundId', () => {
+    render(<RoundPage params={{ roundId: 'test-round' }} />)
+
+    expect(mockUseVote).toHaveBeenCalledWith('test-round')
+  })
+
+  it('should pass trigger function to WebSocketProvider', () => {
+    const mockTrigger = jest.fn()
+    mockUseVote.mockReturnValue({ trigger: mockTrigger } as unknown as ReturnType<typeof setVoteModule.useVote>)
+
+    render(<RoundPage params={{ roundId: 'test-round' }} />)
+
+    const webSocketProvider = screen.getByTestId('web-socket-provider')
+    expect(webSocketProvider).toBeInTheDocument()
   })
 })
