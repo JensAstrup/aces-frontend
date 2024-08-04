@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
-import { SockMessagePayload, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
+import { VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
@@ -55,7 +55,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         console.error('Unknown message type received from WebSocket:', message)
       }
     }
-  }, [setCurrentIssue, onVoteReceived, onError])
+  }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])
 
   useEffect(() => {
     const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)

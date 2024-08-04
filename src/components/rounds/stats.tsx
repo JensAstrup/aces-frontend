@@ -15,10 +15,9 @@ function Stats({ votes, expectedVotes }: StatsProps): JSX.Element {
   const totalVotes = votes.length
   let lowest = Math.min(...votes)
   let highest = Math.max(...votes)
-  const expectedVotesArray = Array(expectedVotes).fill(0)
-  let median = getMedian(votes.concat(expectedVotesArray))
+  let median = getMedian(votes)
   let average = votes.reduce((acc, vote) => acc + vote, 0) / totalVotes
-
+  console.log('median', median)
   if (totalVotes === 0) {
     lowest = 0
     highest = 0
