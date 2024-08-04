@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@aces/components/ui/card'
-import getMedian from '@aces/lib/utils'
+import getMedian from '@aces/lib/utils/get-median'
 
 
 interface StatsProps {
     votes: number[]
-    expectedVotes: number
 }
 
-function Stats({ votes, expectedVotes }: StatsProps): JSX.Element {
+function Stats({ votes }: StatsProps): JSX.Element {
   if (votes.length === 0) {
     return <></>
   }

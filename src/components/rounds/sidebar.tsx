@@ -30,7 +30,7 @@ export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
     <>
       <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
       <Votes votes={votes} expectedVotes={expectedVotes} />
-      <Stats votes={votes} expectedVotes={expectedVotes} />
+      <Stats votes={votes} />
     </>
   )
 }
