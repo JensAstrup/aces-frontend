@@ -1,10 +1,11 @@
 import React from 'react'
 
-import { Estimate } from '@aces/components/estimate'
 import { Icons } from '@aces/components/icons'
-import { Stats } from '@aces/components/ui/stats'
-import { Votes } from '@aces/components/votes'
+import { Estimate } from '@aces/components/rounds/estimate'
+import { Stats } from '@aces/components/rounds/stats'
+import { Votes } from '@aces/components/rounds/votes'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 
 
 interface RoundSidebarProps {
@@ -13,9 +14,10 @@ interface RoundSidebarProps {
 
 export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
   const { currentIssue, state: issueState } = useIssues()
-  console.log('currentIssue', currentIssue)
+  const { isLoading } = issueState
+  const { votes, expectedVotes } = useVotes()
 
-  if (issueState.isLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px] h-full">
         <Icons.spinner className="animate-spin h-8 w-8 text-gray-500" />
@@ -23,11 +25,12 @@ export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
     )
   }
 
+
   return (
     <>
-      <Estimate roundId={roundId} issue={currentIssue} />
-      <Votes />
-      <Stats />
+      <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+      <Votes votes={votes} expectedVotes={expectedVotes} />
+      <Stats votes={votes} expectedVotes={expectedVotes} />
     </>
   )
 }
