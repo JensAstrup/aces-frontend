@@ -40,7 +40,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         if (onVoteReceived) {
           console.log('Vote received from WebSocket:', message.payload)
         }
-        // eslint-disable-next-line no-case-declarations
         const data = message.payload as VoteUpdatedPayload
         setVotes(data.votes)
         setExpectedVotes(data.expectedVotes)
