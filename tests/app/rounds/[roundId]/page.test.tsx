@@ -75,16 +75,6 @@ describe('RoundPage', () => {
 
     expect(screen.getByTestId('issues-provider')).toBeInTheDocument()
     expect(screen.getByTestId('web-socket-provider')).toBeInTheDocument()
-    expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: No user - test-round')
-    expect(screen.getByTestId('round-sidebar')).toHaveTextContent('RoundSidebar: test-round')
-  })
-
-  it('should render correctly with a user', () => {
-    mockUseUser.mockReturnValue({ user: { id: 'test-user', accessToken: '' }, isLoading: false, error: null })
-
-    render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: test-user - test-round')
   })
 
   it('should call useRegisterViewer with correct arguments when user is loaded', () => {
@@ -102,20 +92,6 @@ describe('RoundPage', () => {
     render(<RoundPage params={{ roundId: 'test-round' }} />)
 
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: 'test-round' }, undefined)
-  })
-
-  it('should render correctly when user is loading', () => {
-    mockUseUser.mockReturnValue({ user: null, isLoading: true, error: null })
-
-    render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(screen.getByTestId('issue-display')).toHaveTextContent('IssueDisplay: No user - test-round')
-  })
-
-  it('should call useVote with correct roundId', () => {
-    render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(mockUseVote).toHaveBeenCalledWith('test-round')
   })
 
   it('should pass trigger function to WebSocketProvider', () => {

@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import React from 'react'
 
 import { Button } from '@aces/components/ui/button'
@@ -10,9 +11,10 @@ import { useVote } from '@aces/lib/api/set-vote'
 interface EstimateProps {
   roundId: string
   issue: Issue | null
+  isLoading: boolean
 }
 
-function Estimate({ roundId, issue }: EstimateProps) {
+function Estimate({ roundId, issue, isLoading }: EstimateProps) {
   const { toast } = useToast()
   const { trigger, isMutating } = useVote(roundId)
 
@@ -54,6 +56,19 @@ function Estimate({ roundId, issue }: EstimateProps) {
     return <div>No issue selected</div>
   }
 
+  if (isLoading) {
+    return (
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Estimate</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {[0, 1, 2, 3, 5, 8].map(point => (
+            <Button key={point} disabled={true} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold">Estimate</h2>
@@ -66,7 +81,7 @@ function Estimate({ roundId, issue }: EstimateProps) {
             size="lg"
             disabled={isMutating}
           >
-            {point}
+            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : point}
           </Button>
         ))}
       </div>

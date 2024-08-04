@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
+import { VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
 
 
@@ -22,12 +24,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   onError
 }) => {
   const { setCurrentIssue } = useIssues()
+  const { setVotes, setExpectedVotes } = useVotes()
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
     if (message) {
       switch (message.event) {
       case 'roundIssueUpdated':
         setCurrentIssue(message.payload as Issue)
+        setVotes([])
         break
       case 'response':
         setCurrentIssue(message.payload as Issue)
@@ -36,7 +40,9 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         if (onVoteReceived) {
           console.log('Vote received from WebSocket:', message.payload)
         }
-        console.log('Vote received from WebSocket:', message)
+        const data = message.payload as VoteUpdatedPayload
+        setVotes(data.votes)
+        setExpectedVotes(data.expectedVotes)
         break
       case 'error':
         if (onError) {
@@ -48,7 +54,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         console.error('Unknown message type received from WebSocket:', message)
       }
     }
-  }, [setCurrentIssue, onVoteReceived, onError])
+  }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])
 
   useEffect(() => {
     const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)

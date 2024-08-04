@@ -7,12 +7,17 @@ type SocketMessageEvent = 'voteUpdated' | 'roundIssueUpdated' | 'response' | 'er
 interface SocketMessage {
     event: SocketMessageEvent
     type?: SocketMessageType
-    payload: object
+    payload: SockMessagePayload
 }
 
-interface VoteUpdatedPayload {
+interface SockMessagePayload {
+
+}
+
+interface VoteUpdatedPayload extends SockMessagePayload {
     issueId: string
     votes: number[]
+    expectedVotes: number
 }
 
 interface VoteUpdatedMessage extends SocketMessage {
@@ -26,4 +31,4 @@ interface RoundIssueChangedMessage extends SocketMessage {
 }
 
 export default SocketMessage
-export type { RoundIssueChangedMessage, SocketMessage, SocketMessageEvent, SocketMessageType, VoteUpdatedMessage, VoteUpdatedPayload }
+export type { RoundIssueChangedMessage, SockMessagePayload, SocketMessage, SocketMessageEvent, SocketMessageType, VoteUpdatedMessage, VoteUpdatedPayload }
