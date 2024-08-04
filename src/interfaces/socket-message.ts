@@ -17,6 +17,7 @@ interface SockMessagePayload {
 interface VoteUpdatedPayload extends SockMessagePayload {
     issueId: string
     votes: number[]
+    expectedVotes: number
 }
 
 interface VoteUpdatedMessage extends SocketMessage {

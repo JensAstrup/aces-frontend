@@ -24,13 +24,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   onError
 }) => {
   const { setCurrentIssue } = useIssues()
-  const { setVotes } = useVotes()
+  const { setVotes, setExpectedVotes } = useVotes()
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
     if (message) {
       switch (message.event) {
       case 'roundIssueUpdated':
         setCurrentIssue(message.payload as Issue)
+        setVotes([])
         break
       case 'response':
         setCurrentIssue(message.payload as Issue)
@@ -42,6 +43,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         // eslint-disable-next-line no-case-declarations
         const data = message.payload as VoteUpdatedPayload
         setVotes(data.votes)
+        setExpectedVotes(data.expectedVotes)
         break
       case 'error':
         if (onError) {

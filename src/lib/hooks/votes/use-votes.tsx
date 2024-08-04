@@ -1,23 +1,24 @@
 import React, { createContext, useContext } from 'react'
 
 
-
-interface VotesState {
-  votes: number[]
-  isLoading: boolean
-}
-
 const VotesContext = createContext<{
   votes: number[]
+  expectedVotes: number
   setVotes: React.Dispatch<React.SetStateAction<number[]>>
-} | undefined>(undefined)
+    setExpectedVotes: (expected: number) => void
+      } | undefined>(undefined)
 
 
 function VotesProvider({ children }: { children: React.ReactNode }) {
   const [votes, setVotes] = React.useState<number[]>([])
+  const [expectedVotes, setExpectedVotes] = React.useState<number>(0)
+
+  const setExpectedVotesCallback = React.useCallback((expected: number) => {
+    setExpectedVotes(expected)
+  }, [])
 
   return (
-    <VotesContext.Provider value={{ votes, setVotes }}>
+    <VotesContext.Provider value={{ votes, setVotes, expectedVotes, setExpectedVotes: setExpectedVotesCallback }}>
       {children}
     </VotesContext.Provider>
 
