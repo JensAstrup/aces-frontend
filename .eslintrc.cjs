@@ -54,7 +54,7 @@ module.exports = {
   },
   "overrides": [
     {
-      files: ["**/*.test.*"],
+      files: ["**/**/*.test.*"],
       rules: {
         "no-magic-numbers": "off",
         "react/display-name": "off",

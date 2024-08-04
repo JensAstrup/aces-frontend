@@ -23,7 +23,6 @@ const IssueContent: React.FC<IssueContentProps> = ({ currentIssueIndex, handleNa
   }
 
   if (issues.length > 0 && issues[currentIssueIndex]) {
-    console.log('content issues', issues)
     return (
       <div>
         <IssueSection
@@ -36,7 +35,6 @@ const IssueContent: React.FC<IssueContentProps> = ({ currentIssueIndex, handleNa
       </div>
     )
   }
-  console.log(issues)
   return (
     <div className="flex items-center justify-center min-h-[200px] flex-col">
       <h1 className="text-xl font-bold">No issues found</h1>
