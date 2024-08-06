@@ -47,17 +47,17 @@ const IssueSection: React.FC<IssueSectionProps> = ({
             <Users className="mr-2 h-4 w-4 opacity-70" />
             {' '}
             <span className="text-xs text-muted-foreground">
-                Team
+                Team:
               {' '}
               {issue.team.name}
             </span>
             <div className="flex items-center gap-1 ml-2">
               <User className="mr-2 h-4 w-4 opacity-70" />
               {' '}
-              <span className="text-xs text-muted-foreground">
-                Creator
-                {' '}
-                {issue.team.name}
+              <span className="text-xs">
+                Creator:
+                {'\n'}
+                <span className="text-muted-foreground">{issue.creator.displayName}</span>
               </span>
             </div>
           </div>
