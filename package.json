@@ -58,7 +58,7 @@
     "add": "^2.0.6",
     "eslint": "^8.49.0",
     "eslint-config-next": "14.2.5",
-    "eslint-config-yenz": "^5.7.0",
+    "eslint-config-yenz": "^6.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^28.5.0",
     "eslint-plugin-node": "^11.1.0",
