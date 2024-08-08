@@ -18,6 +18,13 @@ interface WebSocketProviderProps {
   onError?: (error: string) => void
 }
 
+enum WebSocketEvent {
+  ROUND_ISSUE_UPDATED = 'roundIssueUpdated',
+  RESPONSE = 'response',
+  VOTE_UPDATED = 'voteUpdated',
+  ERROR = 'error',
+}
+
 const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   roundId,
   onVoteReceived,
@@ -33,14 +40,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     const message = inboundHandler(event)
     if (message) {
       switch (message.event) {
-      case 'roundIssueUpdated':
+      case WebSocketEvent.RESPONSE:
+      case WebSocketEvent.ROUND_ISSUE_UPDATED:
         setCurrentIssue(message.payload as Issue)
-        setVotes([])
+        if (message.event === WebSocketEvent.ROUND_ISSUE_UPDATED) {
+          setVotes([])
+        }
         break
-      case 'response':
-        setCurrentIssue(message.payload as Issue)
-        break
-      case 'voteUpdated':
+      case WebSocketEvent.VOTE_UPDATED:
         if (onVoteReceived) {
           console.log('Vote received from WebSocket:', message.payload)
           onVoteReceived(message.payload as VotePayload)
@@ -49,7 +56,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         setVotes(data.votes)
         setExpectedVotes(data.expectedVotes)
         break
-      case 'error':
+      case WebSocketEvent.ERROR:
         if (onError) {
           onError(message.payload as string)
         }
@@ -70,16 +77,13 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       'Content-Type': 'application/json',
       'Authorization': localStorage.getItem('accessToken') || localStorage.getItem('guestToken') || ''
     }
-      // Fallback to fetch for older browsers
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ roundId }),
-        // Use keepalive to allow the request to outlive the page
-        keepalive: true
-      }).catch((error) => {
-        console.error('Error disconnecting from round:', error)
-      })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ roundId }),
+      // Use keepalive to allow the request to outlive the page
+      keepalive: true
+    })
   }, [roundId])
 
   useEffect(() => {
