@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
 import { VoteUpdatedPayload } from '@aces/interfaces/socket-message'
@@ -25,6 +25,9 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 }) => {
   const { setCurrentIssue } = useIssues()
   const { setVotes, setExpectedVotes } = useVotes()
+  const socketRef = useRef<WebSocket | null>(null)
+  const isUnmounting = useRef(false)
+
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
     if (message) {
@@ -39,6 +42,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       case 'voteUpdated':
         if (onVoteReceived) {
           console.log('Vote received from WebSocket:', message.payload)
+          onVoteReceived(message.payload as VotePayload)
         }
         const data = message.payload as VoteUpdatedPayload
         setVotes(data.votes)
@@ -46,7 +50,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         break
       case 'error':
         if (onError) {
-          onError(message.payload as unknown as string)
+          onError(message.payload as string)
         }
         console.error('Error received from WebSocket:', message)
         break
@@ -56,19 +60,65 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     }
   }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])
 
-  useEffect(() => {
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
+  const disconnect = useCallback(() => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': localStorage.getItem('accessToken') || ''
+    }
+    // Use sendBeacon for more reliable delivery during page unload
+    if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify({ roundId })], { type: 'application/json' })
+      navigator.sendBeacon(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, blob)
+    }
+    else {
+      // Fallback to fetch for older browsers
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ roundId }),
+        // Use keepalive to allow the request to outlive the page
+        keepalive: true
+      }).catch((error) => {
+        console.error('Error disconnecting from round:', error)
+      })
+    }
+  }, [roundId])
 
-    socket.onopen = () => {
+  useEffect(() => {
+    isUnmounting.current = false
+    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
+
+    socketRef.current.onopen = () => {
       console.log('WebSocket connection established')
     }
 
-    socket.onmessage = handleMessage
+    socketRef.current.onmessage = handleMessage
+
+    socketRef.current.onclose = (event) => {
+      console.log('WebSocket connection closed:', event)
+      if (isUnmounting.current) {
+        disconnect()
+      }
+    }
+
+    const handleBeforeUnload = () => {
+      isUnmounting.current = true
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
+      disconnect()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
-      socket.close()
+      isUnmounting.current = true
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
     }
-  }, [roundId, handleMessage])
+  }, [roundId, handleMessage, disconnect])
 
   return null // This component doesn't render anything
 }
