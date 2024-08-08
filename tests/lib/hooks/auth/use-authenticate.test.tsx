@@ -10,6 +10,12 @@ describe('useAuth', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     localStorage.clear()
+    jest.spyOn(console, 'log').mockImplementation()
+    jest.spyOn(console, 'error').mockImplementation()
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
   it('should initialize with isAuthCalled as false', () => {

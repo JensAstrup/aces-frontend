@@ -2,7 +2,7 @@
 import React from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
-import WebSocketProvider from '@aces/components/web-socket-provider'
+import WebSocketProvider from '@aces/app/web-socket-provider'
 import { useVote } from '@aces/lib/api/set-vote'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import { useUser } from '@aces/lib/hooks/auth/user-context'

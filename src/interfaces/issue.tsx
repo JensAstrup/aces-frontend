@@ -6,6 +6,7 @@ interface Issue {
   creator: {
     id: number
     name: string
+    displayName: string
   }
   state: {
     name: string
