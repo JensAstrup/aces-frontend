@@ -3360,10 +3360,10 @@ eslint-config-next@14.2.5:
     eslint-plugin-react "^7.33.2"
     eslint-plugin-react-hooks "^4.5.0 || 5.0.0-canary-7118f5dd7-20230705"
 
-eslint-config-yenz@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-yenz/-/eslint-config-yenz-6.0.0.tgz#36532a02f30183e145e3ed60e4cdf79348851f33"
-  integrity sha512-SU8ugNGkSyd/jIPDClhy5jxvbBj3HjpxKiYJCg9N0foFVmKABqXc8n4wjxGYkrSbG92bcVgE16WMiKENkqnj0g==
+eslint-config-yenz@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-yenz/-/eslint-config-yenz-6.1.0.tgz#c2a16a4efb4fcbf7bdb4d0426e438ca0edca2dc2"
+  integrity sha512-swZ+/8jvvaFVRQXbTm69miL9t/gTT/qmmQhqDzlPabVBTNQJkzenYFaojtvrci3oryvT2JTQXZ76u6OYkpX0lw==
   dependencies:
     "@eslint/js" "^9.3.0"
     "@stylistic/eslint-plugin" "^2.1.0"
