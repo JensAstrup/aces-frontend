@@ -3808,10 +3808,10 @@ fetch-blob@^3.1.2, fetch-blob@^3.1.4:
     node-domexception "^1.0.0"
     web-streams-polyfill "^3.0.3"
 
-fetch-mock@^10.1.0:
-  version "10.1.0"
-  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-10.1.0.tgz#b2cabb4f587eca747e395e97de28c62364f301fc"
-  integrity sha512-/2DFdUrn2afOifgXuq3ppTGOg/S8YAvjeEOlBJ4QgWiT24pYGozju3Hz5UQm1ynumY9hlzBHE2z0jd0PHD+fRg==
+fetch-mock@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-11.0.0.tgz#0c49874e22337f4a6120c45cfa1cc3ceada54c94"
+  integrity sha512-AD2Gh1xDQBLBs4iJpSxar19cTOH/Gu9hf1ko2J4hHW1UbR+ZHOfmIAqfT+Wlku4U8cYbffjaTbGv7mqe5kPi3w==
   dependencies:
     debug "^4.1.1"
     dequal "^2.0.3"
