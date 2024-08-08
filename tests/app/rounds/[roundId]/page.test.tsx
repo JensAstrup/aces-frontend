@@ -33,7 +33,7 @@ RoundSidebar:
   )
 }))
 
-jest.mock('@aces/components/web-socket-provider', () => ({
+jest.mock('@aces/app/web-socket-provider', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="web-socket-provider">{children}</div>
