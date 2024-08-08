@@ -27,6 +27,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const { setVotes, setExpectedVotes } = useVotes()
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
+  const isDisconnecting = useRef(false)
 
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
@@ -61,16 +62,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])
 
   const disconnect = useCallback(() => {
+    if (isDisconnecting.current) {
+      return
+    }
+    isDisconnecting.current = true
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': localStorage.getItem('accessToken') || ''
+      'Authorization': localStorage.getItem('accessToken') || localStorage.getItem('guestToken') || ''
     }
-    // Use sendBeacon for more reliable delivery during page unload
-    if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify({ roundId })], { type: 'application/json' })
-      navigator.sendBeacon(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, blob)
-    }
-    else {
       // Fallback to fetch for older browsers
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, {
         method: 'POST',
@@ -81,16 +80,11 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       }).catch((error) => {
         console.error('Error disconnecting from round:', error)
       })
-    }
   }, [roundId])
 
   useEffect(() => {
     isUnmounting.current = false
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
-
-    socketRef.current.onopen = () => {
-      console.log('WebSocket connection established')
-    }
 
     socketRef.current.onmessage = handleMessage
 
