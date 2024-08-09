@@ -2,7 +2,18 @@ import {withSentryConfig} from '@sentry/nextjs'
 /** @type {import('next').NextConfig} */
 const nextConfig = {}
 
-export default withSentryConfig(nextConfig, {
+const isSentryEnabled = () => {
+  if (process.env.VERCEL_ENV === 'production') {
+    return true
+  }
+  if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_GIT_COMMIT_REF === 'develop') {
+    return true
+  }
+  return false
+}
+
+
+const sentryConfig = withSentryConfig(nextConfig, {
 // For all available options, see:
 // https://github.com/getsentry/sentry-webpack-plugin#options
 
@@ -36,3 +47,5 @@ disableLogger: true,
 // https://vercel.com/docs/cron-jobs
 automaticVercelMonitors: true,
 })
+
+module.exports = isSentryEnabled() ? sentryConfig : nextConfig
