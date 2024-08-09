@@ -48,4 +48,4 @@ disableLogger: true,
 automaticVercelMonitors: true,
 })
 
-module.exports = isSentryEnabled() ? sentryConfig : nextConfig
+export default isSentryEnabled() ? sentryConfig : nextConfig
