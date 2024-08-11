@@ -25,10 +25,10 @@ interface VoteUpdatedMessage extends SocketMessage {
     payload: VoteUpdatedPayload
 }
 
-interface RoundIssueChangedMessage extends SocketMessage {
+interface RoundIssueMessage extends SocketMessage {
     event: 'roundIssueUpdated'
-    payload: Issue
+    payload: { issue: Issue, votes: number[], expectedVotes: number }
 }
 
 export default SocketMessage
-export type { RoundIssueChangedMessage, SockMessagePayload, SocketMessage, SocketMessageEvent, SocketMessageType, VoteUpdatedMessage, VoteUpdatedPayload }
+export type { RoundIssueMessage, SockMessagePayload, SocketMessage, SocketMessageEvent, SocketMessageType, VoteUpdatedMessage, VoteUpdatedPayload }
