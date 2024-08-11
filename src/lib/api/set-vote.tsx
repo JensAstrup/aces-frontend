@@ -42,6 +42,9 @@ export function useVote(roundId: string) {
 
   return {
     trigger: async (args: { point: number, issueId: string }) => {
+      if (!args.point || !args.issueId) {
+        return { error: 'Point or issueId is missing' }
+      }
       try {
         const result = await trigger(args)
         return { success: result.success }

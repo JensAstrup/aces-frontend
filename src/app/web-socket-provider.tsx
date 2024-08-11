@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 
-import { Issue } from '@aces/interfaces/issue'
-import { VoteUpdatedPayload } from '@aces/interfaces/socket-message'
+import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
@@ -30,7 +29,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   onVoteReceived,
   onError
 }) => {
-  const { setCurrentIssue } = useIssues()
+  const { currentIssue, setCurrentIssue } = useIssues()
   const { setVotes, setExpectedVotes } = useVotes()
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
@@ -42,10 +41,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       switch (message.event) {
       case WebSocketEvent.RESPONSE:
       case WebSocketEvent.ROUND_ISSUE_UPDATED:
-        setCurrentIssue(message.payload as Issue)
-        if (message.event === WebSocketEvent.ROUND_ISSUE_UPDATED) {
-          setVotes([])
+        const messagePayload = message.payload as RoundIssueMessage['payload']
+        const newIssue = messagePayload.issue
+        setVotes(messagePayload.votes)
+        setExpectedVotes(messagePayload.expectedVotes)
+        if (newIssue.id !== currentIssue?.id) {
+          setCurrentIssue(newIssue)
         }
+
         break
       case WebSocketEvent.VOTE_UPDATED:
         if (onVoteReceived) {
