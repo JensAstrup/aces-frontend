@@ -42,7 +42,7 @@
     "webpack": "^5.93.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.3.0",
+    "@eslint/js": "^9.9.1",
     "@stylistic/eslint-plugin": "^2.4.0",
     "@tailwindcss/typography": "^0.5.13",
     "@testing-library/dom": "^10.4.0",
