@@ -1,5 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+
 
 type VoteResponse = {
   success: boolean
@@ -9,18 +11,14 @@ type VoteError = {
   message: string
 }
 
-async function fetcher(url: string, { arg }: { arg: { point: number, issueId: string } }): Promise<VoteResponse> {
-  const accessToken = localStorage.getItem('accessToken')
-  const guestToken = localStorage.getItem('guestToken')
-  if (!accessToken && !guestToken) {
-    throw new Error('Access token not found')
-  }
+async function fetcher(url: string, { arg }: { arg: { point: number, issueId: string, csrfToken: string } }): Promise<VoteResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `${accessToken || guestToken}`,
+      'X-CSRF-Token': arg.csrfToken,
     },
+    credentials: 'include',
     body: JSON.stringify({ vote: arg.point, issueId: arg.issueId }),
   })
 
@@ -32,21 +30,26 @@ async function fetcher(url: string, { arg }: { arg: { point: number, issueId: st
   return response.json()
 }
 
-export function useVote(roundId: string) {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/rounds/${roundId}/vote`
 
-  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number, issueId: string }>(
+function useVote(roundId: string) {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/rounds/${roundId}/vote`
+  const { csrfToken, isLoading, isError } = useCsrfToken() // Fetch the CSRF token
+
+  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number, issueId: string, csrfToken: string }>(
     url,
     fetcher
   )
 
   return {
     trigger: async (args: { point: number, issueId: string }) => {
+      if (isLoading || isError) {
+        return { error: 'CSRF token is not ready or failed to load' }
+      }
       if (!args.point || !args.issueId) {
         return { error: 'Point or issueId is missing' }
       }
       try {
-        const result = await trigger(args)
+        const result = await trigger({ ...args, csrfToken }) // Pass the CSRF token to the trigger
         return { success: result.success }
       }
       catch (error) {
@@ -60,3 +63,5 @@ export function useVote(roundId: string) {
     error,
   }
 }
+
+export default useVote

@@ -1,14 +1,18 @@
 'use client'
 import useSWR from 'swr'
 
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
-const fetcher = async (url: string, accessToken: string): Promise<string> => {
+
+const fetcher = async (url: string, csrfToken: string): Promise<string> => {
+  console.log('fetcher', url, csrfToken)
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': accessToken
+      'X-CSRF-Token': csrfToken,
     },
+    credentials: 'include',
   })
 
   if (!response.ok) throw new Error('Failed to create round')
@@ -19,17 +23,19 @@ const fetcher = async (url: string, accessToken: string): Promise<string> => {
 }
 
 const useCreateRound = (shouldFetch: boolean) => {
-  const accessToken = localStorage.getItem('accessToken')
-  const { data: roundId, error, mutate } = useSWR<string, Error>(
-    shouldFetch ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, accessToken] : null, ([url, accessToken]: [string, string]) => fetcher(url, accessToken),
+  const { csrfToken, isLoading: isCsrfLoading, isError: isCsrfError } = useCsrfToken()
+
+  const { data: roundId, error, mutate } = useSWR(
+    shouldFetch && csrfToken ? [`${process.env.NEXT_PUBLIC_API_URL}/rounds`, csrfToken] : null,
+    ([url, token]: [string, string]) => fetcher(url, token),
     { revalidateOnFocus: false, shouldRetryOnError: false }
   )
 
   return {
     roundId,
-    isLoading: shouldFetch && !error && !roundId,
-    isError: !!error,
-    mutate
+    isLoading: shouldFetch && (!roundId || isCsrfLoading) && !error,
+    isError: !!error || isCsrfError,
+    mutate,
   }
 }
 
