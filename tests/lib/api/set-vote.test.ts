@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import useSWRMutation from 'swr/mutation'
 
-import { useVote } from '@aces/lib/api/set-vote'
+import useVote from '@aces/lib/api/set-vote'
 
 
 jest.mock('swr/mutation')
