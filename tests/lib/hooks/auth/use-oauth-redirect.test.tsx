@@ -26,7 +26,9 @@ describe('useOAuthRedirect', () => {
     mockUseSearchParams.mockReturnValue({ get: mockGet } as unknown as ReturnType<typeof useSearchParams>)
     mockUseAuth.mockReturnValue({
       handleAuth: mockHandleAuth,
-      isAuthCalled: false
+      isAuthCalled: false,
+      isLoading: false,
+      isError: null,
     })
     // @ts-expect-error Only needed for testing purposes
     mockUseCreateRound.mockReturnValue({

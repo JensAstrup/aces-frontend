@@ -34,7 +34,7 @@ describe('useGetFavoriteViews', () => {
       isLoading: false,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toEqual(mockViews)
     expect(result.current.isLoading).toBe(false)
@@ -54,7 +54,7 @@ describe('useGetFavoriteViews', () => {
       isLoading: true,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
@@ -71,7 +71,7 @@ describe('useGetFavoriteViews', () => {
       isLoading: false,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
@@ -97,7 +97,7 @@ describe('useGetFavoriteViews', () => {
       }
     })
 
-    renderHook(() => useGetFavoriteViews(mockToken))
+    renderHook(() => useGetFavoriteViews())
 
     expect(capturedFetcher).toBeDefined()
     if (capturedFetcher) {
@@ -105,9 +105,11 @@ describe('useGetFavoriteViews', () => {
     }
 
     expect(mockFetch).toHaveBeenCalledWith(`${mockApiUrl}/views`, {
+      credentials: 'include',
       headers: {
-        Authorization: mockToken,
-      },
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockToken,
+      }
     })
   })
 
@@ -129,7 +131,7 @@ describe('useGetFavoriteViews', () => {
       }
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     await expect(capturedFetcher!([`${mockApiUrl}/views`, mockToken])).rejects.toThrow('Failed to fetch favorite views')
 

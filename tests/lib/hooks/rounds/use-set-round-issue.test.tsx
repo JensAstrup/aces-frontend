@@ -34,9 +34,10 @@ describe('setRoundIssueFetcher', () => {
       `${mockApiUrl}/rounds/${mockRoundId}/issue`,
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': mockAccessToken
+          'X-CSRF-Token': mockAccessToken
         },
         body: JSON.stringify({ issue: mockIssueId })
       }

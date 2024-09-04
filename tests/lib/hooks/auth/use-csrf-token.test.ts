@@ -17,41 +17,47 @@ describe('useCsrfToken', () => {
     jest.resetAllMocks()
   })
 
-  it('should return csrf token when fetch is successful', () => {
+  it('should return csrfToken when fetch is successful', () => {
     const mockCsrfToken = 'mock-csrf-token'
-    // @ts-expect-error We don't need to fully mock here
     mockedUseSWR.mockReturnValue({
       data: { csrfToken: mockCsrfToken },
       error: undefined,
+      mutate: jest.fn(),
+      isValidating: false,
+      isLoading: false
     })
 
     const { result } = renderHook(() => useCsrfToken())
 
     expect(result.current.csrfToken).toBe(mockCsrfToken)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBeFalsy()
   })
 
   it('should handle loading state', () => {
-    // @ts-expect-error We don't need to fully mock here
     mockedUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
+      mutate: jest.fn(),
+      isValidating: true,
+      isLoading: true
     })
 
     const { result } = renderHook(() => useCsrfToken())
 
     expect(result.current.csrfToken).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBeFalsy()
   })
 
   it('should handle error state', () => {
     const mockError = new Error('Failed to fetch CSRF token')
-    // @ts-expect-error We don't need to fully mock here
     mockedUseSWR.mockReturnValue({
       data: undefined,
       error: mockError,
+      mutate: jest.fn(),
+      isValidating: false,
+      isLoading: false
     })
 
     const { result } = renderHook(() => useCsrfToken())
@@ -62,6 +68,14 @@ describe('useCsrfToken', () => {
   })
 
   it('should call useSWR with correct parameters', () => {
+    mockedUseSWR.mockReturnValue({
+      data: undefined,
+      error: undefined,
+      mutate: jest.fn(),
+      isValidating: false,
+      isLoading: true
+    })
+
     renderHook(() => useCsrfToken())
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
@@ -71,18 +85,49 @@ describe('useCsrfToken', () => {
   })
 
   it('should use correct fetcher function', async () => {
-    const mockFetch = jest.fn()
+    const mockFetchResponse = { json: jest.fn().mockResolvedValue({ csrfToken: 'test-token' }) }
+    const mockFetch = jest.fn().mockResolvedValue(mockFetchResponse)
     global.fetch = mockFetch
+
+    mockedUseSWR.mockReturnValue({
+      data: undefined,
+      error: undefined,
+      mutate: jest.fn(),
+      isValidating: false,
+      isLoading: true
+    })
 
     renderHook(() => useCsrfToken())
 
-    const fetcherFunction = mockedUseSWR.mock.calls[0][1]
+    const fetcherFunction = mockedUseSWR.mock.calls[0][1] as (url: string) => Promise<unknown>
+
     await act(async () => {
-      await fetcherFunction!(`${mockApiUrl}/auth/csrf-token`)
+      await fetcherFunction(`${mockApiUrl}/auth/csrf-token`)
     })
 
     expect(mockFetch).toHaveBeenCalledWith(`${mockApiUrl}/auth/csrf-token`, {
       credentials: 'include',
     })
+    expect(mockFetchResponse.json).toHaveBeenCalled()
+  })
+
+  it('should handle fetch errors in fetcher function', async () => {
+    const mockError = new Error('Fetch failed')
+    const mockFetch = jest.fn().mockRejectedValue(mockError)
+    global.fetch = mockFetch
+
+    mockedUseSWR.mockReturnValue({
+      data: undefined,
+      error: undefined,
+      mutate: jest.fn(),
+      isValidating: false,
+      isLoading: true
+    })
+
+    renderHook(() => useCsrfToken())
+
+    const fetcherFunction = mockedUseSWR.mock.calls[0][1] as (url: string) => Promise<unknown>
+
+    await expect(fetcherFunction(`${mockApiUrl}/auth/csrf-token`)).rejects.toThrow('Fetch failed')
   })
 })
