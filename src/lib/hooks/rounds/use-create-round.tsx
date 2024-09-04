@@ -22,7 +22,7 @@ const fetcher = async (url: string, csrfToken: string): Promise<string> => {
   return data.id
 }
 
-const useCreateRound = (shouldFetch: boolean) => {
+function useCreateRound(shouldFetch: boolean) {
   const { csrfToken, isLoading: isCsrfLoading, isError: isCsrfError } = useCsrfToken()
 
   const { data: roundId, error, mutate } = useSWR(
@@ -33,7 +33,7 @@ const useCreateRound = (shouldFetch: boolean) => {
 
   return {
     roundId,
-    isLoading: shouldFetch && (!roundId || isCsrfLoading) && !error,
+    isLoading: shouldFetch && (!roundId || isCsrfLoading) && !error && !isCsrfError,
     isError: !!error || isCsrfError,
     mutate,
   }
