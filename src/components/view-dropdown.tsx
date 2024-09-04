@@ -13,7 +13,7 @@ interface ViewDropdownProps {
 }
 
 const ViewDropdown: React.FC<ViewDropdownProps> = ({ selectedView, setSelectedView }) => {
-  const { favoriteViews, isError, isLoading } = useGetFavoriteViews(localStorage.getItem('accessToken')!)
+  const { favoriteViews, isError, isLoading } = useGetFavoriteViews()
 
   useEffect(() => {
     if (favoriteViews && favoriteViews.length > 0 && !selectedView) {
