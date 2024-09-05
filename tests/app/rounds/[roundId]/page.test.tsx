@@ -52,7 +52,6 @@ jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
 jest.mock('@aces/lib/api/set-vote')
 jest.mock('@aces/lib/hooks/auth/user-context')
 jest.mock('@aces/lib/hooks/auth/use-register-viewer')
-jest.mock('@aces/lib/api/set-vote')
 
 describe('RoundPage', () => {
   const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
