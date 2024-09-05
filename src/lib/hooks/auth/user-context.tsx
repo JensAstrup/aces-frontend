@@ -28,7 +28,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setIsLoading(true)
         const accessToken = localStorage.getItem('accessToken')
         if (accessToken) {
-          setUser({ id: '', name: '', accessToken })
+          setUser({ id: '', name: '' })
         }
       }
       catch (err) {

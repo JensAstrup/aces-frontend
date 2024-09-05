@@ -23,7 +23,7 @@ jest.mock('@aces/lib/hooks/auth/user-context', () => {
             const accessToken = localStorage.getItem('accessToken')
             if (accessToken) {
               // @ts-expect-error Only needed for testing purposes
-              setState({ user: { id: '', name: '', accessToken }, isLoading: false, error: null })
+              setState({ user: { id: '3', name: '' }, isLoading: false, error: null })
             }
             else {
               setState({ user: null, isLoading: false, error: null })
@@ -63,7 +63,7 @@ describe('UserProvider', () => {
 
     if (isLoading) return <div data-testid="loading">Loading...</div>
     if (error) return <div data-testid="error">{error.message}</div>
-    if (user) return <div data-testid="user">{user.accessToken}</div>
+    if (user) return <div data-testid="user">{user.id}</div>
     return <div data-testid="no-user">No user</div>
   }
 
@@ -101,7 +101,7 @@ describe('UserProvider', () => {
     })
 
     expect(screen.getByTestId('user')).toBeInTheDocument()
-    expect(screen.getByTestId('user')).toHaveTextContent('fake-token')
+    expect(screen.getByTestId('user')).toHaveTextContent('3')
   })
 
   it('should handle error when localStorage throws an exception', async () => {
@@ -162,7 +162,7 @@ describe('UserProvider', () => {
     })
 
     expect(result.current).toEqual({
-      user: { id: '', name: '', accessToken: 'fake-token' },
+      user: { id: '3', name: '' },
       isLoading: false,
       error: null,
     })

@@ -121,7 +121,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('renders ViewDropdown when user is authenticated', () => {
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user' },
       isLoading: false,
       error: null
     })
@@ -175,7 +175,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('handles view selection', async () => {
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user' },
       isLoading: false,
       error: null
     })
@@ -247,7 +247,7 @@ describe('AuthenticatedIssueDisplay', () => {
       dispatch: mockDispatch
     })
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user' },
       isLoading: false,
       error: null
     })

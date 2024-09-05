@@ -42,7 +42,7 @@ describe('useRegisterViewer', () => {
   })
 
   it('should not fetch when user is defined', () => {
-    const mockUser: User = { id: 'test-user', accessToken: 'test-token' }
+    const mockUser: User = { id: 'test-user' }
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
