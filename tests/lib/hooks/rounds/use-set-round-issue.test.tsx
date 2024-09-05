@@ -1,13 +1,17 @@
 import { renderHook } from '@testing-library/react'
 import useSWR from 'swr'
 
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useSetRoundIssue, { setRoundIssueFetcher } from '@aces/lib/hooks/rounds/use-set-round-issue'
 import { HttpStatusCodes } from '@aces/lib/utils/http-status-codes'
 
 
 jest.mock('swr')
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
+
 
 describe('setRoundIssueFetcher', () => {
   const mockApiUrl = 'https://api.example.com'
@@ -17,6 +21,11 @@ describe('setRoundIssueFetcher', () => {
 
   beforeEach(() => {
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockAccessToken,
+      isLoading: false,
+      isError: false,
+    })
   })
 
   afterEach(() => {
@@ -34,9 +43,10 @@ describe('setRoundIssueFetcher', () => {
       `${mockApiUrl}/rounds/${mockRoundId}/issue`,
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': mockAccessToken
+          'X-CSRF-Token': mockAccessToken
         },
         body: JSON.stringify({ issue: mockIssueId })
       }
@@ -82,7 +92,11 @@ describe('useSetRoundIssue', () => {
 
   beforeEach(() => {
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockAccessToken)
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockAccessToken,
+      isLoading: false,
+      isError: false,
+    })
   })
 
   afterEach(() => {
@@ -103,7 +117,7 @@ describe('useSetRoundIssue', () => {
 
     expect(result.current.data).toEqual(mockData)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
       [`${mockApiUrl}/rounds/${mockRoundId}/issue`, mockIssueId, mockAccessToken],
@@ -124,7 +138,7 @@ describe('useSetRoundIssue', () => {
 
     expect(result.current.data).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
   })
 
   it('should handle error state', () => {
@@ -145,6 +159,11 @@ describe('useSetRoundIssue', () => {
   })
 
   it('should not fetch when roundId is empty', () => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockAccessToken,
+      isLoading: false,
+      isError: false,
+    })
     mockedUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
@@ -156,11 +175,16 @@ describe('useSetRoundIssue', () => {
 
     expect(result.current.data).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
     expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function))
   })
 
   it('should not fetch when issueId is empty', () => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockAccessToken,
+      isLoading: false,
+      isError: false,
+    })
     mockedUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
@@ -172,11 +196,16 @@ describe('useSetRoundIssue', () => {
 
     expect(result.current.data).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
     expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function))
   })
 
-  it('should not fetch when access token is not found', () => {
+  it('should not fetch when csrf token is not found', () => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: null,
+      isLoading: false,
+      isError: false,
+    })
     mockedUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
@@ -184,13 +213,12 @@ describe('useSetRoundIssue', () => {
       mutate: jest.fn(),
       isValidating: false,
     })
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
 
     const { result } = renderHook(() => useSetRoundIssue(mockRoundId, mockIssueId))
 
     expect(result.current.data).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
     expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function))
   })
 })

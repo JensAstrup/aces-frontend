@@ -3,10 +3,13 @@ import useSWR from 'swr'
 
 import { View } from '@aces/interfaces/view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 jest.mock('swr')
 
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
 
 describe('useGetFavoriteViews', () => {
@@ -14,6 +17,11 @@ describe('useGetFavoriteViews', () => {
   const mockApiUrl = 'https://api.example.com'
 
   beforeEach(() => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockToken,
+      isLoading: false,
+      isError: false,
+    })
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl
   })
 
@@ -34,11 +42,11 @@ describe('useGetFavoriteViews', () => {
       isLoading: false,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toEqual(mockViews)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
       [`${mockApiUrl}/views`, mockToken],
@@ -54,11 +62,11 @@ describe('useGetFavoriteViews', () => {
       isLoading: true,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
   })
 
   it('should handle error state', () => {
@@ -71,7 +79,7 @@ describe('useGetFavoriteViews', () => {
       isLoading: false,
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     expect(result.current.favoriteViews).toBeUndefined()
     expect(result.current.isLoading).toBe(false)
@@ -97,7 +105,7 @@ describe('useGetFavoriteViews', () => {
       }
     })
 
-    renderHook(() => useGetFavoriteViews(mockToken))
+    renderHook(() => useGetFavoriteViews())
 
     expect(capturedFetcher).toBeDefined()
     if (capturedFetcher) {
@@ -105,9 +113,11 @@ describe('useGetFavoriteViews', () => {
     }
 
     expect(mockFetch).toHaveBeenCalledWith(`${mockApiUrl}/views`, {
+      credentials: 'include',
       headers: {
-        Authorization: mockToken,
-      },
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockToken,
+      }
     })
   })
 
@@ -129,7 +139,7 @@ describe('useGetFavoriteViews', () => {
       }
     })
 
-    const { result } = renderHook(() => useGetFavoriteViews(mockToken))
+    const { result } = renderHook(() => useGetFavoriteViews())
 
     await expect(capturedFetcher!([`${mockApiUrl}/views`, mockToken])).rejects.toThrow('Failed to fetch favorite views')
 

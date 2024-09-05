@@ -3,9 +3,12 @@ import useSWR from 'swr'
 
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 jest.mock('swr')
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
 
@@ -20,7 +23,11 @@ describe('useGetIssuesForView', () => {
 
   beforeEach(() => {
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockAccessToken)
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockAccessToken,
+      isLoading: false,
+      isError: false,
+    })
   })
 
   afterEach(() => {
@@ -39,7 +46,7 @@ describe('useGetIssuesForView', () => {
 
     expect(result.current.data).toEqual(mockIssues)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toBe(false)
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
       [`${mockApiUrl}/views/${mockView.id}/issues`, mockAccessToken],
@@ -59,7 +66,7 @@ describe('useGetIssuesForView', () => {
 
     expect(result.current.data).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.error).toEqual(false)
   })
 
   it('should handle error state', () => {
@@ -82,21 +89,9 @@ describe('useGetIssuesForView', () => {
     const { result } = renderHook(() => useGetIssuesForView(null))
 
     expect(result.current.data).toBeUndefined()
-    expect(result.current.isLoading).toBeUndefined()
-    expect(result.current.error).toBeUndefined()
+    expect(result.current.isLoading).toEqual(false)
+    expect(result.current.error).toBe(false)
     expect(mockedUseSWR).toHaveBeenCalledWith(null, expect.any(Function))
-  })
-
-  it('should throw an error when access token is not found', () => {
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
-
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
-    expect(() => {
-      renderHook(() => useGetIssuesForView(mockView))
-    }).toThrow('No access token found')
-
-    consoleErrorSpy.mockRestore()
   })
 
   it('should call fetcher with correct arguments', async () => {
@@ -126,8 +121,10 @@ describe('useGetIssuesForView', () => {
     }
 
     expect(mockFetch).toHaveBeenCalledWith(`${mockApiUrl}/views/${mockView.id}/issues`, {
+      credentials: 'include',
       headers: {
-        Authorization: mockAccessToken,
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockAccessToken,
       },
     })
   })

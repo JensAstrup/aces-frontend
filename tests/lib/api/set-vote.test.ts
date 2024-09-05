@@ -1,81 +1,54 @@
 import { renderHook, act } from '@testing-library/react'
 import useSWRMutation from 'swr/mutation'
 
-import { useVote } from '@aces/lib/api/set-vote'
+import useVote from '@aces/lib/api/set-vote'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 jest.mock('swr/mutation')
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 
 const mockedUseSWRMutation = useSWRMutation as jest.MockedFunction<typeof useSWRMutation>
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 
 describe('useVote', () => {
   const mockRoundId = 'test-round-id'
+  const mockCsrfToken = 'test-csrf-token'
 
   beforeEach(() => {
     jest.resetAllMocks()
-    localStorage.clear()
-  })
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockCsrfToken,
+      isLoading: false,
+      isError: false,
+    })
 
-  it('should throw an error when no token is found', async () => {
-    const mockError = new Error('Access token not found')
-    const mockTrigger = jest.fn().mockRejectedValue(mockError)
+    // Ensure useSWRMutation always returns an object with a trigger function
     mockedUseSWRMutation.mockReturnValue({
-      trigger: mockTrigger,
+      trigger: jest.fn(),
       isMutating: false,
-      error: mockError,
+      error: undefined,
       reset: jest.fn(),
       data: undefined
     })
+  })
+
+  it('should return error when CSRF token is not ready', async () => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: null,
+      isLoading: true,
+      isError: false,
+    })
+
     const { result } = renderHook(() => useVote(mockRoundId))
 
     await act(async () => {
       const { error } = await result.current.trigger({ point: 1, issueId: 'test-issue-id' })
-      expect(error).toBe('Access token not found')
+      expect(error).toBe('CSRF token is not ready or failed to load')
     })
-  })
-
-  it('should use access token when available', async () => {
-    localStorage.setItem('accessToken', 'test-access-token')
-    const mockTrigger = jest.fn().mockResolvedValue({ success: true })
-    mockedUseSWRMutation.mockReturnValue({
-      trigger: mockTrigger,
-      isMutating: false,
-      error: undefined,
-      reset: jest.fn(),
-      data: undefined
-    })
-
-    const { result } = renderHook(() => useVote(mockRoundId))
-
-    await act(async () => {
-      await result.current.trigger({ point: 1, issueId: 'test-issue-id' })
-    })
-
-    expect(mockTrigger).toHaveBeenCalledWith({ point: 1, issueId: 'test-issue-id' })
-  })
-
-  it('should use guest token when access token is not available', async () => {
-    localStorage.setItem('guestToken', 'test-guest-token')
-    const mockTrigger = jest.fn().mockResolvedValue({ success: true })
-    mockedUseSWRMutation.mockReturnValue({
-      trigger: mockTrigger,
-      isMutating: false,
-      error: undefined,
-      reset: jest.fn(),
-      data: undefined
-    })
-
-    const { result } = renderHook(() => useVote(mockRoundId))
-
-    await act(async () => {
-      await result.current.trigger({ point: 1, issueId: 'test-issue-id' })
-    })
-
-    expect(mockTrigger).toHaveBeenCalledWith({ point: 1, issueId: 'test-issue-id' })
   })
 
   it('should return success when vote is successful', async () => {
-    localStorage.setItem('accessToken', 'test-access-token')
     const mockTrigger = jest.fn().mockResolvedValue({ success: true })
     mockedUseSWRMutation.mockReturnValue({
       trigger: mockTrigger,
@@ -91,10 +64,11 @@ describe('useVote', () => {
       const { success } = await result.current.trigger({ point: 1, issueId: 'test-issue-id' })
       expect(success).toBe(true)
     })
+
+    expect(mockTrigger).toHaveBeenCalledWith({ point: 1, issueId: 'test-issue-id', csrfToken: mockCsrfToken })
   })
 
   it('should return error when vote fails', async () => {
-    localStorage.setItem('accessToken', 'test-access-token')
     const mockError = new Error('Failed to vote')
     const mockTrigger = jest.fn().mockRejectedValue(mockError)
     mockedUseSWRMutation.mockReturnValue({
@@ -114,15 +88,6 @@ describe('useVote', () => {
   })
 
   it('should throw an error when point or issueId is missing', async () => {
-    const mockTrigger = jest.fn()
-    mockedUseSWRMutation.mockReturnValue({
-      trigger: mockTrigger,
-      isMutating: false,
-      error: undefined,
-      reset: jest.fn(),
-      data: undefined
-    })
-    localStorage.setItem('accessToken', 'test-access-token')
     const { result } = renderHook(() => useVote(mockRoundId))
 
     await act(async () => {
@@ -132,7 +97,6 @@ describe('useVote', () => {
   })
 
   it('should handle unknown errors', async () => {
-    localStorage.setItem('accessToken', 'test-access-token')
     const mockTrigger = jest.fn().mockRejectedValue('Unknown error')
     mockedUseSWRMutation.mockReturnValue({
       trigger: mockTrigger,
