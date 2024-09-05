@@ -8,7 +8,7 @@ import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import { useUser } from '@aces/lib/hooks/auth/user-context'
 
 
-jest.mock('@aces/app/rounds/[roundId]/IssueDisplay', () => ({
+jest.mock('@aces/app/rounds/[roundId]/round-component', () => ({
   __esModule: true,
   default: ({ user, roundId }: { user: User | null, roundId: string }) => (
     <div data-testid="issue-display">
