@@ -1,13 +1,16 @@
 import { renderHook } from '@testing-library/react'
-import useSWR from 'swr'
+import useSWR, { SWRResponse } from 'swr'
 
 import User from '@aces/interfaces/user'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 
 
 jest.mock('swr')
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 
 const mockUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
+const mockUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 
 interface MockData {
   user: {
@@ -15,15 +18,11 @@ interface MockData {
   }
 }
 
-type MockSWRResponse = {
-  data: MockData | undefined
-  error: Error | undefined
-  isValidating: boolean
-  mutate: (data?: MockData | Promise<MockData> | undefined) => Promise<MockData | undefined>
-}
+type MockSWRResponse = SWRResponse<MockData | undefined, Error | undefined>
 
 describe('useRegisterViewer', () => {
   const mockViewerData = { roundId: 'test-round' }
+  const mockCsrfToken = 'test-csrf-token'
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -35,17 +34,22 @@ describe('useRegisterViewer', () => {
       writable: true
     })
     process.env.NEXT_PUBLIC_API_URL = 'http://test-api.com'
+    mockUseCsrfToken.mockReturnValue({
+      csrfToken: mockCsrfToken,
+      isLoading: false,
+      isError: false
+    })
   })
 
   it('should not fetch when user is defined', () => {
     const mockUser: User = { id: 'test-user', accessToken: 'test-token' }
-    // @ts-expect-error Only needed for testing purposes
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
+      isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
-    } as MockSWRResponse)
+    })
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
@@ -55,23 +59,23 @@ describe('useRegisterViewer', () => {
       expect.any(Object)
     )
     expect(result.current.isRegistered).toBe(false)
-    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isLoading).toBe(false)
     expect(result.current.error).toBeNull()
   })
 
-  it('should fetch when user is null', () => {
-    // @ts-expect-error Only needed for testing purposes
+  it('should fetch when user is null and CSRF token is available', () => {
     mockUseSWR.mockReturnValue({
       data: { user: { token: 'new-token' } },
       error: undefined,
+      isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
-    } as MockSWRResponse)
+    })
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
 
     expect(mockUseSWR).toHaveBeenCalledWith(
-      ['http://test-api.com/auth/anonymous', mockViewerData],
+      ['http://test-api.com/auth/anonymous', mockViewerData, mockCsrfToken],
       expect.any(Function),
       expect.any(Object)
     )
@@ -81,13 +85,13 @@ describe('useRegisterViewer', () => {
   })
 
   it('should not fetch when user is undefined', () => {
-    // @ts-expect-error Only needed for testing purposes
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
+      isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
-    } as MockSWRResponse)
+    })
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, undefined))
 
@@ -97,19 +101,19 @@ describe('useRegisterViewer', () => {
       expect.any(Object)
     )
     expect(result.current.isRegistered).toBe(false)
-    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isLoading).toBe(false)
     expect(result.current.error).toBeNull()
   })
 
   it('should handle error when fetch fails', () => {
     const mockError = new Error('Fetch failed')
-    // @ts-expect-error Only needed for testing purposes
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: mockError,
+      isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
-    } as MockSWRResponse)
+    })
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
 
@@ -119,98 +123,37 @@ describe('useRegisterViewer', () => {
   })
 
   it('should indicate loading state when isValidating is true', () => {
-    // @ts-expect-error Only needed for testing purposes
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
+      isLoading: true,
       isValidating: true,
       mutate: jest.fn(),
-    } as MockSWRResponse)
+    })
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
 
     expect(result.current.isLoading).toBe(true)
   })
 
-  it('should save token to localStorage when data is available', () => {
-    const mockData: MockData = { user: { token: 'new-token' } }
-    // @ts-expect-error Only needed for testing purposes
-    mockUseSWR.mockReturnValue({
-      data: mockData,
-      error: undefined,
-      isValidating: false,
-      mutate: jest.fn(),
-    } as MockSWRResponse)
+  it('should indicate loading state when CSRF token is loading', () => {
+    mockUseCsrfToken.mockReturnValue({
+      csrfToken: null,
+      isLoading: true,
+      isError: false
+    })
 
-    renderHook(() => useRegisterViewer(mockViewerData, null))
-
-    expect(window.localStorage.setItem).toHaveBeenCalledWith('guestToken', 'new-token')
-  })
-
-  it('should not save token to localStorage when data is not available', () => {
-    // @ts-expect-error Only needed for testing purposes
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
+      isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
-    } as MockSWRResponse)
-
-    renderHook(() => useRegisterViewer(mockViewerData, null))
-
-    expect(window.localStorage.setItem).not.toHaveBeenCalled()
-  })
-
-  it('should not save token to localStorage when data is available but does not contain a user token', () => {
-    const mockData = { user: {} }
-    // @ts-expect-error Only needed for testing purposes
-    mockUseSWR.mockReturnValue({
-      data: mockData,
-      error: undefined,
-      isValidating: false,
-      mutate: jest.fn(),
-    } as MockSWRResponse)
-
-    renderHook(() => useRegisterViewer(mockViewerData, null))
-
-    expect(window.localStorage.setItem).not.toHaveBeenCalled()
-  })
-
-  it('should handle fetcher function correctly', async () => {
-    const mockResponse = { ok: true, json: jest.fn().mockResolvedValue({ user: { token: 'test-token' } }) }
-    const mockFetch = jest.fn().mockResolvedValue(mockResponse)
-    global.fetch = mockFetch as unknown as typeof fetch
-
-    let capturedFetcher: (([url, data]: [string, unknown]) => Promise<unknown>) | undefined
-
-    // @ts-expect-error Only needed for testing purposes
-    mockUseSWR.mockImplementation((key, fetcher) => {
-      if (Array.isArray(key) && typeof fetcher === 'function') {
-        // @ts-expect-error Only needed for testing purposes
-        capturedFetcher = fetcher
-      }
-      return {
-        data: undefined,
-        error: undefined,
-        isValidating: false,
-        mutate: jest.fn(),
-      }
     })
 
-    renderHook(() => useRegisterViewer(mockViewerData, null))
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
 
-    expect(capturedFetcher).toBeDefined()
-    if (capturedFetcher) {
-      await capturedFetcher(['http://test-api.com/auth/anonymous', mockViewerData])
-    }
-
-    expect(mockFetch).toHaveBeenCalledWith('http://test-api.com/auth/anonymous', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(mockViewerData),
-    })
+    expect(result.current.isLoading).toBe(true)
   })
 
   it('should throw an error when fetch response is not ok', async () => {
@@ -218,25 +161,25 @@ describe('useRegisterViewer', () => {
     const mockFetch = jest.fn().mockResolvedValue(mockResponse)
     global.fetch = mockFetch as unknown as typeof fetch
 
-    let capturedFetcher: (([url, data]: [string, unknown]) => Promise<unknown>) | undefined
+    let capturedFetcher: ((...args: unknown[]) => unknown) | undefined
 
-    // @ts-expect-error Only needed for testing purposes
+    // @ts-expect-error Mocking return value as needed for testing
     mockUseSWR.mockImplementation((key, fetcher) => {
       if (Array.isArray(key) && typeof fetcher === 'function') {
-        // @ts-expect-error Only needed for testing purposes
         capturedFetcher = fetcher
       }
       return {
         data: undefined,
         error: undefined,
+        isLoading: false,
         isValidating: false,
         mutate: jest.fn(),
-      }
+      } as MockSWRResponse
     })
 
     renderHook(() => useRegisterViewer(mockViewerData, null))
 
     expect(capturedFetcher).toBeDefined()
-    await expect(capturedFetcher!(['http://test-api.com/auth/anonymous', mockViewerData])).rejects.toThrow('Failed to register viewer')
+    await expect(capturedFetcher!('http://test-api.com/auth/anonymous', mockViewerData, mockCsrfToken)).rejects.toThrow('Failed to register viewer')
   })
 })

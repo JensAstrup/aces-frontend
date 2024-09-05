@@ -1,16 +1,23 @@
 import { act, renderHook } from '@testing-library/react'
 
 import useAuth from '@aces/lib/hooks/auth/use-authenticate'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 
 const mockFetch = global.fetch as jest.Mock
 
 describe('useAuth', () => {
   beforeEach(() => {
     jest.resetAllMocks()
-    localStorage.clear()
-    jest.spyOn(console, 'log').mockImplementation()
+
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: 'test-csrf-token',
+      isLoading: false,
+      isError: false,
+    })
     jest.spyOn(console, 'error').mockImplementation()
   })
 
@@ -36,21 +43,6 @@ describe('useAuth', () => {
     })
 
     expect(result.current.isAuthCalled).toBe(true)
-  })
-
-  it('should store accessToken in localStorage after successful authentication', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ accessToken: 'test-token' }),
-    })
-
-    const { result } = renderHook(() => useAuth())
-
-    await act(async () => {
-      await result.current.handleAuth('test-code')
-    })
-
-    expect(localStorage.getItem('accessToken')).toBe('test-token')
   })
 
   it('should throw an error if the response is not ok', async () => {

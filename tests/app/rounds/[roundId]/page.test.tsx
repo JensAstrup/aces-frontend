@@ -3,7 +3,7 @@ import React from 'react'
 
 import RoundPage from '@aces/app/rounds/[roundId]/page'
 import User from '@aces/interfaces/user'
-import * as setVoteModule from '@aces/lib/api/set-vote'
+import useVote from '@aces/lib/api/set-vote'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import { useUser } from '@aces/lib/hooks/auth/user-context'
 
@@ -56,7 +56,7 @@ jest.mock('@aces/lib/hooks/auth/use-register-viewer')
 describe('RoundPage', () => {
   const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
   const mockUseRegisterViewer = useRegisterViewer as jest.MockedFunction<typeof useRegisterViewer>
-  const mockUseVote = jest.spyOn(setVoteModule, 'useVote')
+  const mockUseVote = useVote as jest.MockedFunction<typeof useVote>
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -67,7 +67,7 @@ describe('RoundPage', () => {
       data: undefined,
       isRegistered: false
     })
-    mockUseVote.mockReturnValue({ trigger: jest.fn() } as unknown as ReturnType<typeof setVoteModule.useVote>)
+    mockUseVote.mockReturnValue({ trigger: jest.fn() } as unknown as ReturnType<typeof useVote>)
   })
 
   it('should render correctly with no user', () => {
@@ -96,7 +96,7 @@ describe('RoundPage', () => {
 
   it('should pass trigger function to WebSocketProvider', () => {
     const mockTrigger = jest.fn()
-    mockUseVote.mockReturnValue({ trigger: mockTrigger } as unknown as ReturnType<typeof setVoteModule.useVote>)
+    mockUseVote.mockReturnValue({ trigger: mockTrigger } as unknown as ReturnType<typeof useVote>)
 
     render(<RoundPage params={{ roundId: 'test-round' }} />)
 

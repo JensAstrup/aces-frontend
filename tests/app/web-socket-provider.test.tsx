@@ -2,6 +2,7 @@ import { act, render } from '@testing-library/react'
 import React from 'react'
 
 import WebSocketProvider from '@aces/app/web-socket-provider'
+import { Issue } from '@aces/interfaces/issue'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
@@ -29,13 +30,13 @@ describe('WebSocketProvider', () => {
     mockUseIssues.mockReturnValue({
       state: {
         issues: [],
-        currentIssueIndex: 0,
+        currentIssueIndex: 1,
         selectedView: null,
         nextPage: null,
         isLoading: false,
       },
       dispatch: jest.fn(),
-      currentIssue: null,
+      currentIssue: { id: '1', title: 'Test Issue' } as Issue,
       setCurrentIssue: mockSetCurrentIssue,
     })
     mockUseVotes.mockReturnValue({
@@ -66,8 +67,9 @@ describe('WebSocketProvider', () => {
   })
 
   it('should handle roundIssueUpdated message', () => {
-    const mockIssue = { id: '1', title: 'Test Issue' }
-    mockInboundHandler.mockReturnValueOnce({ event: 'roundIssueUpdated', payload: mockIssue })
+    const mockIssue = { id: '2', title: 'Test Issue' }
+    mockInboundHandler.mockReturnValueOnce({ event: 'roundIssueUpdated', payload: { issue: mockIssue, votes: [], expectedVotes: 3 } })
+    mockSetExpectedVotes.mockReturnValue(3)
 
     render(<WebSocketProvider roundId={mockRoundId} />)
 
@@ -77,11 +79,29 @@ describe('WebSocketProvider', () => {
 
     expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssue)
     expect(mockSetVotes).toHaveBeenCalledWith([])
+    expect(mockSetExpectedVotes).toHaveBeenCalledWith(3)
+  })
+
+  it('should handle roundIssueUpdated message when issue is same as current issue', () => {
+    const mockIssue = { id: '1', title: 'Test Issue' }
+    mockInboundHandler.mockReturnValueOnce({ event: 'roundIssueUpdated', payload: { issue: mockIssue, votes: [], expectedVotes: 3 } })
+    mockSetExpectedVotes.mockReturnValue(3)
+
+    render(<WebSocketProvider roundId={mockRoundId} />)
+
+    act(() => {
+      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
+    })
+
+    expect(mockSetCurrentIssue).not.toHaveBeenCalled()
+    expect(mockSetVotes).toHaveBeenCalledWith([])
+    expect(mockSetExpectedVotes).toHaveBeenCalledWith(3)
   })
 
   it('should handle response message', () => {
-    const mockIssue = { id: '2', title: 'Another Test Issue' }
-    mockInboundHandler.mockReturnValueOnce({ event: 'response', payload: mockIssue })
+    const mockIssue = { id: '2', title: 'Another Test Issue' } as Issue
+    const mockPayload = { issue: mockIssue, votes: [], expectedVotes: 3 }
+    mockInboundHandler.mockReturnValueOnce({ event: 'response', payload: mockPayload })
 
     render(<WebSocketProvider roundId={mockRoundId} />)
 

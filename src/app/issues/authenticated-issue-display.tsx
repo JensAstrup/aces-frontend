@@ -22,8 +22,7 @@ function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) 
   const { user } = useUser()
   const { state: issuesState, dispatch } = useIssues()
   const { selectedView, currentIssueIndex, issues } = issuesState
-  const accessToken = localStorage.getItem('accessToken')
-  const { isLoading: viewsLoading } = useGetFavoriteViews(accessToken!)
+  const { isLoading: viewsLoading } = useGetFavoriteViews()
   // Fetch issues when selectedView changes
   const { data: fetchedIssues, error: issuesError } = useGetIssuesForView(selectedView)
 
