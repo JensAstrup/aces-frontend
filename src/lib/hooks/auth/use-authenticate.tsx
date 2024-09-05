@@ -11,7 +11,6 @@ function useAuth() {
   const handleAuth = useCallback(async (code: string) => {
     if (authCalledRef.current || isLoading || !csrfToken) return
     authCalledRef.current = true
-    console.log('csrfToken', csrfToken)
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
         method: 'POST',

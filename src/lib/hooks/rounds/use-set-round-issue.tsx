@@ -27,7 +27,7 @@ function useSetRoundIssue(roundId: string, issueId: string) {
   const API_URL: string = process.env.NEXT_PUBLIC_API_URL!
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
 
-  const shouldFetch = !!roundId && !!issueId
+  const shouldFetch = !!roundId && !!issueId && !!csrfToken
   const requestParams: [string, string, string] | null = shouldFetch ? [`${API_URL}/rounds/${roundId}/issue`, issueId, csrfToken] : null
   const result = useSWR(requestParams, ([url, issueId, csrfToken]) => {
     return setRoundIssueFetcher(url, issueId, csrfToken)

@@ -3,10 +3,13 @@ import useSWR from 'swr'
 
 import { View } from '@aces/interfaces/view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 jest.mock('swr')
 
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
 
 describe('useGetFavoriteViews', () => {
@@ -14,6 +17,11 @@ describe('useGetFavoriteViews', () => {
   const mockApiUrl = 'https://api.example.com'
 
   beforeEach(() => {
+    mockedUseCsrfToken.mockReturnValue({
+      csrfToken: mockToken,
+      isLoading: false,
+      isError: false,
+    })
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl
   })
 
@@ -38,7 +46,7 @@ describe('useGetFavoriteViews', () => {
 
     expect(result.current.favoriteViews).toEqual(mockViews)
     expect(result.current.isLoading).toBe(false)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
       [`${mockApiUrl}/views`, mockToken],
@@ -58,7 +66,7 @@ describe('useGetFavoriteViews', () => {
 
     expect(result.current.favoriteViews).toBeUndefined()
     expect(result.current.isLoading).toBe(true)
-    expect(result.current.isError).toBeUndefined()
+    expect(result.current.isError).toBe(false)
   })
 
   it('should handle error state', () => {
