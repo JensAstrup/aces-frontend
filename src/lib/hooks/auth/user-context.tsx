@@ -18,7 +18,7 @@ interface UserProviderProps {
 const UserContext = createContext<UserContextType>({ user: null, isLoading: true, error: null })
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -26,10 +26,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const loadUser = () => {
       try {
         setIsLoading(true)
-        const accessToken = localStorage.getItem('accessToken')
-        if (accessToken) {
-          setUser({ id: '', name: '' })
-        }
       }
       catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'))
