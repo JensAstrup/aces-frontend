@@ -1,7 +1,5 @@
-import { useState } from 'react'
 import useSWR from 'swr'
 
-import User from '@aces/interfaces/user'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
@@ -20,7 +18,11 @@ async function fetchCurrentUser(url: string, csrfToken: string) {
 function useCurrentUser() {
   const { csrfToken, isLoading: isCsrfLoading, isError: isCsrfError } = useCsrfToken()
 
-  const { data, isLoading, error } = useSWR([`${process.env.NEXT_PUBLIC_API_URL}/auth/user`, csrfToken], ([url, csrfToken]: [string, string]) => fetchCurrentUser(url, csrfToken))
+  const shouldFetch = !isCsrfLoading && !isCsrfError && csrfToken !== ''
+  const { data, isLoading, error } = useSWR(
+    shouldFetch ? [`${process.env.NEXT_PUBLIC_API_URL}/auth/user`, csrfToken] : null,
+    ([url, token]: [string, string]) => fetchCurrentUser(url, token)
+  )
 
   return {
     user: data,
