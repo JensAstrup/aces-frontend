@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { useCallback, useRef, useState } from 'react'
 
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
@@ -31,7 +32,7 @@ function useAuth() {
       setIsAuthCalled(true)
     }
     catch (error) {
-      console.error(error)
+      Sentry.captureException(error)
       authCalledRef.current = false
       throw error
     }
