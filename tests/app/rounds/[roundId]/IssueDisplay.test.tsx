@@ -30,7 +30,7 @@ describe('IssueDisplay', () => {
   })
 
   it('renders AuthenticatedIssueDisplay when user is present', () => {
-    const mockUser = { id: 'test-user-id', name: 'Test User', accessToken: 'test-access-token' }
+    const mockUser = { id: 'test-user-id', name: 'Test User', linearId: 'test-linear-id' }
     render(<IssueDisplay user={mockUser} roundId={mockRoundId} />)
 
     expect(screen.getByTestId('authenticated-issue-display')).toBeInTheDocument()
@@ -45,7 +45,7 @@ describe('IssueDisplay', () => {
   })
 
   it('passes roundId to AuthenticatedIssueDisplay', () => {
-    const mockUser = { id: 'test-user-id', name: 'Test User', accessToken: 'test-access-token' }
+    const mockUser = { id: 'test-user-id', name: 'Test User', linearId: 'test-linear-id' }
     render(<IssueDisplay user={mockUser} roundId={mockRoundId} />)
 
     const AuthenticatedIssueDisplay = jest.requireMock('@aces/app/issues/authenticated-issue-display').default

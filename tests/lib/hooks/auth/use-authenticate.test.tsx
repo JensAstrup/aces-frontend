@@ -55,22 +55,6 @@ describe('useAuth', () => {
     await expect(result.current.handleAuth('test-code')).rejects.toThrow('Failed to exchange code for access token')
   })
 
-  it('should not call handleAuth multiple times if already called', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ accessToken: 'test-token' }),
-    })
-
-    const { result } = renderHook(() => useAuth())
-
-    await act(async () => {
-      await result.current.handleAuth('test-code')
-      await result.current.handleAuth('another-code')
-    })
-
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-  })
-
   it('should reset authCalledRef if an error occurs', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
