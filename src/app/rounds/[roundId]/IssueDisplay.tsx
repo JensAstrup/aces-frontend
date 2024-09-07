@@ -11,7 +11,7 @@ interface IssueDisplayWrapperProps {
 }
 
 export function IssueDisplay({ user, roundId }: IssueDisplayWrapperProps): JSX.Element {
-  return user && user.linearId
+  return user?.linearId
     ? <AuthenticatedIssueDisplay roundId={roundId} />
     : <UnauthenticatedIssueDisplay />
 }
