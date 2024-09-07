@@ -4,8 +4,8 @@ import React from 'react'
 import RoundPage from '@aces/app/rounds/[roundId]/page'
 import User from '@aces/interfaces/user'
 import useVote from '@aces/lib/api/set-vote'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
-import { useUser } from '@aces/lib/hooks/auth/user-context'
 
 
 jest.mock('@aces/app/rounds/[roundId]/IssueDisplay', () => ({
@@ -50,11 +50,11 @@ jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
 }))
 
 jest.mock('@aces/lib/api/set-vote')
-jest.mock('@aces/lib/hooks/auth/user-context')
 jest.mock('@aces/lib/hooks/auth/use-register-viewer')
+jest.mock('@aces/lib/hooks/auth/use-current-user', () => jest.fn())
 
 describe('RoundPage', () => {
-  const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
+  const mockUseUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
   const mockUseRegisterViewer = useRegisterViewer as jest.MockedFunction<typeof useRegisterViewer>
   const mockUseVote = useVote as jest.MockedFunction<typeof useVote>
 
