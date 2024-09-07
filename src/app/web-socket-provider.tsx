@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import React, { useCallback, useEffect, useRef } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
@@ -63,10 +64,10 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         if (onError) {
           onError(message.payload as string)
         }
-        console.error('Error received from WebSocket:', message)
+        Sentry.captureException(`Error received from WebSocket: ${message.payload as string}`)
         break
       default:
-        console.error('Unknown message type received from WebSocket:', message)
+        Sentry.captureException(`Unknown message type received from WebSocket: ${message.event}`)
       }
     }
   }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])

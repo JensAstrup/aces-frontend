@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { Loader2 } from 'lucide-react'
 import React from 'react'
 
@@ -20,7 +21,7 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
 
   async function handleVote(voteNumber: number) {
     if (!issue || !issue.id) {
-      console.error('No issue or issue ID available')
+      Sentry.captureException(new Error('No issue or issue ID available'))
       toast({
         title: 'Error',
         description: 'Unable to vote: No issue selected',
@@ -42,7 +43,7 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
       })
     }
     catch (error) {
-      console.error('Error setting vote:', error)
+      Sentry.captureException('Error setting vote')
       toast({
         title: 'Error',
         description: 'An error occurred while setting the vote',
