@@ -8,8 +8,11 @@ function useAuth() {
   const authCalledRef = useRef(false)
   const { csrfToken, isLoading, isError } = useCsrfToken()
 
-  const handleAuth = useCallback(async (code: string) => {
-    if (authCalledRef.current || isLoading || !csrfToken) return
+  const handleAuth = useCallback(async (code: string): Promise<void> => {
+    if (authCalledRef.current || isLoading || !csrfToken) {
+      return Promise.reject(new Error('Authentication already in progress or CSRF token not available'))
+    }
+
     authCalledRef.current = true
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth`, {
@@ -22,12 +25,10 @@ function useAuth() {
         credentials: 'include',
       })
 
-      if (response.ok) {
-        setIsAuthCalled(true)
-      }
-      else {
+      if (!response.ok) {
         throw new Error('Failed to exchange code for access token')
       }
+      setIsAuthCalled(true)
     }
     catch (error) {
       console.error(error)

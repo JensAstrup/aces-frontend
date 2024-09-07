@@ -3,11 +3,11 @@ import React from 'react'
 import { Avatar, AvatarFallback } from '@aces/components/ui/avatar'
 import { Button } from '@aces/components/ui/button'
 import { Textarea } from '@aces/components/ui/textarea'
-import { useUser } from '@aces/lib/hooks/auth/user-context'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 
 
 const CommentForm: React.FC = () => {
-  const { user } = useUser()
+  const { user } = useCurrentUser()
   if (!user) {
     return null
   }

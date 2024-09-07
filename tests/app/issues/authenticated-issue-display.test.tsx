@@ -6,12 +6,12 @@ import { Issue } from '@aces/interfaces/issue'
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
-import { useUser } from '@aces/lib/hooks/auth/user-context'
+import getCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { IssuesState, useIssues } from '@aces/lib/hooks/issues/issues-context'
 import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
 
 
-jest.mock('@aces/lib/hooks/auth/user-context')
+jest.mock('@aces/lib/hooks/auth/use-current-user')
 jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/api/views/get-favorite-views')
 jest.mock('@aces/lib/api/get-issues-for-view')
@@ -55,7 +55,7 @@ jest.mock('@aces/components/rounds/round-error', () => () => <div data-testid="r
 describe('AuthenticatedIssueDisplay', () => {
   const mockDispatch = jest.fn()
   const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
-  const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
+  const mockUseUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
   const mockUseGetFavoriteViews = useGetFavoriteViews as jest.MockedFunction<typeof useGetFavoriteViews>
   const mockUseGetIssuesForView = useGetIssuesForView as jest.MockedFunction<typeof useGetIssuesForView>
   const mockUseSetRoundIssue = useSetRoundIssue as jest.MockedFunction<typeof useSetRoundIssue>

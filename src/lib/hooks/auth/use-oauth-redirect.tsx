@@ -8,25 +8,18 @@ import useCreateRound from '@aces/lib/hooks/rounds/use-create-round'
 const useOAuthRedirect = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { handleAuth } = useAuth()
+  const { handleAuth, isLoading: isAuthLoading } = useAuth()
   const [authError, setAuthError] = useState<Error | null>(null)
   const [shouldCreateRound, setShouldCreateRound] = useState(false)
 
-  const { roundId, isLoading, isError } = useCreateRound(shouldCreateRound)
+  const { roundId, isLoading: isRoundLoading, isError } = useCreateRound(shouldCreateRound)
 
   useEffect(() => {
     const code = searchParams.get('code')
     if (code) {
       handleAuth(code)
         .then(() => {
-          let access_token
-          try {
-            access_token = localStorage.getItem('accessToken')
-          }
-          catch (err) {
-            console.error(err)
-          }
-          setShouldCreateRound(!!access_token)
+          setShouldCreateRound(true)
         })
         .catch((err) => {
           setAuthError(err)
@@ -42,7 +35,7 @@ const useOAuthRedirect = () => {
   }, [roundId, router])
 
   return {
-    isLoading: isLoading || shouldCreateRound,
+    isLoading: isAuthLoading || isRoundLoading || shouldCreateRound,
     error: authError || (isError ? new Error('Failed to create round') : null)
   }
 }

@@ -9,7 +9,7 @@ import ViewDropdown from '@aces/components/view-dropdown'
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
-import { useUser } from '@aces/lib/hooks/auth/user-context'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
 
@@ -19,7 +19,7 @@ interface AuthenticatedIssueDisplayProps {
 }
 
 function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) {
-  const { user } = useUser()
+  const { user } = useCurrentUser()
   const { state: issuesState, dispatch } = useIssues()
   const { selectedView, currentIssueIndex, issues } = issuesState
   const { isLoading: viewsLoading } = useGetFavoriteViews()
