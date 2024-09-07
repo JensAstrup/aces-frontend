@@ -2,26 +2,11 @@ import { render, screen } from '@testing-library/react'
 import React from 'react'
 
 import RoundPage from '@aces/app/rounds/[roundId]/page'
-import User from '@aces/interfaces/user'
 import useVote from '@aces/lib/api/set-vote'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 
 
-jest.mock('@aces/app/rounds/[roundId]/IssueDisplay', () => ({
-  __esModule: true,
-  default: ({ user, roundId }: { user: User | null, roundId: string }) => (
-    <div data-testid="issue-display">
-      IssueDisplay:
-      {' '}
-      {user ? user.id : 'No user'}
-      {' '}
--
-      {' '}
-      {roundId}
-    </div>
-  )
-}))
 
 jest.mock('@aces/components/rounds/sidebar', () => ({
   RoundSidebar: ({ roundId }: { roundId: string }) => (
