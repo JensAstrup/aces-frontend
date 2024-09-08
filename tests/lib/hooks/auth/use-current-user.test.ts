@@ -2,8 +2,9 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import useSWR from 'swr'
 
+import User from '@aces/interfaces/user'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
-import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import useCurrentUser, { fetchCurrentUser } from '@aces/lib/hooks/auth/use-current-user'
 
 
 jest.mock('swr')
@@ -11,6 +12,51 @@ jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
 const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
+
+describe('fetchCurrentUser', () => {
+  const mockApiUrl = 'https://api.example.com'
+  const mockCsrToken = 'mock-csrf-token'
+  const mockUser = { id: '1', name: 'Test User', linearId: 'test-linear-id' } as User
+  const mockFetch = jest.fn()
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should return user data when fetch is successful', async () => {
+    const mockResponse = { json: jest.fn().mockResolvedValue(mockUser) }
+    mockFetch.mockResolvedValue(mockResponse)
+
+    const result = await fetchCurrentUser(`${mockApiUrl}/auth/user`, mockCsrToken)
+
+    expect(result).toEqual(mockUser)
+    expect(global.fetch).toHaveBeenCalledWith(`${mockApiUrl}/auth/user`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockCsrToken,
+      },
+    })
+  })
+
+  it('should return null for anonymous users', async () => {
+    const mockResponse = { status: 401 }
+    mockFetch.mockResolvedValue(mockResponse)
+
+    const result = await fetchCurrentUser(`${mockApiUrl}/auth/user`, mockCsrToken)
+
+    expect(result).toBeNull()
+    expect(global.fetch).toHaveBeenCalledWith(`${mockApiUrl}/auth/user`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockCsrToken,
+      },
+    })
+  })
+})
 
 describe('useCurrentUser', () => {
   const mockApiUrl = 'https://api.example.com'

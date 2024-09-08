@@ -36,3 +36,4 @@ function useCurrentUser() {
 }
 
 export default useCurrentUser
+export { fetchCurrentUser }
