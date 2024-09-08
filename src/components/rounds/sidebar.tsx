@@ -28,8 +28,17 @@ export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
     )
   }
 
-  if (votes.length !== expectedVotes) {
+  if (votes.length === 0) {
     return <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+  }
+
+  if (votes.length !== expectedVotes) {
+    return (
+      <>
+        <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+        <Votes votes={votes} expectedVotes={expectedVotes} />
+      </>
+    )
   }
 
   return (
