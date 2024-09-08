@@ -50,4 +50,4 @@ function Stats({ votes }: StatsProps): JSX.Element {
   )
 }
 
-export { Stats }
+export default Stats

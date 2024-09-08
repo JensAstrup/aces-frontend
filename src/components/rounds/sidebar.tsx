@@ -1,11 +1,14 @@
+import dynamic from 'next/dynamic'
 import React from 'react'
 
 import { Icons } from '@aces/components/icons'
-import { Estimate } from '@aces/components/rounds/estimate'
-import { Stats } from '@aces/components/rounds/stats'
-import { Votes } from '@aces/components/rounds/votes'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
+
+
+const Estimate = dynamic(() => import('@aces/components/rounds/estimate-section'))
+const Votes = dynamic(() => import('@aces/components/rounds/votes'))
+const Stats = dynamic(() => import('@aces/components/rounds/stats'))
 
 
 interface RoundSidebarProps {
@@ -25,10 +28,12 @@ export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
     )
   }
 
+  if (votes.length !== expectedVotes) {
+    return <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+  }
 
   return (
     <>
-      <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
       <Votes votes={votes} expectedVotes={expectedVotes} />
       <Stats votes={votes} />
     </>

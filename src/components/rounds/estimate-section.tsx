@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/nextjs'
-import { Loader2 } from 'lucide-react'
 import React from 'react'
 
+import EstimateButton, { EstimateProps } from '@aces/components/rounds/estimate-button'
 import { Button } from '@aces/components/ui/button'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
@@ -9,13 +9,14 @@ import { Issue } from '@aces/interfaces/issue'
 import useVote from '@aces/lib/api/set-vote'
 
 
-interface EstimateProps {
+interface EstimateSectionProps {
   roundId: string
   issue: Issue | null
   isLoading: boolean
 }
 
-function Estimate({ roundId, issue, isLoading }: EstimateProps) {
+
+function EstimateSection({ roundId, issue, isLoading }: EstimateSectionProps) {
   const { toast } = useToast()
   const { trigger, isMutating } = useVote(roundId)
 
@@ -70,12 +71,7 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
     )
   }
 
-  interface ButtonProps {
-    value: number | null
-    display: string
-  }
-
-  const buttons: ButtonProps[] = [
+  const buttons: EstimateProps[] = [
     { value: null, display: 'Abstain' },
     { value: 1, display: '1' },
     { value: 2, display: '2' },
@@ -89,15 +85,7 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
       <h2 className="text-2xl font-bold">Estimate</h2>
       <div className="grid grid-cols-3 gap-4">
         {buttons.map((point, index) => (
-          <Button
-            data-point={point.value}
-            key={index}
-            onClick={() => handleVote(point.value)}
-            size="lg"
-            disabled={isMutating}
-          >
-            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : point.display}
-          </Button>
+          <EstimateButton key={index} point={point} onClick={() => handleVote(point.value)} disabled={isMutating} />
         ))}
       </div>
       <Toaster />
@@ -105,4 +93,4 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
   )
 }
 
-export { Estimate }
+export default EstimateSection
