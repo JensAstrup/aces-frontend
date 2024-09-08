@@ -10,7 +10,7 @@ function useSubmitVote(roundId: string) {
   const { trigger, isMutating } = useVote(roundId)
 
   async function handleVote(voteNumber: number, issue: Issue | null) {
-    if (!issue || !issue.id) {
+    if (!issue) {
       Sentry.captureException(new Error('No issue or issue ID available'))
       toast({
         title: 'Error',
