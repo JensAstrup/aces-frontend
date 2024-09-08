@@ -85,7 +85,7 @@ function EstimateSection({ roundId, issue, isLoading }: EstimateSectionProps) {
       <h2 className="text-2xl font-bold">Estimate</h2>
       <div className="grid grid-cols-3 gap-4">
         {buttons.map((point, index) => (
-          <EstimateButton key={index} point={point} onClick={() => handleVote(point.value)} disabled={isMutating} />
+          <EstimateButton key={index} point={point} onClick={() => handleVote(point.value)} disabled={isMutating} loading={isMutating} />
         ))}
       </div>
       <Toaster />
