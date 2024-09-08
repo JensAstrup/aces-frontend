@@ -11,7 +11,7 @@ type VoteError = {
   message: string
 }
 
-async function fetcher(url: string, { arg }: { arg: { point: number, issueId: string, csrfToken: string } }): Promise<VoteResponse> {
+async function fetcher(url: string, { arg }: { arg: { point: number | null, issueId: string, csrfToken: string } }): Promise<VoteResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -35,18 +35,18 @@ function useVote(roundId: string) {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/rounds/${roundId}/vote`
   const { csrfToken, isLoading, isError } = useCsrfToken() // Fetch the CSRF token
 
-  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number, issueId: string, csrfToken: string }>(
+  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number | null, issueId: string, csrfToken: string }>(
     url,
     fetcher
   )
 
   return {
-    trigger: async (args: { point: number, issueId: string }) => {
+    trigger: async (args: { point: number | null, issueId: string }) => {
       if (isLoading || isError) {
         return { error: 'CSRF token is not ready or failed to load' }
       }
-      if (!args.point || !args.issueId) {
-        return { error: 'Point or issueId is missing' }
+      if (args.point === undefined || !args.issueId) {
+        return { error: 'issueId is missing' }
       }
       try {
         const result = await trigger({ ...args, csrfToken }) // Pass the CSRF token to the trigger
