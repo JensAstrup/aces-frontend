@@ -12,20 +12,23 @@ interface EstimateProps {
 
 interface EstimateButtonProps {
   point: EstimateProps
-  onClick: () => Promise<void>
-  disabled: boolean
+  onClick?: () => Promise<void>
+  disabled?: boolean
+  loading?: boolean
+  className?: string
 }
 
 
 function EstimateButton(props: EstimateButtonProps) {
   return (
     <Button
+      className={props.className}
       data-point={props.point.value}
       onClick={props.onClick}
       size="lg"
       disabled={props.disabled}
     >
-      {props.disabled ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : props.point.display}
+      {props.loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : props.point.display}
     </Button>
   )
 }
