@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import useSWRMutation from 'swr/mutation'
 
-import useVote from '@aces/lib/api/set-vote'
+import useVote, { useVoteFetcher } from '@aces/lib/api/set-vote'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
@@ -10,6 +10,44 @@ jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 
 const mockedUseSWRMutation = useSWRMutation as jest.MockedFunction<typeof useSWRMutation>
 const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
+
+describe('useVoteFetcher', () => {
+  const mockUrl = 'test-url'
+  const mockArgs = { point: 1, issueId: 'test-issue-id', csrfToken: 'test-csrf-token' }
+
+  it('should return success when vote is successful', async () => {
+    const mockResponse = { success: true }
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue(mockResponse)
+    })
+    global.fetch = mockFetch
+
+    const result = await useVoteFetcher(mockUrl, { arg: mockArgs })
+
+    expect(result).toEqual(mockResponse)
+    expect(mockFetch).toHaveBeenCalledWith(mockUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': mockArgs.csrfToken,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ vote: mockArgs.point, issueId: mockArgs.issueId }),
+    })
+  })
+
+  it('should throw an error when vote fails', async () => {
+    const mockError = { message: 'Failed to vote' }
+    const mockFetch = jest.fn().mockResolvedValue({
+      ok: false,
+      json: jest.fn().mockResolvedValue(mockError)
+    })
+    global.fetch = mockFetch
+
+    await expect(useVoteFetcher(mockUrl, { arg: mockArgs })).rejects.toThrow('Failed to vote')
+  })
+})
 
 describe('useVote', () => {
   const mockRoundId = 'test-round-id'
@@ -87,12 +125,12 @@ describe('useVote', () => {
     })
   })
 
-  it('should throw an error when point or issueId is missing', async () => {
+  it('should throw an error when issueId is missing', async () => {
     const { result } = renderHook(() => useVote(mockRoundId))
 
     await act(async () => {
       const { error } = await result.current.trigger({ point: 0, issueId: '' })
-      expect(error).toBe('Point or issueId is missing')
+      expect(error).toBe('issueId is missing')
     })
   })
 

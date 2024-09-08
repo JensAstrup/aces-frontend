@@ -1,8 +1,13 @@
+import * as Sentry from '@sentry/nextjs'
 import { act, renderHook } from '@testing-library/react'
 
 import useAuth from '@aces/lib/hooks/auth/use-authenticate'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
+
+jest.mock('@sentry/nextjs', () => ({
+  captureException: jest.fn(),
+}))
 
 jest.mock('@aces/lib/hooks/auth/use-csrf-token')
 const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
@@ -74,15 +79,13 @@ describe('useAuth', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
-  it('should log errors to console', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  it('should log errors to Sentry', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Test error'))
 
     const { result } = renderHook(() => useAuth())
 
     await expect(result.current.handleAuth('test-code')).rejects.toThrow('Test error')
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Test error'))
-    consoleErrorSpy.mockRestore()
+    expect(Sentry.captureException).toHaveBeenCalledWith(new Error('Test error'))
   })
 })

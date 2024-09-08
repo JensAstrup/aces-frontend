@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { Loader2 } from 'lucide-react'
 import React from 'react'
 
@@ -18,9 +19,9 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
   const { toast } = useToast()
   const { trigger, isMutating } = useVote(roundId)
 
-  async function handleVote(voteNumber: number) {
+  async function handleVote(voteNumber: number | null) {
     if (!issue || !issue.id) {
-      console.error('No issue or issue ID available')
+      Sentry.captureException(new Error('No issue or issue ID available'))
       toast({
         title: 'Error',
         description: 'Unable to vote: No issue selected',
@@ -42,7 +43,7 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
       })
     }
     catch (error) {
-      console.error('Error setting vote:', error)
+      Sentry.captureException('Error setting vote')
       toast({
         title: 'Error',
         description: 'An error occurred while setting the vote',
@@ -69,19 +70,33 @@ function Estimate({ roundId, issue, isLoading }: EstimateProps) {
     )
   }
 
+  interface ButtonProps {
+    value: number | null
+    display: string
+  }
+
+  const buttons: ButtonProps[] = [
+    { value: null, display: 'Abstain' },
+    { value: 1, display: '1' },
+    { value: 2, display: '2' },
+    { value: 3, display: '3' },
+    { value: 5, display: '5' },
+    { value: 8, display: '8' },
+  ]
+
   return (
     <div>
       <h2 className="text-2xl font-bold">Estimate</h2>
       <div className="grid grid-cols-3 gap-4">
-        {[0, 1, 2, 3, 5, 8].map(point => (
+        {buttons.map((point, index) => (
           <Button
-            data-point={point}
-            key={point}
-            onClick={() => handleVote(point)}
+            data-point={point.value}
+            key={index}
+            onClick={() => handleVote(point.value)}
             size="lg"
             disabled={isMutating}
           >
-            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : point}
+            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : point.display}
           </Button>
         ))}
       </div>

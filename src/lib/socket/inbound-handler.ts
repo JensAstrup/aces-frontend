@@ -1,13 +1,15 @@
+import * as Sentry from '@sentry/nextjs'
+
 import SocketMessage from '@aces/interfaces/socket-message'
 
 
 function inboundHandler(event: MessageEvent): SocketMessage | null {
   try {
-    console.log('WebSocket message received:', event.data)
+    Sentry.addBreadcrumb({ category: 'socket', message: 'Inbound message received', level: 'info', data: { event } })
     return JSON.parse(event.data) as SocketMessage
   }
   catch (error) {
-    console.error('Error parsing websocket message:', error)
+    Sentry.captureException(error)
     return null
   }
 }

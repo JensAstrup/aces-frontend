@@ -31,7 +31,7 @@ function useRegisterViewer(viewerData: ViewerData, user: User | null | undefined
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
 
   const { data, error, isValidating } = useSWR(
-    user === undefined || user ? null : [`${process.env.NEXT_PUBLIC_API_URL}/auth/anonymous`, viewerData, csrfToken],
+    shouldRegister && csrfToken ? [`${process.env.NEXT_PUBLIC_API_URL}/auth/anonymous`, viewerData, csrfToken] : null,
     ([url, data, csrfToken]) => fetcher(url, data, csrfToken),
     {
       revalidateOnFocus: false,
@@ -40,12 +40,12 @@ function useRegisterViewer(viewerData: ViewerData, user: User | null | undefined
     }
   )
 
-  const isLoading = (!data && !error && !!csrfError) || isValidating
+  const isLoading = shouldRegister && ((!data && !error && !csrfError) || isValidating || csrfLoading)
 
   return {
     data,
     isRegistered: !!data,
-    isLoading: isLoading || csrfLoading,
+    isLoading,
     error: shouldRegister ? error : null,
   }
 }

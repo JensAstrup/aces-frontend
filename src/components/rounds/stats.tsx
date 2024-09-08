@@ -3,7 +3,7 @@ import getMedian from '@aces/lib/utils/get-median'
 
 
 interface StatsProps {
-    votes: number[]
+    votes: Array<number | null>
 }
 
 function Stats({ votes }: StatsProps): JSX.Element {
@@ -11,13 +11,13 @@ function Stats({ votes }: StatsProps): JSX.Element {
     return <></>
   }
 
-  const totalVotes = votes.length
-  let lowest = Math.min(...votes)
-  let highest = Math.max(...votes)
-  let median = getMedian(votes)
-  let average = votes.reduce((acc, vote) => acc + vote, 0) / totalVotes
+  const filteredVotes = votes.filter(vote => vote !== null)
+  let lowest = Math.min(...filteredVotes)
+  let highest = Math.max(...filteredVotes)
+  let median = getMedian(filteredVotes)
+  let average = filteredVotes.reduce((acc, vote) => acc + vote, 0) / filteredVotes.length
 
-  if (totalVotes === 0) {
+  if (filteredVotes.length === 0) {
     lowest = 0
     highest = 0
     median = 0

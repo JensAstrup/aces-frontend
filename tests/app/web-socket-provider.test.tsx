@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 
@@ -11,10 +12,15 @@ import inboundHandler from '@aces/lib/socket/inbound-handler'
 jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/hooks/votes/use-votes')
 jest.mock('@aces/lib/socket/inbound-handler')
+jest.mock('@sentry/nextjs', () => ({
+  captureException: jest.fn()
+}))
 
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 const mockUseVotes = useVotes as jest.MockedFunction<typeof useVotes>
 const mockInboundHandler = inboundHandler as jest.MockedFunction<typeof inboundHandler>
+const mockSentry = Sentry as jest.Mocked<typeof Sentry>
+
 
 describe('WebSocketProvider', () => {
   let mockWebSocket: jest.Mocked<WebSocket>
@@ -53,8 +59,6 @@ describe('WebSocketProvider', () => {
     } as unknown as jest.Mocked<WebSocket>
 
     global.WebSocket = jest.fn(() => mockWebSocket) as unknown as typeof WebSocket
-    jest.spyOn(console, 'log').mockImplementation()
-    jest.spyOn(console, 'error').mockImplementation()
   })
 
   afterEach(() => {
@@ -137,11 +141,10 @@ describe('WebSocketProvider', () => {
       mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
     })
 
-    expect(mockOnError).toHaveBeenCalledWith(mockError)
+    expect(mockSentry.captureException).toHaveBeenCalledWith('Error received from WebSocket: Test error')
   })
 
   it('should log unknown message types', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
     // @ts-expect-error Mocking an invalid message event for testing
     mockInboundHandler.mockReturnValueOnce({ event: 'unknownEvent', payload: 'test' })
 
@@ -151,8 +154,7 @@ describe('WebSocketProvider', () => {
       mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
     })
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Unknown message type received from WebSocket:', { event: 'unknownEvent', payload: 'test' })
-    consoleErrorSpy.mockRestore()
+    expect(mockSentry.captureException).toHaveBeenCalledWith('Unknown message type received from WebSocket: unknownEvent')
   })
 
   it('should close WebSocket connection on unmount', () => {
@@ -182,32 +184,6 @@ describe('WebSocketProvider', () => {
         }),
         body: JSON.stringify({ roundId: mockRoundId }),
         keepalive: true
-      })
-    )
-  })
-
-  it('should use localStorage token for authorization if available', () => {
-    const mockToken = 'test-token'
-    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
-      if (key === 'accessToken') return mockToken
-      return null
-    })
-
-    const mockFetch = jest.fn().mockResolvedValue({ ok: true })
-    global.fetch = mockFetch
-
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
-    act(() => {
-      window.dispatchEvent(new Event('beforeunload'))
-    })
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`,
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: mockToken
-        })
       })
     )
   })

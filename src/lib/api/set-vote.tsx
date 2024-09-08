@@ -11,7 +11,13 @@ type VoteError = {
   message: string
 }
 
-async function fetcher(url: string, { arg }: { arg: { point: number, issueId: string, csrfToken: string } }): Promise<VoteResponse> {
+interface VoteFetcherArgs {
+    point: number | null
+    issueId: string
+    csrfToken: string
+}
+
+async function useVoteFetcher(url: string, { arg }: { arg: VoteFetcherArgs }): Promise<VoteResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -35,20 +41,21 @@ function useVote(roundId: string) {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/rounds/${roundId}/vote`
   const { csrfToken, isLoading, isError } = useCsrfToken() // Fetch the CSRF token
 
-  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number, issueId: string, csrfToken: string }>(
+  const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number | null, issueId: string, csrfToken: string }>(
     url,
-    fetcher
+    useVoteFetcher
   )
 
   return {
-    trigger: async (args: { point: number, issueId: string }) => {
+    trigger: async (args: { point: number | null | undefined, issueId: string }) => {
       if (isLoading || isError) {
         return { error: 'CSRF token is not ready or failed to load' }
       }
-      if (!args.point || !args.issueId) {
-        return { error: 'Point or issueId is missing' }
+      if (args.point === undefined || !args.issueId) {
+        return { error: 'issueId is missing' }
       }
       try {
+        // @ts-expect-error point is not undefined here
         const result = await trigger({ ...args, csrfToken }) // Pass the CSRF token to the trigger
         return { success: result.success }
       }
@@ -65,3 +72,4 @@ function useVote(roundId: string) {
 }
 
 export default useVote
+export { useVoteFetcher }
