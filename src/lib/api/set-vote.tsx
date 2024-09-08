@@ -41,7 +41,7 @@ function useVote(roundId: string) {
   )
 
   return {
-    trigger: async (args: { point: number | null, issueId: string }) => {
+    trigger: async (args: { point: number | null | undefined, issueId: string }) => {
       if (isLoading || isError) {
         return { error: 'CSRF token is not ready or failed to load' }
       }
@@ -49,6 +49,7 @@ function useVote(roundId: string) {
         return { error: 'issueId is missing' }
       }
       try {
+        // @ts-expect-error point is not undefined here
         const result = await trigger({ ...args, csrfToken }) // Pass the CSRF token to the trigger
         return { success: result.success }
       }

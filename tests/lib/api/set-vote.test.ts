@@ -87,12 +87,12 @@ describe('useVote', () => {
     })
   })
 
-  it('should throw an error when point or issueId is missing', async () => {
+  it('should throw an error when issueId is missing', async () => {
     const { result } = renderHook(() => useVote(mockRoundId))
 
     await act(async () => {
       const { error } = await result.current.trigger({ point: 0, issueId: '' })
-      expect(error).toBe('Point or issueId is missing')
+      expect(error).toBe('issueId is missing')
     })
   })
 
