@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@aces/components/ui/card'
-import getMedian from '@aces/lib/utils/get-median'
+import { calculateStats } from '@aces/lib/utils/calculate-stats'
 
 
 interface StatsProps {
@@ -11,18 +11,7 @@ function Stats({ votes }: StatsProps): JSX.Element {
     return <></>
   }
 
-  const filteredVotes = votes.filter(vote => vote !== null)
-  let lowest = Math.min(...filteredVotes)
-  let highest = Math.max(...filteredVotes)
-  let median = getMedian(filteredVotes)
-  let average = filteredVotes.reduce((acc, vote) => acc + vote, 0) / filteredVotes.length
-
-  if (filteredVotes.length === 0) {
-    lowest = 0
-    highest = 0
-    median = 0
-    average = 0
-  }
+  const { lowest, highest, median, average } = calculateStats(votes)
 
   const stats = [
     { title: 'Lowest', value: lowest },
