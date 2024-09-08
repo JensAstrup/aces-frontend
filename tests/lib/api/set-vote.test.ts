@@ -23,7 +23,7 @@ describe('useVoteFetcher', () => {
     })
     global.fetch = mockFetch
 
-    const result = useVoteFetcher(mockUrl, { arg: mockArgs })
+    const result = await useVoteFetcher(mockUrl, { arg: mockArgs })
 
     expect(result).toEqual(mockResponse)
     expect(mockFetch).toHaveBeenCalledWith(mockUrl, {
