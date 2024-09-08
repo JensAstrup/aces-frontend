@@ -41,28 +41,6 @@ describe('useRegisterViewer', () => {
     })
   })
 
-  it('should not fetch when user is defined', () => {
-    const mockUser: User = { id: 'test-user', name: 'Test User', linearId: 'test-linear-id' }
-    mockUseSWR.mockReturnValue({
-      data: undefined,
-      error: undefined,
-      isLoading: false,
-      isValidating: false,
-      mutate: jest.fn(),
-    })
-
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
-
-    expect(mockUseSWR).toHaveBeenCalledWith(
-      null,
-      expect.any(Function),
-      expect.any(Object)
-    )
-    expect(result.current.isRegistered).toBe(false)
-    expect(result.current.isLoading).toBe(false)
-    expect(result.current.error).toBeNull()
-  })
-
   it('should fetch when user is null and CSRF token is available', () => {
     mockUseSWR.mockReturnValue({
       data: { user: { token: 'new-token' } },
@@ -84,7 +62,9 @@ describe('useRegisterViewer', () => {
     expect(result.current.error).toBeUndefined()
   })
 
-  it('should not fetch when user is undefined', () => {
+  it('should not fetch when user is not null', () => {
+    const mockUser = { id: 'user-id', name: 'Test User' } as User
+
     mockUseSWR.mockReturnValue({
       data: undefined,
       error: undefined,
@@ -93,16 +73,13 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, undefined))
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
-    expect(mockUseSWR).toHaveBeenCalledWith(
-      null,
-      expect.any(Function),
-      expect.any(Object)
-    )
+    expect(mockUseSWR).toHaveBeenCalledWith(null, expect.any(Function), expect.any(Object))
     expect(result.current.isRegistered).toBe(false)
     expect(result.current.isLoading).toBe(false)
     expect(result.current.error).toBeNull()
+    expect(result.current.data).toBeUndefined()
   })
 
   it('should handle error when fetch fails', () => {

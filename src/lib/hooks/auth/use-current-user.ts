@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import { HttpStatusCodes } from '@aces/lib/utils/http-status-codes'
 
 
 async function fetchCurrentUser(url: string, csrfToken: string) {
@@ -12,6 +13,9 @@ async function fetchCurrentUser(url: string, csrfToken: string) {
       'X-CSRF-Token': csrfToken
     }
   })
+  if (response.status === HttpStatusCodes.UNAUTHORIZED) {
+    return null // Return null for anonymous users
+  }
   return response.json()
 }
 

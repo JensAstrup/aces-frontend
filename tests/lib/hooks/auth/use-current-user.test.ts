@@ -60,6 +60,29 @@ describe('useCurrentUser', () => {
     )
   })
 
+  it('should return null for anonymous users', async () => {
+    mockedUseSWR.mockReturnValue({
+      data: null,
+      error: undefined,
+      isLoading: false,
+      mutate: jest.fn(),
+      isValidating: false,
+    })
+
+    const { result } = renderHook(() => useCurrentUser())
+
+    await waitFor(() => {
+      expect(result.current.user).toBeNull()
+      expect(result.current.isLoading).toBe(false)
+      expect(result.current.error).toBeUndefined()
+    })
+
+    expect(mockedUseSWR).toHaveBeenCalledWith(
+      [`${mockApiUrl}/auth/user`, mockCsrfToken],
+      expect.any(Function)
+    )
+  })
+
   it('should handle loading state', async () => {
     mockedUseSWR.mockReturnValue({
       data: undefined,
