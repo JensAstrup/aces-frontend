@@ -11,7 +11,13 @@ type VoteError = {
   message: string
 }
 
-async function fetcher(url: string, { arg }: { arg: { point: number | null, issueId: string, csrfToken: string } }): Promise<VoteResponse> {
+interface VoteFetcherArgs {
+    point: number | null
+    issueId: string
+    csrfToken: string
+}
+
+async function useVoteFetcher(url: string, { arg }: { arg: VoteFetcherArgs }): Promise<VoteResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -37,7 +43,7 @@ function useVote(roundId: string) {
 
   const { trigger, isMutating, error } = useSWRMutation<VoteResponse, Error, string, { point: number | null, issueId: string, csrfToken: string }>(
     url,
-    fetcher
+    useVoteFetcher
   )
 
   return {
@@ -66,3 +72,4 @@ function useVote(roundId: string) {
 }
 
 export default useVote
+export { useVoteFetcher }
