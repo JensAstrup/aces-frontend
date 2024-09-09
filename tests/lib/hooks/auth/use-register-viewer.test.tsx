@@ -41,16 +41,18 @@ describe('useRegisterViewer', () => {
     })
   })
 
-  it('should fetch when user is null and CSRF token is available', () => {
+  it('should fetch when user linear ID is null and CSRF token is available', () => {
     mockUseSWR.mockReturnValue({
-      data: { user: { token: 'new-token' } },
+      data: { user: { token: 'new-token', linearId: null } },
       error: undefined,
       isLoading: false,
       isValidating: false,
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(mockUseSWR).toHaveBeenCalledWith(
       ['http://test-api.com/auth/anonymous', mockViewerData, mockCsrfToken],
@@ -62,8 +64,8 @@ describe('useRegisterViewer', () => {
     expect(result.current.error).toBeUndefined()
   })
 
-  it('should not fetch when user is not null', () => {
-    const mockUser = { id: 'user-id', name: 'Test User' } as User
+  it('should not fetch when user linear id is not null', () => {
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: '123' } as User
 
     mockUseSWR.mockReturnValue({
       data: undefined,
@@ -92,7 +94,9 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(result.current.isRegistered).toBe(false)
     expect(result.current.isLoading).toBe(false)
@@ -108,7 +112,9 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(result.current.isLoading).toBe(true)
   })
@@ -128,7 +134,8 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const { result } = renderHook(() => useRegisterViewer(mockViewerData, null))
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(result.current.isLoading).toBe(true)
   })
@@ -154,7 +161,9 @@ describe('useRegisterViewer', () => {
       } as MockSWRResponse
     })
 
-    renderHook(() => useRegisterViewer(mockViewerData, null))
+    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+
+    renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(capturedFetcher).toBeDefined()
     await expect(capturedFetcher!('http://test-api.com/auth/anonymous', mockViewerData, mockCsrfToken)).rejects.toThrow('Failed to register viewer')
