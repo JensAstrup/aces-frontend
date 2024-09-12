@@ -26,13 +26,6 @@ describe('useRegisterViewer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    Object.defineProperty(window, 'localStorage', {
-      value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-      },
-      writable: true
-    })
     process.env.NEXT_PUBLIC_API_URL = 'http://test-api.com'
     mockUseCsrfToken.mockReturnValue({
       csrfToken: mockCsrfToken,
@@ -41,7 +34,7 @@ describe('useRegisterViewer', () => {
     })
   })
 
-  it('should fetch when user linear ID is null and CSRF token is available', () => {
+  it('should fetch when user is null and CSRF token is available', () => {
     mockUseSWR.mockReturnValue({
       data: { user: { token: 'new-token', linearId: null } },
       error: undefined,
@@ -50,7 +43,7 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const mockUser = null
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
@@ -64,7 +57,7 @@ describe('useRegisterViewer', () => {
     expect(result.current.error).toBeUndefined()
   })
 
-  it('should not fetch when user linear id is not null', () => {
+  it('should not fetch when user is not null', () => {
     const mockUser = { id: 'user-id', name: 'Test User', linearId: '123' } as User
 
     mockUseSWR.mockReturnValue({
@@ -94,7 +87,7 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const mockUser = null
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
@@ -112,7 +105,7 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const mockUser = null
 
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
@@ -134,7 +127,7 @@ describe('useRegisterViewer', () => {
       mutate: jest.fn(),
     })
 
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const mockUser = null
     const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
     expect(result.current.isLoading).toBe(true)
@@ -161,7 +154,7 @@ describe('useRegisterViewer', () => {
       } as MockSWRResponse
     })
 
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: null } as User
+    const mockUser = null
 
     renderHook(() => useRegisterViewer(mockViewerData, mockUser))
 
