@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/nextjs'
 import React from 'react'
 
-import EstimateButton, { EstimateProps } from '@aces/components/rounds/estimate-button'
+import EstimateButton, { EstimateProps } from '@aces/components/estimates/estimate-button'
 import { Button } from '@aces/components/ui/button'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
