@@ -60,6 +60,7 @@ function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) 
   if (viewsLoading) return <LoadingRound />
 
   return (
+    // @eslint-disable-next-line
     <div className="space-y-6">
       {user && (
         <div>
