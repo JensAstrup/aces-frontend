@@ -17,7 +17,7 @@ async function fetchCurrentUser(url: string, csrfToken: string) {
   if (response.status === HttpStatusCodes.UNAUTHORIZED) {
     return null // Return null for anonymous users
   }
-  return response.json()
+  return response.json() as Promise<User>
 }
 
 function useCurrentUser() {
@@ -30,7 +30,7 @@ function useCurrentUser() {
   )
 
   return {
-    user: data as User,
+    user: data,
     isLoading: isLoading || isCsrfLoading,
     error: isCsrfError || error,
   }
