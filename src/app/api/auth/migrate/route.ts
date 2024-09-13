@@ -18,11 +18,11 @@ async function POST() {
     try {
       // Decrypt express-session cookie (if signed)
       let sessionId = expressSessionId.value
-      const secret = process.env.COOKIE_SECRET
+      const secret = process.env.COOKIE_SECRET!
 
       if (sessionId.startsWith('s:')) {
         // The cookie is signed, so remove the "s:" prefix and unsign it
-        sessionId = cookieSignature.unsign(sessionId.slice(2), secret)
+        sessionId = <string>cookieSignature.unsign(sessionId.slice(2), secret)
         if (!sessionId) {
           throw new Error('Invalid session signature')
         }
