@@ -1,3 +1,4 @@
+import { User } from '@prisma/client'
 import useSWR from 'swr'
 
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
@@ -29,7 +30,7 @@ function useCurrentUser() {
   )
 
   return {
-    user: data,
+    user: data as User,
     isLoading: isLoading || isCsrfLoading,
     error: isCsrfError || error,
   }
