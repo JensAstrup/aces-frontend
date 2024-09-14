@@ -1,6 +1,6 @@
-import { User } from '@prisma/client'
 import useSWR from 'swr'
 
+import User from '@aces/interfaces/user'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 

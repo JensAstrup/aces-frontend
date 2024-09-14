@@ -15,7 +15,7 @@ const ironOptions = {
 }
 
 type SessionData = {
-  user: User
+  user: Omit<User, 'token'> | null
   anonymous: boolean
 }
 
@@ -26,3 +26,4 @@ async function getSession(): Promise<IronSession<SessionData>> {
 }
 
 export default getSession
+export type { SessionData }
