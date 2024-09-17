@@ -15,7 +15,7 @@ const ironOptions = {
 }
 
 type SessionData = {
-  user: Omit<User, 'token'> | null
+  user: User | null
   anonymous: boolean
 }
 
