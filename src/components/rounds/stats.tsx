@@ -1,6 +1,10 @@
+'use client'
 import * as Sentry from '@sentry/react'
+import React, { useCallback, useRef } from 'react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@aces/components/ui/card'
+import StatCard from '@aces/components/stats/card'
+import { Toaster } from '@aces/components/ui/toaster'
+import { useToast } from '@aces/components/ui/use-toast'
 import setEstimate from '@aces/lib/actions/estimate'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
@@ -11,13 +15,12 @@ interface StatsProps {
     votes: Array<number | null>
 }
 
-function Stats({ votes }: StatsProps): JSX.Element {
+const Stats: React.FC<StatsProps> = ({ votes }) => {
   const { currentIssue } = useIssues()
   const { user } = useCurrentUser()
+  const { toast } = useToast()
+  const submittingEstimate = useRef(false)
 
-  if (votes.length === 0) {
-    return <></>
-  }
   const { lowest, highest, median, average } = calculateStats(votes)
 
   const stats: Array<{ title: string, value: number }> = [
@@ -27,13 +30,37 @@ function Stats({ votes }: StatsProps): JSX.Element {
     { title: 'Highest', value: highest },
   ]
 
-  function setEstimateOnClick(value: number) {
-    if (!currentIssue || !currentIssue.id) {
-      return
-    }
-    setEstimate(currentIssue.id, value).catch((error) => {
-      Sentry.captureException(error)
-    })
+  const setEstimateOnClick = useCallback(
+    async (value: number) => {
+      if (!currentIssue?.id || submittingEstimate.current) return
+
+      submittingEstimate.current = true
+      try {
+        await setEstimate(currentIssue.id, value)
+        toast({
+          title: 'Estimate set',
+          description: `Estimate set successfully to ${value}`,
+          duration: 3000,
+        })
+      }
+      catch (error) {
+        toast({
+          title: 'Error',
+          description: 'An error occurred while setting the estimate',
+          duration: 5000,
+          variant: 'destructive',
+        })
+        Sentry.captureException(error)
+      }
+      finally {
+        submittingEstimate.current = false
+      }
+    },
+    [currentIssue, toast]
+  )
+
+  if (votes.length === 0) {
+    return null
   }
 
   return (
@@ -41,23 +68,15 @@ function Stats({ votes }: StatsProps): JSX.Element {
       <h2 className="text-2xl font-bold">Stats</h2>
       <div className="grid grid-cols-4 gap-3">
         {stats.map(stat => (
-          <Card
-            className="col-span-1"
+          <StatCard
             key={stat.title}
-            onClick={() => {
-              if (user?.linearId) return
-              setEstimateOnClick(stat.value)
-            }}
-          >
-            <CardHeader className="flex items-center justify-center">
-              <CardTitle className="text-lg">{stat.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center">
-              <div className="text-3xl font-bold">{stat.value || '?'}</div>
-            </CardContent>
-          </Card>
+            stat={stat}
+            onClick={() => user?.linearId ? setEstimateOnClick(stat.value) : null}
+            disabled={submittingEstimate.current}
+          />
         ))}
       </div>
+      <Toaster />
     </div>
   )
 }
