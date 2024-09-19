@@ -20,7 +20,7 @@ interface AuthenticatedIssueDisplayProps {
 
 function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) {
   const { user } = useCurrentUser()
-  const { state: issuesState, dispatch } = useIssues()
+  const { state: issuesState, dispatch, setCurrentIssue } = useIssues()
   const { selectedView, currentIssueIndex, issues } = issuesState
   const { isLoading: viewsLoading } = useGetFavoriteViews()
   // Fetch issues when selectedView changes
@@ -53,12 +53,14 @@ function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) 
       type: 'SET_CURRENT_ISSUE_INDEX',
       payload: direction === 'next' ? currentIssueIndex + 1 : currentIssueIndex - 1
     })
-  }, [dispatch, currentIssueIndex])
+    setCurrentIssue(issues[currentIssueIndex] || '')
+  }, [dispatch, currentIssueIndex, setCurrentIssue, issues])
 
   if (issuesError || currentIssueError) return <RoundError />
   if (viewsLoading) return <LoadingRound />
 
   return (
+    // @eslint-disable-next-line
     <div className="space-y-6">
       {user && (
         <div>

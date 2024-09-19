@@ -3,19 +3,20 @@ import React from 'react'
 
 import RoundPage from '@aces/app/rounds/[roundId]/page'
 import useVote from '@aces/lib/api/set-vote'
-import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
-import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
 
 
 
-jest.mock('@aces/components/rounds/sidebar', () => ({
-  RoundSidebar: ({ roundId }: { roundId: string }) => (
-    <div data-testid="round-sidebar">
-RoundSidebar:
+jest.mock('@aces/app/rounds/[roundId]/round-component', () => ({
+  __esModule: true,
+  default: jest.fn(({ params }) => (
+    <div data-testid="round-component">
+      RoundComponent:
       {' '}
-      {roundId}
+      {params.roundId}
     </div>
-  )
+  ))
 }))
 
 jest.mock('@aces/app/web-socket-provider', () => ({
@@ -35,54 +36,34 @@ jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
 }))
 
 jest.mock('@aces/lib/api/set-vote')
-jest.mock('@aces/lib/hooks/auth/use-register-viewer')
-jest.mock('@aces/lib/hooks/auth/use-current-user', () => jest.fn())
+jest.mock('@aces/lib/hooks/auth/use-csrf-token')
+jest.mock('@aces/lib/hooks/auth/use-migrate-cookie')
 
 describe('RoundPage', () => {
-  const mockUseUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
-  const mockUseRegisterViewer = useRegisterViewer as jest.MockedFunction<typeof useRegisterViewer>
   const mockUseVote = useVote as jest.MockedFunction<typeof useVote>
+  const mockUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
+  const mockUseMigrateCookie = useMigrateCookie as jest.MockedFunction<typeof useMigrateCookie>
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseUser.mockReturnValue({ user: null, isLoading: false, error: null })
-    mockUseRegisterViewer.mockReturnValue({
-      isLoading: false,
-      error: null,
-      data: undefined,
-      isRegistered: false
-    })
-    mockUseVote.mockReturnValue({ trigger: jest.fn() } as unknown as ReturnType<typeof useVote>)
+    // @ts-expect-error Just need to mock the function
+    mockUseVote.mockReturnValue({ trigger: jest.fn() })
+    mockUseCsrfToken.mockReturnValue({ csrfToken: 'test-csrf-token', isLoading: false, isError: false })
   })
 
-  it('should render correctly with no user', () => {
+  it('should call useMigrateCookie with csrfToken', () => {
     render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(screen.getByTestId('issues-provider')).toBeInTheDocument()
-    expect(screen.getByTestId('web-socket-provider')).toBeInTheDocument()
+    expect(mockUseMigrateCookie).toHaveBeenCalledWith('test-csrf-token')
   })
 
-  it('should call useRegisterViewer with correct arguments when user is loaded', () => {
-    const mockUser = { id: 'test-user', accessToken: 'test-token' }
-    mockUseUser.mockReturnValue({ user: mockUser, isLoading: false, error: null })
-
+  it('should render RoundComponent with correct props', () => {
     render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: 'test-round' }, mockUser)
+    const roundComponent = screen.getByTestId('round-component')
+    expect(roundComponent).toBeInTheDocument()
+    expect(roundComponent).toHaveTextContent('RoundComponent: test-round')
   })
 
-  it('should call useRegisterViewer with undefined user when user is loading', () => {
-    mockUseUser.mockReturnValue({ user: null, isLoading: true, error: null })
-
-    render(<RoundPage params={{ roundId: 'test-round' }} />)
-
-    expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: 'test-round' }, undefined)
-  })
-
-  it('should pass trigger function to WebSocketProvider', () => {
-    const mockTrigger = jest.fn()
-    mockUseVote.mockReturnValue({ trigger: mockTrigger } as unknown as ReturnType<typeof useVote>)
-
+  it('should render WebSocketProvider', () => {
     render(<RoundPage params={{ roundId: 'test-round' }} />)
 
     const webSocketProvider = screen.getByTestId('web-socket-provider')

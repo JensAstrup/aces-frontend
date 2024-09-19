@@ -14,7 +14,7 @@ const CommentForm: React.FC = () => {
   return (
     <div className="flex items-start gap-4">
       <Avatar className="w-10 h-10">
-        <AvatarFallback>{user.name?.substring(0, 1)}</AvatarFallback>
+        <AvatarFallback>{user.displayName?.substring(0, 1).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="space-y-2 flex-1">
         <div className="flex items-center justify-between">

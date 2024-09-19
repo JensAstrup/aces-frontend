@@ -1,5 +1,6 @@
 import useSWR from 'swr'
 
+import User from '@aces/interfaces/user'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import { HttpStatusCodes } from '@aces/lib/utils/http-status-codes'
 
@@ -29,7 +30,7 @@ function useCurrentUser() {
   )
 
   return {
-    user: data,
+    user: data as User | undefined,
     isLoading: isLoading || isCsrfLoading,
     error: isCsrfError || error,
   }

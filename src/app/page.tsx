@@ -4,7 +4,7 @@ import { Button } from '@aces/components/ui/button'
 export default function Home() {
   const clientId = process.env.NEXT_PUBLIC_LINEAR_CLIENT_ID
   const redirectUri = process.env.NEXT_PUBLIC_LINEAR_REDIRECT_URI
-  const scope = 'read'
+  const scope = 'read,write'
   const state = '1234567890'
   const responseType = 'code'
   const linearAuthUrl = `https://linear.app/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&response_type=${responseType}`

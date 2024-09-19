@@ -17,7 +17,7 @@ const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfTok
 describe('fetchCurrentUser', () => {
   const mockApiUrl = 'https://api.example.com'
   const mockCsrfToken = 'mock-csrf-token'
-  const mockUser: User = { id: '1', name: 'Test User', linearId: 'test-linear-id' }
+  const mockUser: Partial<User> = { id: '1', displayName: 'Test User', linearId: 'test-linear-id' }
 
   beforeEach(() => {
     jest.resetAllMocks()
@@ -66,7 +66,7 @@ describe('fetchCurrentUser', () => {
 describe('useCurrentUser', () => {
   const mockApiUrl = 'https://api.example.com'
   const mockCsrfToken = 'mock-csrf-token'
-  const mockUser: User = { id: '1', name: 'Test User', linearId: 'test-linear-id' }
+  const mockUser: Partial<User> = { id: '1', displayName: 'Test User', linearId: 'test-linear-id' }
 
   beforeEach(() => {
     process.env.NEXT_PUBLIC_API_URL = mockApiUrl

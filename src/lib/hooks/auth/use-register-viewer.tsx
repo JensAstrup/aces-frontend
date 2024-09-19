@@ -30,9 +30,9 @@ function useRegisterViewer(viewerData: ViewerData, user: User | null | undefined
   const shouldRegister = user === null
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
 
-  const { data, error, isValidating } = useSWR(
+  const { data, error, isValidating } = useSWR<User | undefined>(
     shouldRegister && csrfToken ? [`${process.env.NEXT_PUBLIC_API_URL}/auth/anonymous`, viewerData, csrfToken] : null,
-    ([url, data, csrfToken]) => fetcher(url, data, csrfToken),
+    ([url, viewerData, csrfToken]: [string, ViewerData, string]) => fetcher(url, viewerData, csrfToken),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

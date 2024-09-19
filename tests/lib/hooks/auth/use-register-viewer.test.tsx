@@ -58,7 +58,7 @@ describe('useRegisterViewer', () => {
   })
 
   it('should not fetch when user is not null', () => {
-    const mockUser = { id: 'user-id', name: 'Test User', linearId: '123' } as User
+    const mockUser = { id: 'user-id', displayName: 'Test User', linearId: '123' } as User
 
     mockUseSWR.mockReturnValue({
       data: undefined,
