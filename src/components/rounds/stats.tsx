@@ -45,7 +45,7 @@ function Stats({ votes }: StatsProps): JSX.Element {
             className="col-span-1"
             key={stat.title}
             onClick={() => {
-              if (user.linearId) return
+              if (user?.linearId) return
               setEstimateOnClick(stat.value)
             }}
           >
