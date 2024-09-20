@@ -6,7 +6,7 @@ import StatCard from '@aces/components/stats/card'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
 import setEstimate from '@aces/lib/actions/estimate'
-import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import { useCurrentUser } from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { calculateStats } from '@aces/lib/utils/calculate-stats'
 
@@ -15,7 +15,7 @@ interface StatsProps {
     votes: Array<number | null>
 }
 
-const Stats: React.FC<StatsProps> = ({ votes }) => {
+function Stats({ votes }: StatsProps) {
   const { currentIssue } = useIssues()
   const { user } = useCurrentUser()
   const { toast } = useToast()
