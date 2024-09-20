@@ -14,7 +14,7 @@ interface StatCardProps {
   disabled: boolean
 }
 
-const StatCard: React.FC<StatCardProps> = ({ stat, onClick, disabled }) => {
+function StatCard({ stat, onClick, disabled }: StatCardProps) {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -32,7 +32,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat, onClick, disabled }) => {
       onClick={() => {
         !disabled && onClick(stat.value)
       }}
-      onKeyPress={handleKeyPress}
+      onKeyDown={handleKeyPress}
       aria-disabled={disabled}
     >
       <CardHeader className="flex items-center justify-center">
