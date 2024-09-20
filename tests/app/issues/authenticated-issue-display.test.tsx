@@ -3,6 +3,7 @@ import React from 'react'
 
 import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
 import { Issue } from '@aces/interfaces/issue'
+import User from '@aces/interfaces/user'
 import { View } from '@aces/interfaces/view'
 import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
 import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
@@ -67,13 +68,14 @@ describe('AuthenticatedIssueDisplay', () => {
       state: {
         selectedView: null,
         currentIssueIndex: 0,
+        setCurrentIssue: jest.fn(),
         issues: [],
         nextPage: null,
         isLoading: false
       } as IssuesState,
       dispatch: mockDispatch
     })
-    mockUseUser.mockReturnValue({ user: null, error: null, isLoading: false })
+    mockUseUser.mockReturnValue({ user: undefined, error: null, isLoading: false })
     mockUseGetFavoriteViews.mockReturnValue({
       isLoading: false,
       favoriteViews: undefined,
@@ -121,7 +123,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('renders ViewDropdown when user is authenticated', () => {
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user', linearId: '123' } as User,
       isLoading: false,
       error: null
     })
@@ -131,7 +133,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('does not render ViewDropdown when user is not authenticated', () => {
     mockUseUser.mockReturnValue({
-      user: null,
+      user: undefined,
       isLoading: false,
       error: null
     })
@@ -175,7 +177,7 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('handles view selection', async () => {
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user', linearId: '123', name: 'test-user' } as unknown as User,
       isLoading: false,
       error: null
     })
@@ -190,7 +192,6 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('handles navigation to next issue', async () => {
-    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: { id: 'test-view' } as View,
@@ -199,6 +200,8 @@ describe('AuthenticatedIssueDisplay', () => {
         nextPage: null,
         isLoading: false
       },
+      currentIssue: { id: 'issue1' } as Issue,
+      setCurrentIssue: jest.fn(),
       dispatch: mockDispatch
     })
     render(<AuthenticatedIssueDisplay roundId="test-round" />)
@@ -212,15 +215,16 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('handles navigation to previous issue', async () => {
-    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: { id: 'test-view' } as View,
         currentIssueIndex: 1,
         issues: [{ id: 'issue1' }, { id: 'issue2' }] as Issue[],
         nextPage: null,
-        isLoading: false
-      },
+        isLoading: false,
+      } as IssuesState,
+      currentIssue: { id: 'issue2' } as Issue,
+      setCurrentIssue: jest.fn(),
       dispatch: mockDispatch
     })
     render(<AuthenticatedIssueDisplay roundId="test-round" />)
@@ -235,7 +239,6 @@ describe('AuthenticatedIssueDisplay', () => {
 
   it('updates selected view when setView is called with a function', async () => {
     const initialView = { id: 'initial-view' } as View
-    // @ts-expect-error mock implementation
     mockUseIssues.mockReturnValue({
       state: {
         selectedView: initialView,
@@ -244,10 +247,12 @@ describe('AuthenticatedIssueDisplay', () => {
         nextPage: null,
         isLoading: false
       },
+      currentIssue: { id: 'issue2' } as Issue,
+      setCurrentIssue: jest.fn(),
       dispatch: mockDispatch
     })
     mockUseUser.mockReturnValue({
-      user: { id: 'test-user', accessToken: '' },
+      user: { id: 'test-user', linearId: '123', name: 'test-user' } as unknown as User,
       isLoading: false,
       error: null
     })

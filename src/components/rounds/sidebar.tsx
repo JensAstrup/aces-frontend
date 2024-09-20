@@ -6,9 +6,9 @@ import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 
 
-const Estimate = dynamic(() => import('@aces/components/rounds/estimate-section'))
+const Estimate = dynamic(() => import('@aces/components/estimates/estimate-section'))
 const Votes = dynamic(() => import('@aces/components/rounds/votes'))
-const Stats = dynamic(() => import('@aces/components/rounds/stats'))
+const Stats = dynamic(() => import('@aces/components/stats/stats'))
 
 
 interface RoundSidebarProps {

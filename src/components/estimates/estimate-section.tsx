@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/nextjs'
 import React from 'react'
 
-import EstimateButton, { EstimateProps } from '@aces/components/rounds/estimate-button'
+import EstimateButton, { EstimateProps } from '@aces/components/estimates/estimate-button'
 import { Button } from '@aces/components/ui/button'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
@@ -20,20 +20,9 @@ function EstimateSection({ roundId, issue, isLoading }: EstimateSectionProps) {
   const { toast } = useToast()
   const { trigger, isMutating } = useVote(roundId)
 
-  async function handleVote(voteNumber: number | null) {
-    if (!issue || !issue.id) {
-      Sentry.captureException(new Error('No issue or issue ID available'))
-      toast({
-        title: 'Error',
-        description: 'Unable to vote: No issue selected',
-        duration: 5000,
-        variant: 'destructive',
-      })
-      return
-    }
-
+  async function submitVote(voteNumber: number | null): Promise<void> {
     try {
-      const result = await trigger({ point: voteNumber, issueId: issue.id })
+      const result = await trigger({ point: voteNumber, issueId: issue!.id })
       if (result.error) {
         throw new Error(result.error)
       }
@@ -52,6 +41,20 @@ function EstimateSection({ roundId, issue, isLoading }: EstimateSectionProps) {
         variant: 'destructive',
       })
     }
+  }
+
+  async function handleVote(voteNumber: number | null) {
+    if (!issue || !issue.id) {
+      Sentry.captureException(new Error('No issue or issue ID available'))
+      toast({
+        title: 'Error',
+        description: 'Unable to vote: No issue selected',
+        duration: 5000,
+        variant: 'destructive',
+      })
+      return
+    }
+    await submitVote(voteNumber)
   }
 
   if (!issue) {

@@ -11,18 +11,16 @@ const config = {
   preset: 'ts-jest',
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.jest.json',
-    }],
-  },
-  globals: {
-    'ts-jest': {
       tsconfig: 'tsconfig.jest.json'
-    }
+    }]
   },
   coveragePathIgnorePatterns: [
     '<rootDir>/node_modules/',
-    '<rootDir>/src/components/'
-    ]
+  ],
+  collectCoverageFrom: [
+    '<rootDir>/src/**/*.ts',
+    '<rootDir>/src/**/*.tsx'
+  ]
 }
 
 export default config
