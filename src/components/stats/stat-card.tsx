@@ -6,22 +6,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@aces/components/ui/ca
 
 
 interface StatCardProps {
-  stat: {
-    title: string
-    value: number
-  }
+  title: string
+  value: number
+  hoverValue?: number
   onClick: (value: number) => void
   disabled: boolean
 }
 
-function StatCard({ stat, onClick, disabled }: StatCardProps) {
+function StatCard({ title, value, hoverValue, onClick, disabled }: StatCardProps) {
+  const [displayValue, setDisplayValue] = React.useState<number>(value)
   const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       if (!disabled) {
-        onClick(stat.value)
+        onClick(value)
       }
     }
+  }
+
+  function onMouseEnter() {
+    if (hoverValue) {
+      setDisplayValue(hoverValue)
+    }
+  }
+
+  function onMouseLeave() {
+    setDisplayValue(value)
   }
 
   return (
@@ -30,16 +40,18 @@ function StatCard({ stat, onClick, disabled }: StatCardProps) {
       role="button"
       tabIndex={0}
       onClick={() => {
-        !disabled && onClick(stat.value)
+        !disabled && onClick(value)
       }}
       onKeyDown={handleKeyPress}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       aria-disabled={disabled}
     >
       <CardHeader className="flex items-center justify-center">
-        <CardTitle className="text-lg">{stat.title}</CardTitle>
+        <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-center">
-        <div className="text-3xl font-bold">{stat.value || '?'}</div>
+        <div className="text-3xl font-bold">{displayValue || '?'}</div>
       </CardContent>
     </Card>
   )

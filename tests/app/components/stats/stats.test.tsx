@@ -35,17 +35,17 @@ jest.mock('@aces/components/ui/use-toast', () => ({
 }))
 
 // Mock StatCard component
-jest.mock('@aces/components/stats/card', () => ({
+jest.mock('@aces/components/stats/stat-card', () => ({
   __esModule: true,
-  default: ({ stat, onClick, disabled }: { stat: { title: string, value: number }, onClick: () => void, disabled: boolean }) => (
+  default: ({ title, value, onClick, disabled }: { title: string, value: number, onClick: () => void, disabled: boolean }) => (
     <button
       onClick={onClick}
       disabled={disabled}
-      data-testid={`stat-card-${stat.title}`}
+      data-testid={`stat-card-${title}`}
     >
-      {stat.title}
+      {title}
 :
-      {stat.value}
+      {value}
     </button>
   ),
 }))

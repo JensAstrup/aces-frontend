@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { act } from 'react'
 
-import StatCard from '@aces/components/stats/card'
+import StatCard from '@aces/components/stats/stat-card'
 
 
 describe('StatCard function', () => {
   it('should call onClick when the card is clicked', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={false} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={false} />)
     })
 
     fireEvent.click(screen.getByRole('button'))
@@ -19,7 +19,7 @@ describe('StatCard function', () => {
   it('should not call onClick when disabled', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={true} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={true} />)
     })
 
     fireEvent.click(screen.getByRole('button'))
@@ -29,7 +29,7 @@ describe('StatCard function', () => {
   it('should call onClick when Enter Key is pressed', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={false} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={false} />)
     })
 
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter', code: 'Enter' })
@@ -40,7 +40,7 @@ describe('StatCard function', () => {
   it('should not call onClick when Enter Key is pressed and disabled', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={true} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={true} />)
     })
 
     fireEvent.keyPress(screen.getByRole('button'), { key: 'Enter', code: 'Enter' })
@@ -50,7 +50,7 @@ describe('StatCard function', () => {
   it('should call onClick when Space Key is pressed', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={false} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={false} />)
     })
 
     fireEvent.keyDown(screen.getByRole('button'), { key: ' ', code: 'Space' })
@@ -61,7 +61,7 @@ describe('StatCard function', () => {
   it('should not call onClick when Space Key is pressed and disabled', () => {
     const mockOnClick = jest.fn()
     act(() => {
-      render(<StatCard stat={{ title: 'Test', value: 1 }} onClick={mockOnClick} disabled={true} />)
+      render(<StatCard title="Test" value={1} onClick={mockOnClick} disabled={true} />)
     })
 
     fireEvent.keyPress(screen.getByRole('button'), { key: ' ', code: 'Space' })
