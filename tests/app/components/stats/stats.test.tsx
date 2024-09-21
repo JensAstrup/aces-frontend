@@ -24,10 +24,6 @@ jest.mock('@aces/lib/hooks/issues/issues-context', () => ({
   useIssues: jest.fn(),
 }))
 
-jest.mock('@aces/components/ui/toaster', () => ({
-  Toaster: jest.fn(() => null),
-}))
-
 jest.mock('@aces/components/ui/use-toast', () => ({
   useToast: jest.fn(),
 }))
