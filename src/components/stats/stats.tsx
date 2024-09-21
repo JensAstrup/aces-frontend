@@ -9,7 +9,7 @@ import setEstimate from '@aces/lib/actions/estimate'
 import { useCurrentUser } from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { calculateStats } from '@aces/lib/utils/calculate-stats'
-import roundToNearestFibonacci from '@aces/lib/utils/closest-fibonacci-number'
+import roundToNearestFibonacci from '@aces/lib/utils/round-to-nearest-fibonacci'
 
 
 interface StatsProps {

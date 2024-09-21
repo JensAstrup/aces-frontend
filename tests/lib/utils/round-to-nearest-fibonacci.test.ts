@@ -1,4 +1,4 @@
-import closestFibonacciNumber from '@aces/lib/utils/closest-fibonacci-number'
+import closestFibonacciNumber from '@aces/lib/utils/round-to-nearest-fibonacci'
 
 
 test('closestFibonacciNumber', () => {
