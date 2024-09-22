@@ -15,7 +15,7 @@ async function POST() {
   console.log('Cookie store:', cookieStore)
   console.log('Retrieving session using Prisma client:', prisma)
   const session = await getSession()
-
+  console.log('Route Session:', session)
   const expressSessionId = cookieStore.get('connect.sid')
   if (expressSessionId) {
     try {
