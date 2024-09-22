@@ -1,3 +1,4 @@
+'use server'
 import 'server-only'
 import { User } from '@prisma/client'
 import { getIronSession, IronSession } from 'iron-session'
@@ -26,4 +27,3 @@ async function getSession(): Promise<IronSession<SessionData>> {
 }
 
 export default getSession
-export type { SessionData }

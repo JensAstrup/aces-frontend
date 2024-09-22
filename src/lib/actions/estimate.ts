@@ -17,4 +17,4 @@ async function setEstimate(issueId: string, estimate: number) {
   return { message: 'Estimate saved successfully' }
 }
 
-export default setEstimate
+export { setEstimate }

@@ -11,7 +11,7 @@ const isSentryEnabled = () => {
   const env = process.env.APP_ENV
   const gitRef = process.env.VERCEL_GIT_COMMIT_REF
 
-  return env === 'production' || (env === 'staging' && gitRef === 'develop')
+  return env === 'production' || (env === 'staging')
 }
 
 const sentryOptions = {
