@@ -1,4 +1,4 @@
-'use server'
+import 'server-only'
 import { LinearClient } from '@linear/sdk'
 
 import getSession from '@aces/lib/server/auth/session'

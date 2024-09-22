@@ -1,12 +1,12 @@
 'use client'
 import * as Sentry from '@sentry/react'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 
 import StatCard from '@aces/components/stats/stat-card'
 import { Toaster } from '@aces/components/ui/toaster'
 import { useToast } from '@aces/components/ui/use-toast'
-import setEstimate from '@aces/lib/actions/estimate'
 import { useCurrentUser } from '@aces/lib/hooks/auth/use-current-user'
+import { useSubmitEstimate } from '@aces/lib/hooks/estimate/use-submit-estimate'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { calculateStats } from '@aces/lib/utils/calculate-stats'
 import roundToNearestFibonacci from '@aces/lib/utils/round-to-nearest-fibonacci'
@@ -20,8 +20,7 @@ function Stats({ votes }: StatsProps) {
   const { currentIssue } = useIssues()
   const { user } = useCurrentUser()
   const { toast } = useToast()
-  const submittingEstimate = useRef(false)
-
+  const { error, isLoading, submitEstimate } = useSubmitEstimate()
   const { lowest, highest, median, average } = calculateStats(votes)
 
   const stats: Array<{ title: string, value: number }> = [
@@ -33,11 +32,10 @@ function Stats({ votes }: StatsProps) {
 
   const setEstimateOnClick = useCallback(
     async (value: number) => {
-      if (!currentIssue?.id || submittingEstimate.current) return
+      if (!currentIssue?.id) return
       const fibonacciValue = roundToNearestFibonacci(value)
-      submittingEstimate.current = true
       try {
-        await setEstimate(currentIssue.id, fibonacciValue)
+        await submitEstimate(currentIssue.id, fibonacciValue)
         toast({
           title: 'Estimate set',
           description: `Estimate set successfully to ${fibonacciValue}`,
@@ -45,6 +43,7 @@ function Stats({ votes }: StatsProps) {
         })
       }
       catch (error) {
+        console.error('Error setting estimate:', error)
         toast({
           title: 'Error',
           description: 'An error occurred while setting the estimate',
@@ -53,12 +52,21 @@ function Stats({ votes }: StatsProps) {
         })
         Sentry.captureException(error)
       }
-      finally {
-        submittingEstimate.current = false
-      }
     },
-    [currentIssue, toast]
+    [currentIssue, toast, submitEstimate]
   )
+
+  React.useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'An error occurred while setting the estimate',
+        duration: 5000,
+        variant: 'destructive',
+      })
+      Sentry.captureException(error)
+    }
+  }, [error, toast])
 
   if (votes.length === 0) {
     return null
@@ -75,7 +83,7 @@ function Stats({ votes }: StatsProps) {
             value={stat.value}
             hoverValue={roundToNearestFibonacci(stat.value)}
             onClick={() => user?.linearId ? setEstimateOnClick(stat.value) : null}
-            disabled={submittingEstimate.current}
+            disabled={isLoading}
           />
         ))}
       </div>
