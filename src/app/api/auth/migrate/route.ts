@@ -12,6 +12,8 @@ const prisma = new PrismaClient()
 
 async function POST() {
   const cookieStore = cookies()
+  console.log('Cookie store:', cookieStore)
+  console.log('Retrieving session using Prisma client:', prisma)
   const session = await getSession()
 
   const expressSessionId = cookieStore.get('connect.sid')
