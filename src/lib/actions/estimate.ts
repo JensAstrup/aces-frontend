@@ -7,6 +7,7 @@ import decrypt from '@aces/lib/utils/decrypt'
 
 async function setEstimate(issueId: string, estimate: number) {
   const session = await getSession()
+  console.log('Session:', session)
   const user = session.user!
   if (!user.token) {
     return { message: 'No token found' }
