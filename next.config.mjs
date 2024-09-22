@@ -10,7 +10,7 @@ const nextConfig = {}
 const isSentryEnabled = () => {
   const env = process.env.APP_ENV
 
-  return env === 'production' || (env === 'staging')
+  return env === 'production' || (env === 'staging' && gitRef === 'develop')
 }
 
 const sentryOptions = {
