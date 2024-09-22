@@ -1,3 +1,4 @@
+'use server'
 import { PrismaClient } from '@prisma/client'
 import * as Sentry from '@sentry/nextjs'
 import cookieSignature from 'cookie-signature'
