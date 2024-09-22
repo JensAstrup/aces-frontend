@@ -21,6 +21,7 @@ type SessionData = {
 }
 
 async function getSession(): Promise<IronSession<SessionData>> {
+  console.log(`Retrieving session using cookie secret: ${process.env.COOKIE_SECRET}`)
   const cookieStore = cookies()
   const session = await getIronSession<SessionData>(cookieStore, ironOptions)
   return session
