@@ -17,6 +17,7 @@ async function POST() {
   const session = await getSession()
   console.log('Route Session:', session)
   const expressSessionId = cookieStore.get('connect.sid')
+  console.log('Express session ID:', expressSessionId)
   if (expressSessionId) {
     try {
       // Decrypt express-session cookie (if signed)
