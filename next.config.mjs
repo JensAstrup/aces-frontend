@@ -8,7 +8,7 @@ const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'))
 const nextConfig = {}
 
 const isSentryEnabled = () => {
-  const env = process.env.VERCEL_ENV
+  const env = process.env.APP_ENV
 
   return env === 'production' || (env === 'staging')
 }
@@ -18,7 +18,7 @@ const sentryOptions = {
   project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,  // Suppresses Sentry logging during build when not in CI environment
   widenClientFileUpload: true,  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  hideSourceMaps: process.env.VERCEL_ENV === 'production',  // Hides source maps from generated client bundles
+  hideSourceMaps: process.env.APP_ENV === 'production',  // Hides source maps from generated client bundles
   disableLogger: true,  // Automatically tree-shake Sentry logger statements to reduce bundle size
   automaticVercelMonitors: true,  // Enables automatic instrumentation of Vercel Cron Monitors
   release: packageJson.version  // Sets the release version to the version specified in package.json
