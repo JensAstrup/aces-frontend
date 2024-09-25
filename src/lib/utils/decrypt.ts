@@ -2,7 +2,6 @@
 import { createDecipheriv, scryptSync } from 'crypto'
 
 
-
 function decrypt(encryptedData: string): string {
   const KEY = process.env.ENCRYPTION_KEY
   const KEY_LENGTH = 32
