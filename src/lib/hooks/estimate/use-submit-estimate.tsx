@@ -7,8 +7,7 @@ interface SubmitEstimateParams {
 }
 
 interface SubmitEstimateResponse {
-  success: boolean
-  // Add any other fields returned by your API
+  message: string
 }
 
 async function submitEstimateFetcher(
