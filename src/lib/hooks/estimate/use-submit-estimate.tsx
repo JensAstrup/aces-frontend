@@ -10,9 +10,7 @@ interface SubmitEstimateResponse {
   message: string
 }
 
-async function submitEstimateFetcher(
-  url: string,
-  { arg }: { arg: SubmitEstimateParams }
+async function submitEstimateFetcher(url: string, { arg }: { arg: SubmitEstimateParams }
 ) {
   const response = await fetch(url, {
     method: 'POST',
@@ -42,13 +40,7 @@ export function useSubmitEstimate() {
   )
 
   const submitEstimate = async (issueId: string, estimate: number) => {
-    try {
-      return await trigger({ issueId, estimate })
-    }
-    catch (error) {
-      console.error('Error submitting estimate:', error)
-      throw error
-    }
+    return await trigger({ issueId, estimate })
   }
 
   return {
@@ -58,3 +50,6 @@ export function useSubmitEstimate() {
     submitEstimate,
   }
 }
+
+export default useSubmitEstimate
+export { submitEstimateFetcher }
