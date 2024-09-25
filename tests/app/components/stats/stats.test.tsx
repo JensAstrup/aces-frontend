@@ -66,9 +66,9 @@ describe('Stats Component', () => {
   const mockUseCurrentUser = useCurrentUser as jest.Mock
   const mockUseIssues = useIssues as jest.Mock
   const mockUseToast = useToast as jest.Mock
-  const mockUseSubmitEstimate = useSubmitEstimate as jest.Mock
-  const mockCaptureException = Sentry.captureException as jest.Mock
-  const mockRoundToNearestFibonacci = roundToNearestFibonacci as jest.Mock
+  const mockUseSubmitEstimate = useSubmitEstimate as jest.MockedFunction<typeof useSubmitEstimate>
+  const mockCaptureException = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>
+  const mockRoundToNearestFibonacci = roundToNearestFibonacci as jest.MockedFunction<typeof roundToNearestFibonacci>
 
   const mockToast = jest.fn()
   const mockSubmitEstimate = jest.fn()
@@ -77,10 +77,10 @@ describe('Stats Component', () => {
     jest.clearAllMocks()
     mockUseToast.mockReturnValue({ toast: mockToast })
     mockUseSubmitEstimate.mockReturnValue({
-      error: null,
+      error: undefined,
       isLoading: false,
       submitEstimate: mockSubmitEstimate,
-    })
+    } as unknown as ReturnType<typeof useSubmitEstimate>)
   })
 
   it('should render nothing when votes array is empty', () => {
@@ -182,10 +182,10 @@ describe('Stats Component', () => {
     mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
     mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
     mockUseSubmitEstimate.mockReturnValue({
-      error: null,
+      error: undefined,
       isLoading: true,
       submitEstimate: mockSubmitEstimate,
-    })
+    } as unknown as ReturnType<typeof useSubmitEstimate>)
 
     render(<Stats votes={votes} />)
 
@@ -203,7 +203,7 @@ describe('Stats Component', () => {
       error: new Error('Submission error'),
       isLoading: false,
       submitEstimate: mockSubmitEstimate,
-    })
+    } as unknown as ReturnType<typeof useSubmitEstimate>)
 
     render(<Stats votes={votes} />)
 

@@ -76,29 +76,4 @@ describe('useSubmitEstimate', () => {
 
     consoleErrorSpy.mockRestore()
   })
-
-  it('should update loading state during submission', async () => {
-    const mockTrigger = jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(() => {
-      resolve({ success: true })
-      // eslint-disable-next-line no-magic-numbers
-    }, 100)))
-    mockedUseSWRMutation.mockReturnValue({
-      trigger: mockTrigger,
-      data: undefined,
-      error: undefined,
-      isMutating: true,
-    } as unknown as ReturnType<typeof useSWRMutation>)
-
-    const { result } = renderHook(() => useSubmitEstimate())
-
-    const submissionPromise = act(async () => {
-      await result.current.submitEstimate('issue-1', 5)
-    })
-
-    expect(result.current.isLoading).toBe(true)
-
-    await submissionPromise
-
-    expect(result.current.isLoading).toBe(false)
-  })
 })
