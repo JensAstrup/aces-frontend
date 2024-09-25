@@ -1,3 +1,4 @@
+'use server'
 import { createDecipheriv, scryptSync } from 'crypto'
 
 
