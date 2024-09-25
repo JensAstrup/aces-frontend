@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import useSWRMutation from 'swr/mutation'
 
-import { useSubmitEstimate } from './use-submit-estimate'
+import { useSubmitEstimate } from '@aces/lib/hooks/estimate/use-submit-estimate'
 
 
 jest.mock('swr/mutation')
