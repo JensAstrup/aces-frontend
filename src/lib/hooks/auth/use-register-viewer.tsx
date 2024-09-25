@@ -27,7 +27,8 @@ async function fetcher(url: string, viewerData: ViewerData, csrfToken: string) {
 }
 
 function useRegisterViewer(viewerData: ViewerData, user: User | null | undefined) {
-  const shouldRegister = user === null || user?.linearId === null
+  const isAnonymousUser = user === null || user?.linearId === null
+  const shouldRegister = isAnonymousUser
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
 
   const { data, error, isValidating } = useSWR<User | undefined>(
