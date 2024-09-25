@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 import { LinearClient } from '@linear/sdk'
 
-import setEstimate from '@aces/lib/actions/estimate'
+import setEstimate from '@aces/lib/estimates/api/estimate'
 import getSession from '@aces/lib/server/auth/session'
 import decrypt from '@aces/lib/utils/decrypt'
 

@@ -1,11 +1,11 @@
+'use server'
 import { createDecipheriv, scryptSync } from 'crypto'
 
 
-const KEY = process.env.ENCRYPTION_KEY
-const KEY_LENGTH = 32
-const key = scryptSync(KEY!, 'salt', KEY_LENGTH)
-
 function decrypt(encryptedData: string): string {
+  const KEY = process.env.ENCRYPTION_KEY
+  const KEY_LENGTH = 32
+  const key = scryptSync(KEY!, 'salt', KEY_LENGTH)
   const [ivHex, encrypted] = encryptedData.split(':')
   if (!ivHex || !encrypted) {
     throw new Error('Invalid encrypted data format')
