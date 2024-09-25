@@ -57,7 +57,49 @@ describe('useRegisterViewer', () => {
     expect(result.current.error).toBeUndefined()
   })
 
+  it('should fetch when user linear ID is null and CSRF token is available', () => {
+    const mockUser = { id: 'user-id', displayName: 'Test User', linearId: null } as User
+    mockUseSWR.mockReturnValue({
+      data: { user: mockUser },
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: jest.fn(),
+    })
+
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
+
+    expect(mockUseSWR).toHaveBeenCalledWith(
+      ['http://test-api.com/auth/anonymous', mockViewerData, mockCsrfToken],
+      expect.any(Function),
+      expect.any(Object)
+    )
+    expect(result.current.isRegistered).toBe(true)
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.error).toBeUndefined()
+  })
+
   it('should not fetch when user is not null', () => {
+    const mockUser = { id: 'user-id', displayName: 'Test User', linearId: '123' } as User
+
+    mockUseSWR.mockReturnValue({
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: jest.fn(),
+    })
+
+    const { result } = renderHook(() => useRegisterViewer(mockViewerData, mockUser))
+
+    expect(mockUseSWR).toHaveBeenCalledWith(null, expect.any(Function), expect.any(Object))
+    expect(result.current.isRegistered).toBe(false)
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.error).toBeNull()
+    expect(result.current.data).toBeUndefined()
+  })
+
+  it('should not fetch when user linear ID is not null', () => {
     const mockUser = { id: 'user-id', displayName: 'Test User', linearId: '123' } as User
 
     mockUseSWR.mockReturnValue({
