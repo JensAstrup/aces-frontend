@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import setEstimate from '@aces/lib/actions/estimate'
+import setEstimate from '@aces/lib/estimates/api/estimate'
 
 
 interface EstimateRequestBody {

@@ -2,10 +2,10 @@ import * as Sentry from '@sentry/react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import React from 'react'
 
-import Stats from '@aces/components/stats/stats'
+import { Stats } from '@aces/components/stats/index'
 import { useToast } from '@aces/components/ui/use-toast'
-import setEstimate from '@aces/lib/actions/estimate'
 import { useCurrentUser } from '@aces/lib/hooks/auth/use-current-user'
+import { useSubmitEstimate } from '@aces/lib/hooks/estimate/use-submit-estimate'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import roundToNearestFibonacci from '@aces/lib/utils/round-to-nearest-fibonacci'
 
@@ -14,7 +14,9 @@ jest.mock('@sentry/react', () => ({
   captureException: jest.fn(),
 }))
 
-jest.mock('@aces/lib/actions/estimate', () => jest.fn())
+jest.mock('@aces/lib/hooks/estimate/use-submit-estimate', () => ({
+  useSubmitEstimate: jest.fn(),
+}))
 
 jest.mock('@aces/lib/hooks/auth/use-current-user', () => ({
   useCurrentUser: jest.fn(),
@@ -37,6 +39,7 @@ jest.mock('@aces/components/ui/toast', () => ({
   ToastProvider: ({ children }) => children,
 }))
 
+// eslint-disable-next-line react/display-name
 jest.mock('@aces/components/stats/stat-card', () => (props: { title: string, value: number, onClick: () => unknown, disabled: boolean }) => (
   <button data-testid={`stat-card-${props.title}`} onClick={props.onClick} disabled={props.disabled}>
     {props.title}
@@ -57,24 +60,27 @@ jest.mock('@aces/lib/utils/calculate-stats', () => ({
   },
 }))
 
-jest.mock('@aces/lib/utils/round-to-nearest-fibonacci', () => jest.fn((n: number) => {
-  // Simple mock: return the number itself for testing
-  return n
-}))
-const mockRoundToNearestFibonacci = roundToNearestFibonacci as jest.Mock
+jest.mock('@aces/lib/utils/round-to-nearest-fibonacci', () => jest.fn((n: number) => n))
 
 describe('Stats Component', () => {
   const mockUseCurrentUser = useCurrentUser as jest.Mock
   const mockUseIssues = useIssues as jest.Mock
   const mockUseToast = useToast as jest.Mock
-  const mockSetEstimate = setEstimate as jest.Mock
+  const mockUseSubmitEstimate = useSubmitEstimate as jest.Mock
   const mockCaptureException = Sentry.captureException as jest.Mock
+  const mockRoundToNearestFibonacci = roundToNearestFibonacci as jest.Mock
 
   const mockToast = jest.fn()
+  const mockSubmitEstimate = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseToast.mockReturnValue({ toast: mockToast })
+    mockUseSubmitEstimate.mockReturnValue({
+      error: null,
+      isLoading: false,
+      submitEstimate: mockSubmitEstimate,
+    })
   })
 
   it('should render nothing when votes array is empty', () => {
@@ -99,12 +105,11 @@ describe('Stats Component', () => {
     expect(screen.getByTestId('stat-card-Highest')).toHaveTextContent('Highest:8')
   })
 
-  it('should call setEstimate and show success toast when a stat is clicked successfully', async () => {
+  it('should call submitEstimate and show success toast when a stat is clicked successfully', async () => {
     const votes = [1, 2, 3, 5, 8]
     mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
     mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
-    mockSetEstimate.mockResolvedValueOnce({})
-
+    mockSubmitEstimate.mockResolvedValueOnce({})
     mockRoundToNearestFibonacci.mockImplementation((n: number) => n)
 
     render(<Stats votes={votes} />)
@@ -113,7 +118,7 @@ describe('Stats Component', () => {
     fireEvent.click(statButton)
 
     await waitFor(() => {
-      expect(mockSetEstimate).toHaveBeenCalledWith('issue-1', 1)
+      expect(mockSubmitEstimate).toHaveBeenCalledWith('issue-1', 1)
       expect(mockToast).toHaveBeenCalledWith({
         title: 'Estimate set',
         description: 'Estimate set successfully to 1',
@@ -122,33 +127,7 @@ describe('Stats Component', () => {
     })
   })
 
-  it('should show error toast and capture exception when setEstimate fails', async () => {
-    const votes = [1, 2, 3, 5, 8]
-    mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
-    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
-    const error = new Error('Network Error')
-    mockSetEstimate.mockRejectedValueOnce(error)
-
-    mockRoundToNearestFibonacci.mockImplementation((n: number) => n)
-
-    render(<Stats votes={votes} />)
-
-    const statButton = screen.getByTestId('stat-card-Highest')
-    fireEvent.click(statButton)
-
-    await waitFor(() => {
-      expect(mockSetEstimate).toHaveBeenCalledWith('issue-1', 8)
-      expect(mockToast).toHaveBeenCalledWith({
-        title: 'Error',
-        description: 'An error occurred while setting the estimate',
-        duration: 5000,
-        variant: 'destructive',
-      })
-      expect(mockCaptureException).toHaveBeenCalledWith(error)
-    })
-  })
-
-  it('should not call setEstimate when user does not have linearId', () => {
+  it('should not call submitEstimate when user does not have linearId', () => {
     const votes = [1, 2, 3]
     mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
     mockUseCurrentUser.mockReturnValue({ user: null })
@@ -158,11 +137,11 @@ describe('Stats Component', () => {
     const statButton = screen.getByTestId('stat-card-Median')
     fireEvent.click(statButton)
 
-    expect(mockSetEstimate).not.toHaveBeenCalled()
+    expect(mockSubmitEstimate).not.toHaveBeenCalled()
     expect(mockToast).not.toHaveBeenCalled()
   })
 
-  it('should not call setEstimate if currentIssue.id is missing', () => {
+  it('should not call submitEstimate if currentIssue.id is missing', () => {
     const votes = [1, 2, 3]
     mockUseIssues.mockReturnValue({ currentIssue: null })
     mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
@@ -172,25 +151,70 @@ describe('Stats Component', () => {
     const statButton = screen.getByTestId('stat-card-Median')
     fireEvent.click(statButton)
 
-    expect(mockSetEstimate).not.toHaveBeenCalled()
+    expect(mockSubmitEstimate).not.toHaveBeenCalled()
     expect(mockToast).not.toHaveBeenCalled()
   })
 
-  it('should prevent multiple submissions', async () => {
+  it('should show error toast when submitEstimate fails', async () => {
     const votes = [1, 2, 3]
     mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
     mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
-    mockSetEstimate.mockResolvedValue({})
+    mockSubmitEstimate.mockRejectedValueOnce(new Error('Submission failed'))
 
     render(<Stats votes={votes} />)
 
-    const statButton = screen.getByTestId('stat-card-Lowest')
-    fireEvent.click(statButton)
+    const statButton = screen.getByTestId('stat-card-Median')
     fireEvent.click(statButton)
 
     await waitFor(() => {
-      expect(mockSetEstimate).toHaveBeenCalledTimes(1)
-      expect(mockToast).toHaveBeenCalledTimes(1)
+      expect(mockToast).toHaveBeenCalledWith({
+        title: 'Error',
+        description: 'An error occurred while setting the estimate',
+        duration: 5000,
+        variant: 'destructive',
+      })
+      expect(mockCaptureException).toHaveBeenCalledWith(new Error('Submission failed'))
+    })
+  })
+
+  it('should disable stat buttons when isLoading is true', () => {
+    const votes = [1, 2, 3]
+    mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
+    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
+    mockUseSubmitEstimate.mockReturnValue({
+      error: null,
+      isLoading: true,
+      submitEstimate: mockSubmitEstimate,
+    })
+
+    render(<Stats votes={votes} />)
+
+    const statButtons = screen.getAllByRole('button')
+    statButtons.forEach((button) => {
+      expect(button).toBeDisabled()
+    })
+  })
+
+  it('should show error toast when useSubmitEstimate returns an error', async () => {
+    const votes = [1, 2, 3]
+    mockUseIssues.mockReturnValue({ currentIssue: { id: 'issue-1' } })
+    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user-1' } })
+    mockUseSubmitEstimate.mockReturnValue({
+      error: new Error('Submission error'),
+      isLoading: false,
+      submitEstimate: mockSubmitEstimate,
+    })
+
+    render(<Stats votes={votes} />)
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith({
+        title: 'Error',
+        description: 'An error occurred while setting the estimate',
+        duration: 5000,
+        variant: 'destructive',
+      })
+      expect(mockCaptureException).toHaveBeenCalledWith(new Error('Submission error'))
     })
   })
 })
