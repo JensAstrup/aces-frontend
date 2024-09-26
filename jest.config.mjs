@@ -16,6 +16,7 @@ const config = {
   },
   coveragePathIgnorePatterns: [
     '<rootDir>/node_modules/',
+    '<rootDir>/src/interfaces/',
   ],
   collectCoverageFrom: [
     '<rootDir>/src/**/*.ts',
