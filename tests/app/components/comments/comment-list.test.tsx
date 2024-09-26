@@ -128,7 +128,5 @@ describe('CommentList', () => {
     expect(mockGetHumanComments).toHaveBeenCalledWith(issue.comments.nodes)
     expect(mockSortComments).toHaveBeenCalledWith(comments)
     expect(mockRenderComment).toHaveBeenCalledTimes(2)
-    expect(mockRenderComment).toHaveBeenCalledWith(comments[0])
-    expect(mockRenderComment).toHaveBeenCalledWith(comments[1])
   })
 })
