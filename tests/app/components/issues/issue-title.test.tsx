@@ -47,7 +47,6 @@ describe('IssueTitle', () => {
   it('should render hover card content with full issue details', () => {
     render(<IssueTitle issue={mockIssue} />)
     const dateCreated = dayjs(mockIssue.createdAt).format('MMM DD, YYYY')
-    // HoverCardContent is always rendered due to our mock, so we can check its content directly
     expect(screen.queryAllByText('Test Issue')).toHaveLength(2)
     expect(screen.getByText(`Created ${dateCreated}`)).toBeInTheDocument()
     expect(screen.getByText('Team: Test Team')).toBeInTheDocument()
