@@ -70,7 +70,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         Sentry.captureException(`Unknown message type received from WebSocket: ${message.event}`)
       }
     }
-  }, [setCurrentIssue, setVotes, onVoteReceived, setExpectedVotes, onError])
+  }, [setVotes, setExpectedVotes, currentIssue?.id, onVoteReceived, onError, setCurrentIssue])
 
   const disconnect = useCallback(() => {
     if (isDisconnecting.current) {
