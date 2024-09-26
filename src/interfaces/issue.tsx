@@ -1,4 +1,4 @@
-import Comment from '@aces/interfaces/comment'
+import { Comment } from '@aces/interfaces/comment'
 
 
 interface Issue {
