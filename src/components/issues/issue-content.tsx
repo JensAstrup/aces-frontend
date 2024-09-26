@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Comments } from '@aces/components/comments/comments'
+import { CommentList } from '@aces/components/comments/comment-list'
 import { Icons } from '@aces/components/icons'
 import IssueSection from '@aces/components/issues/issue-section'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
@@ -31,7 +31,7 @@ const IssueContent: React.FC<IssueContentProps> = ({ currentIssueIndex, handleNa
           issue={issues[currentIssueIndex]}
           handleNavigate={handleNavigate}
         />
-        <Comments issue={issues[currentIssueIndex]} />
+        <CommentList issue={issues[currentIssueIndex]} />
       </div>
     )
   }

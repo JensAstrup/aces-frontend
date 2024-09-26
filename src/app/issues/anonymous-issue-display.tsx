@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 
-import { Comments } from '@aces/components/comments/comments'
+import { CommentList } from '@aces/components/comments/comment-list'
 import IssueSection from '@aces/components/issues/issue-section'
 import LoadingRound from '@aces/components/rounds/loading-round'
 import { Separator } from '@aces/components/ui/separator'
@@ -15,7 +15,7 @@ function CurrentIssueDisplay({ issue }: { issue: Issue }) {
       <h1 className="text-2xl font-bold">Current Issue</h1>
       <Separator className="mb-2 mt-2" />
       <IssueSection issue={issue} />
-      <Comments issue={issue} />
+      <CommentList issue={issue} />
     </div>
   )
 }
