@@ -1,3 +1,6 @@
+import Comment from '@aces/interfaces/comment'
+
+
 interface Issue {
   id: string
   title: string
@@ -17,15 +20,7 @@ interface Issue {
     name: string
   }
   comments: {
-    nodes: {
-      id: number
-      body: string
-      user: {
-        id: number
-        name: string
-        avatarUrl: string
-      }
-    }[]
+    nodes: Comment[]
   }
   url: string
 }
