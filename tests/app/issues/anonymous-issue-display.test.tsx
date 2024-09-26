@@ -7,7 +7,7 @@ import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 // Mock the dependencies
 jest.mock('@aces/components/comments/comment-list', () => ({
-  Comments: () => <div data-testid="comments">Mocked Comments</div>
+  CommentList: () => <div data-testid="comments">Mocked Comments</div>
 }))
 
 jest.mock('@aces/components/issues/issue-section', () => ({
