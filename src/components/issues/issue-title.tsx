@@ -6,17 +6,18 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@aces/components/
 import { Issue } from '@aces/interfaces/issue'
 
 
+const MAX_TITLE_LENGTH = 41
+
+function truncateTitle(title: string, maxLength: number): string {
+  return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title
+}
+
 export function IssueTitle(props: { issue: Issue }) {
   const { issue } = props
-  const MAX_TITLE_LENGTH = 41
-  let title = issue.title
-  if (title && title.length > MAX_TITLE_LENGTH) {
-    title = title.substring(0, MAX_TITLE_LENGTH) + '...'
-  }
   const createdAt = dayjs(issue.createdAt).format('MMM DD, YYYY')
   return (
     <HoverCard>
-      <HoverCardTrigger className="cursor-default">{title}</HoverCardTrigger>
+      <HoverCardTrigger className="cursor-default">{truncateTitle(issue.title, MAX_TITLE_LENGTH)}</HoverCardTrigger>
       <HoverCardContent>
         <div className="space-y-1">
           <h4 className="text-sm font-semibold">{issue.title}</h4>

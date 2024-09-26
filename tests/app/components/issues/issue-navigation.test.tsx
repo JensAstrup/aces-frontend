@@ -54,12 +54,18 @@ describe('IssueNavigation', () => {
     expect(handleNavigateMock).toHaveBeenCalledWith('next')
   })
 
-  it('should not call handleNavigate when disabled buttons are clicked', () => {
+  it('should not call handleNavigate when disabled previous button is clicked', () => {
     const handleNavigateMock = jest.fn()
-    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={false} hasNextIssue={false} />)
+    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={false} hasNextIssue={true} />)
     const prevButton = screen.getByTestId('chevron-left').closest('button')
-    const nextButton = screen.getByTestId('chevron-right').closest('button')
     fireEvent.click(prevButton as HTMLElement)
+    expect(handleNavigateMock).not.toHaveBeenCalled()
+  })
+
+  it('should not call handleNavigate when disabled next button is clicked', () => {
+    const handleNavigateMock = jest.fn()
+    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={true} hasNextIssue={false} />)
+    const nextButton = screen.getByTestId('chevron-right').closest('button')
     fireEvent.click(nextButton as HTMLElement)
     expect(handleNavigateMock).not.toHaveBeenCalled()
   })
