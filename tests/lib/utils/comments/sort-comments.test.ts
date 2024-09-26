@@ -49,6 +49,8 @@ describe('sortComments function', () => {
     const numberOfComments = 1000
     const comments: Comment[] = []
 
+    // This is more clear than a non loop version would be
+    // eslint-disable-next-line yenz/no-loops
     for (let i = 0; i < numberOfComments; i++) {
       comments.push({
         createdAt: dayjs().add(i, 'minute').toDate(),
@@ -59,6 +61,7 @@ describe('sortComments function', () => {
     const shuffledComments = comments.sort(() => 0.5 - Math.random())
     const sortedComments = sortComments(shuffledComments)
 
+    // eslint-disable-next-line yenz/no-loops
     for (let i = 0; i < numberOfComments - 1; i++) {
       expect(sortedComments[i].createdAt <= sortedComments[i + 1].createdAt).toBe(true)
     }
