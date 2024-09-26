@@ -5,7 +5,6 @@ import { IssueNavigation } from '@aces/components/issues/issue-navigation'
 
 
 
-// Mock the lucide-react components
 jest.mock('lucide-react', () => ({
   ChevronLeft: () => <div data-testid="chevron-left" />,
   ChevronRight: () => <div data-testid="chevron-right" />,
