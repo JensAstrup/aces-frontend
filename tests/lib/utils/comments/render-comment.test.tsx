@@ -6,7 +6,6 @@ import { Comment as CommentInterface } from '@aces/interfaces/comment'
 import renderComment from '@aces/lib/utils/comments/render-comment'
 
 
-// Mock the dayjs function
 jest.mock('dayjs', () => {
   const originalDayjs = jest.requireActual('dayjs')
   return Object.assign(
@@ -17,7 +16,6 @@ jest.mock('dayjs', () => {
   )
 })
 
-// Mock the Comment component
 jest.mock('@aces/components/comments/comment', () => ({
   Comment: ({ avatarSrc, comment, fallback, name, time }: {
     avatarSrc: string
