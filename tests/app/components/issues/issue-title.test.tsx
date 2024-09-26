@@ -6,14 +6,12 @@ import { IssueTitle } from '@aces/components/issues/issue-title'
 import { Issue } from '@aces/interfaces/issue'
 
 
-// Mock the lucide-react components
 jest.mock('lucide-react', () => ({
   CalendarIcon: () => <div data-testid="calendar-icon" />,
   User: () => <div data-testid="user-icon" />,
   Users: () => <div data-testid="users-icon" />,
 }))
 
-// Mock the HoverCard components
 jest.mock('@aces/components/ui/hover-card', () => ({
   HoverCard: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   HoverCardTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="hover-card-trigger">{children}</div>,
