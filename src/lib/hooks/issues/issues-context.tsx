@@ -60,7 +60,6 @@ function IssuesProvider({ children }: { children: ReactNode }) {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
 
   const setCurrentIssueCallback = useCallback((issue: Issue | null) => {
-    console.log('Setting current issue:', issue)
     setCurrentIssue(issue)
   }, [])
 

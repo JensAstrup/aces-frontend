@@ -29,7 +29,6 @@ const useOAuthRedirect = () => {
 
   useEffect(() => {
     if (roundId) {
-      console.log('Round created, redirecting:', roundId)
       router.push(`/rounds/${roundId}`)
     }
   }, [roundId, router])
