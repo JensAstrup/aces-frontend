@@ -15,7 +15,6 @@ module.exports = {
   "rules": {
     ...baseConfig.rules,
     '@typescript-eslint/explicit-function-return-type': 'off',
-    "no-console": 'off',
     "no-extra-boolean-cast": 0,
     "perfectionist/sort-jsx-props": "off",
     "indent": ["warn", 2],

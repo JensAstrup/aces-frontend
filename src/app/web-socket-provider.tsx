@@ -53,7 +53,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         break
       case WebSocketEvent.VOTE_UPDATED:
         if (onVoteReceived) {
-          console.log('Vote received from WebSocket:', message.payload)
           onVoteReceived(message.payload as VotePayload)
         }
         const data = message.payload as VoteUpdatedPayload
@@ -96,8 +95,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
     socketRef.current.onmessage = handleMessage
 
-    socketRef.current.onclose = (event) => {
-      console.log('WebSocket connection closed:', event)
+    socketRef.current.onclose = () => {
       if (isUnmounting.current) {
         disconnect()
       }
