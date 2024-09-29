@@ -7,6 +7,7 @@ import useVote from '@aces/lib/api/set-vote'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
 import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
+import { ViewProvider } from '@aces/lib/hooks/views/views-context'
 import { VotesProvider } from '@aces/lib/hooks/votes/use-votes'
 
 
@@ -20,14 +21,15 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const { csrfToken } = useCsrfToken()
   useMigrateCookie(csrfToken)
 
-
   return (
-    <IssuesProvider>
-      <VotesProvider>
-        <RoundComponent params={params} />
-        <WebSocketProvider roundId={roundId} onVoteReceived={trigger} />
-      </VotesProvider>
-    </IssuesProvider>
+    <ViewProvider>
+      <IssuesProvider>
+        <VotesProvider>
+          <RoundComponent params={params} />
+          <WebSocketProvider roundId={roundId} onVoteReceived={trigger} />
+        </VotesProvider>
+      </IssuesProvider>
+    </ViewProvider>
   )
 }
 
