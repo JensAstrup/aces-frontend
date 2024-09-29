@@ -1,66 +1,54 @@
 'use client'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 
 import IssueContent from '@aces/components/issues/issue-content'
 import LoadingRound from '@aces/components/rounds/loading-round'
-import RoundError from '@aces/components/rounds/round-error'
 import { Separator } from '@aces/components/ui/separator'
 import ViewDropdown from '@aces/components/view-dropdown'
 import { View } from '@aces/interfaces/view'
-import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
-import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
-import useSetRoundIssue from '@aces/lib/hooks/rounds/use-set-round-issue'
+import useViews from '@aces/lib/hooks/views/views-context'
 
 
-interface AuthenticatedIssueDisplayProps {
-    roundId: string
-}
-
-function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) {
+function AuthenticatedIssueDisplay() {
   const { user } = useCurrentUser()
-  const { state: issuesState, dispatch, setCurrentIssue } = useIssues()
-  const { selectedView, currentIssueIndex, issues } = issuesState
-  const { isLoading: viewsLoading } = useGetFavoriteViews()
-  // Fetch issues when selectedView changes
-  const { data: fetchedIssues, error: issuesError } = useGetIssuesForView(selectedView)
-
-  const { error: currentIssueError } = useSetRoundIssue(roundId, issues[currentIssueIndex]?.id || '')
-
-  useEffect(() => {
-    if (fetchedIssues) {
-      dispatch({ type: 'SET_ISSUES', payload: fetchedIssues.issues })
-      dispatch({ type: 'SET_NEXT_PAGE', payload: fetchedIssues.nextPage })
-    }
-  }, [fetchedIssues, dispatch])
+  const { currentIssue, setCurrentIssue, issues } = useIssues()
+  const { isLoading: viewsLoading, selectedView, setSelectedView } = useViews()
 
   const handleViewSelect = useCallback((view: View) => {
-    dispatch({ type: 'SET_SELECTED_VIEW', payload: view })
-  }, [dispatch])
+    setSelectedView(view)
+  }, [setSelectedView])
 
   const setView = useCallback((view: View | ((prev: View | null) => View | null)) => {
     if (typeof view === 'function') {
-      dispatch({ type: 'SET_SELECTED_VIEW', payload: view(selectedView) })
+      const selectedViewResult: View | null = view(selectedView)
+      if (selectedViewResult) {
+        handleViewSelect(selectedViewResult)
+      }
     }
     else {
       handleViewSelect(view)
     }
-  }, [handleViewSelect, dispatch, selectedView])
+  }, [handleViewSelect, selectedView])
 
   const handleNavigate = useCallback((direction: 'next' | 'previous') => {
-    dispatch({
-      type: 'SET_CURRENT_ISSUE_INDEX',
-      payload: direction === 'next' ? currentIssueIndex + 1 : currentIssueIndex - 1
-    })
-    setCurrentIssue(issues[currentIssueIndex] || '')
-  }, [dispatch, currentIssueIndex, setCurrentIssue, issues])
+    if (!currentIssue) return
+    const currentIndex = issues.findIndex(issue => issue.id === currentIssue.id)
+    if (currentIndex === -1) return
 
-  if (issuesError || currentIssueError) return <RoundError />
+    let newIndex
+    if (direction === 'next') {
+      newIndex = (currentIndex + 1) % issues.length
+    }
+    else {
+      newIndex = (currentIndex - 1 + issues.length) % issues.length
+    }
+    setCurrentIssue(issues[newIndex])
+  }, [setCurrentIssue, issues, currentIssue])
+
   if (viewsLoading) return <LoadingRound />
-
   return (
-    // @eslint-disable-next-line
     <div className="space-y-6">
       {user && (
         <div>
@@ -70,7 +58,7 @@ function AuthenticatedIssueDisplay({ roundId }: AuthenticatedIssueDisplayProps) 
       <Separator />
       {selectedView && (
         <IssueContent
-          currentIssueIndex={currentIssueIndex}
+          issue={currentIssue}
           handleNavigate={handleNavigate}
         />
       )}
