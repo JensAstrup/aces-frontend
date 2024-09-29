@@ -1,37 +1,26 @@
 import React from 'react'
 
 import { CommentList } from '@aces/components/comments/comment-list'
-import { Icons } from '@aces/components/icons'
 import IssueSection from '@aces/components/issues/issue-section'
-import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { Issue } from '@aces/interfaces/issue'
 
 
 interface IssueContentProps {
-  currentIssueIndex: number
+  issue: Issue | null
   handleNavigate: (direction: 'next' | 'previous') => void
 }
 
-const IssueContent: React.FC<IssueContentProps> = ({ currentIssueIndex, handleNavigate }) => {
-  const { issues, isLoading } = useIssues().state
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <Icons.spinner className="h-8 w-8 animate-spin" />
-      </div>
-    )
-  }
-
-  if (issues.length > 0 && issues[currentIssueIndex]) {
+const IssueContent: React.FC<IssueContentProps> = ({ issue, handleNavigate }) => {
+  if (issue) {
     return (
       <div>
         <IssueSection
-          hasNextIssue={currentIssueIndex < issues.length - 1}
-          hasPrevIssue={currentIssueIndex > 0}
-          issue={issues[currentIssueIndex]}
+          hasNextIssue={true}
+          hasPrevIssue={true}
+          issue={issue}
           handleNavigate={handleNavigate}
         />
-        <CommentList issue={issues[currentIssueIndex]} />
+        <CommentList issue={issue} />
       </div>
     )
   }
