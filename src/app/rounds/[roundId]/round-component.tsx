@@ -19,7 +19,7 @@ function RoundComponent({ params }: RoundComponentProps): React.ReactElement {
   return (
     <div className="grid md:grid-cols-5 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
       <div className="md:col-span-3">
-        {user?.linearId ? <AuthenticatedIssueDisplay roundId={roundId} /> : <UnauthenticatedIssueDisplay />}
+        {user?.linearId ? <AuthenticatedIssueDisplay /> : <UnauthenticatedIssueDisplay />}
       </div>
       <div className="space-y-8 md:col-span-2">
         <RoundSidebar
