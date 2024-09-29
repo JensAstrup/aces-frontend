@@ -1,8 +1,15 @@
 import useSWR from 'swr'
 
 import { View } from '@aces/interfaces/view'
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
+
+async function getViews(): Promise<View[]> {
+  const { csrfToken } = await getCsrfToken()
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
+  const data = await fetcher(`${API_URL}/views`, csrfToken)
+  return data
+}
 
 async function fetcher(url: string, csrfToken: string): Promise<View[]> {
   const response = await fetch(url, {
@@ -35,3 +42,4 @@ export function useGetFavoriteViews() {
 }
 
 export default useGetFavoriteViews
+export { getViews }
