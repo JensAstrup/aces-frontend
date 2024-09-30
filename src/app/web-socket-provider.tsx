@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import React, { useCallback, useEffect, useRef } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
@@ -35,6 +36,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
+  const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
@@ -46,7 +48,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         const newIssue = messagePayload.issue
         setVotes(messagePayload.votes)
         setExpectedVotes(messagePayload.expectedVotes)
-        if (newIssue.id !== currentIssue?.id) {
+        if (newIssue.id !== currentIssue?.id && !user?.linearId) {
           setCurrentIssue(newIssue)
         }
 
@@ -118,7 +120,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         socketRef.current.close()
       }
     }
-  }, [roundId, handleMessage, disconnect])
+  }, [roundId, disconnect])
 
   return null // This component doesn't render anything
 }
