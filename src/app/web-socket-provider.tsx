@@ -38,7 +38,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
-  const [, setIsConnected] = useState(false)
+  const [, setIsConnected] = useState<boolean | null>(null)
   const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
@@ -74,6 +74,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         Sentry.captureException(`Unknown message type received from WebSocket: ${message.event}`)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setVotes, setExpectedVotes, currentIssue?.id, onVoteReceived, onError, setCurrentIssue])
 
   const disconnect = useCallback(() => {
@@ -130,6 +131,8 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         socketRef.current.close()
       }
     }
+    // Following this rule would cause the effect to be run over and over again
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId])
 
   return null // This component doesn't render anything

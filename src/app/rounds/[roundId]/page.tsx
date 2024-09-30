@@ -21,7 +21,7 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const { trigger } = useVote(roundId)
   const { csrfToken } = useCsrfToken()
   useMigrateCookie(csrfToken)
-  const [isConnected, setIsConnected] = useState(true)
+  const [isConnected, setIsConnected] = useState<boolean | null>(true)
 
   const handleConnectionChange = (connected: boolean) => {
     setIsConnected(connected)
@@ -30,7 +30,7 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
     <ViewProvider>
       <IssuesProvider>
         <VotesProvider>
-          {isConnected ? <RoundComponent params={params} /> : <Disconnected /> }
+          {isConnected || isConnected === null ? <RoundComponent params={params} /> : <Disconnected /> }
           <WebSocketProvider roundId={roundId} onVoteReceived={trigger} onConnectionChange={handleConnectionChange} />
         </VotesProvider>
       </IssuesProvider>
