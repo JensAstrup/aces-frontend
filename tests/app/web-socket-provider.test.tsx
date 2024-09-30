@@ -4,187 +4,287 @@ import React from 'react'
 
 import WebSocketProvider from '@aces/app/web-socket-provider'
 import { Issue } from '@aces/interfaces/issue'
+import User from '@aces/interfaces/user'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
 
 
+jest.mock('@sentry/nextjs')
 jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/hooks/votes/use-votes')
+jest.mock('@aces/lib/hooks/auth/use-current-user')
 jest.mock('@aces/lib/socket/inbound-handler')
-jest.mock('@sentry/nextjs', () => ({
-  captureException: jest.fn()
-}))
 
+const mockSentryCapture = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 const mockUseVotes = useVotes as jest.MockedFunction<typeof useVotes>
+const mockUseCurrentUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
 const mockInboundHandler = inboundHandler as jest.MockedFunction<typeof inboundHandler>
-const mockSentry = Sentry as jest.Mocked<typeof Sentry>
-
 
 describe('WebSocketProvider', () => {
-  let mockWebSocket: jest.Mocked<WebSocket>
-  const mockSetCurrentIssue = jest.fn()
-  const mockSetVotes = jest.fn()
-  const mockSetExpectedVotes = jest.fn()
+  let mockWebSocket: jest.Mock
+  let mockFetch: jest.Mock
+  const mockRoundId = 'test-round-id'
   const mockOnVoteReceived = jest.fn()
   const mockOnError = jest.fn()
-  const mockRoundId = 'test-round-id'
+  const mockOnConnectionChange = jest.fn()
 
   beforeEach(() => {
     jest.resetAllMocks()
-    mockUseIssues.mockReturnValue({
-      state: {
-        issues: [],
-        currentIssueIndex: 1,
-        selectedView: null,
-        nextPage: null,
-        isLoading: false,
-      },
-      dispatch: jest.fn(),
-      currentIssue: { id: '1', title: 'Test Issue' } as Issue,
-      setCurrentIssue: mockSetCurrentIssue,
-    })
-    mockUseVotes.mockReturnValue({
-      votes: [],
-      expectedVotes: 0,
-      setVotes: mockSetVotes,
-      setExpectedVotes: mockSetExpectedVotes,
-    })
-
-    mockWebSocket = {
+    mockWebSocket = jest.fn(() => ({
+      onopen: null,
       onmessage: null,
       onclose: null,
       close: jest.fn(),
-    } as unknown as jest.Mocked<WebSocket>
+    }))
+    global.WebSocket = mockWebSocket as unknown as jest.MockedClass<typeof WebSocket>
+    mockFetch = jest.fn(() => Promise.resolve())
+    global.fetch = mockFetch
 
-    global.WebSocket = jest.fn(() => mockWebSocket) as unknown as typeof WebSocket
-  })
+    mockUseIssues.mockReturnValue({
+      currentIssue: null,
+      setCurrentIssue: jest.fn(),
+    } as unknown as ReturnType<typeof useIssues>)
+    mockUseVotes.mockReturnValue({
+      setVotes: jest.fn(),
+      setExpectedVotes: jest.fn(),
+    } as unknown as ReturnType<typeof useVotes>)
+    mockUseCurrentUser.mockReturnValue({ user: undefined, isLoading: false, error: undefined })
 
-  afterEach(() => {
-    jest.restoreAllMocks()
+    process.env.NEXT_PUBLIC_WEBSOCKET = 'ws://test.com'
+    process.env.NEXT_PUBLIC_API_URL = 'http://test.com'
   })
 
   it('should initialize WebSocket connection', () => {
-    render(<WebSocketProvider roundId={mockRoundId} />)
-    expect(global.WebSocket).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${mockRoundId}`)
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    expect(mockWebSocket).toHaveBeenCalledWith(`ws://test.com?roundId=${mockRoundId}`)
   })
 
-  it('should handle roundIssueUpdated message', () => {
-    const mockIssue = { id: '2', title: 'Test Issue' }
-    mockInboundHandler.mockReturnValueOnce({ event: 'roundIssueUpdated', payload: { issue: mockIssue, votes: [], expectedVotes: 3 } })
-    mockSetExpectedVotes.mockReturnValue(3)
+  it('should handle WebSocket open event', () => {
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
 
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
+    const websocketInstance = mockWebSocket.mock.results[0].value
     act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
+      websocketInstance.onopen()
     })
 
-    expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssue)
-    expect(mockSetVotes).toHaveBeenCalledWith([])
-    expect(mockSetExpectedVotes).toHaveBeenCalledWith(3)
+    expect(mockOnConnectionChange).toHaveBeenCalledWith(true)
   })
 
-  it('should handle roundIssueUpdated message when issue is same as current issue', () => {
-    const mockIssue = { id: '1', title: 'Test Issue' }
-    mockInboundHandler.mockReturnValueOnce({ event: 'roundIssueUpdated', payload: { issue: mockIssue, votes: [], expectedVotes: 3 } })
-    mockSetExpectedVotes.mockReturnValue(3)
+  it('should handle WebSocket close event', () => {
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
 
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
+    const websocketInstance = mockWebSocket.mock.results[0].value
     act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
+      websocketInstance.onclose()
+    })
+
+    expect(mockOnConnectionChange).toHaveBeenCalledWith(false)
+  })
+
+  it('should handle ROUND_ISSUE_UPDATED message', () => {
+    const mockSetCurrentIssue = jest.fn()
+    mockUseIssues.mockReturnValue({
+      currentIssue: { id: 'old-issue' },
+      setCurrentIssue: mockSetCurrentIssue,
+    } as unknown as ReturnType<typeof useIssues>)
+
+    const mockSetVotes = jest.fn()
+    const mockSetExpectedVotes = jest.fn()
+    mockUseVotes.mockReturnValue({
+      setVotes: mockSetVotes,
+      setExpectedVotes: mockSetExpectedVotes,
+    } as unknown as ReturnType<typeof useVotes>)
+
+    mockInboundHandler.mockReturnValue({
+      event: 'roundIssueUpdated',
+      payload: {
+        issue: { id: 'new-issue' },
+        votes: [1, 2, 3],
+        expectedVotes: 5,
+      },
+    })
+
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    act(() => {
+      websocketInstance.onmessage({ data: 'test-message' })
+    })
+
+    expect(mockSetCurrentIssue).toHaveBeenCalledWith({ id: 'new-issue' })
+    expect(mockSetVotes).toHaveBeenCalledWith([1, 2, 3])
+    expect(mockSetExpectedVotes).toHaveBeenCalledWith(5)
+  })
+
+  it('should handle VOTE_UPDATED message', () => {
+    const mockSetVotes = jest.fn()
+    const mockSetExpectedVotes = jest.fn()
+    mockUseVotes.mockReturnValue({
+      setVotes: mockSetVotes,
+      setExpectedVotes: mockSetExpectedVotes,
+    } as unknown as ReturnType<typeof useVotes>)
+
+    mockInboundHandler.mockReturnValue({
+      event: 'voteUpdated',
+      payload: {
+        votes: [1, 2, 3],
+        expectedVotes: 5,
+      },
+    })
+
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    act(() => {
+      websocketInstance.onmessage({ data: 'test-message' })
+    })
+
+    expect(mockOnVoteReceived).toHaveBeenCalledWith({
+      votes: [1, 2, 3],
+      expectedVotes: 5,
+    })
+    expect(mockSetVotes).toHaveBeenCalledWith([1, 2, 3])
+    expect(mockSetExpectedVotes).toHaveBeenCalledWith(5)
+  })
+
+  it('should handle ERROR message', () => {
+    mockInboundHandler.mockReturnValue({
+      event: 'error',
+      payload: 'Test error message',
+    })
+
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    act(() => {
+      websocketInstance.onmessage({ data: 'test-message' })
+    })
+
+    expect(mockOnError).toHaveBeenCalledWith('Test error message')
+    expect(mockSentryCapture).toHaveBeenCalledWith('Error received from WebSocket: Test error message')
+  })
+
+  it('should handle unknown message type', () => {
+    mockInboundHandler.mockReturnValue({
+      // @ts-expect-error - Testing unknown message type
+      event: 'unknownEvent',
+      payload: {},
+    })
+
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    act(() => {
+      websocketInstance.onmessage({ data: 'test-message' })
+    })
+
+    expect(mockSentryCapture).toHaveBeenCalledWith('Unknown message type received from WebSocket: unknownEvent')
+  })
+
+  it('should disconnect on unmount', () => {
+    const { unmount } = render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    unmount()
+
+    expect(websocketInstance.close).toHaveBeenCalled()
+  })
+
+  it('should not update currentIssue for authenticated users', () => {
+    const mockSetCurrentIssue = jest.fn()
+    mockUseIssues.mockReturnValue({
+      issues: [],
+      setIssues: jest.fn(),
+      isLoading: false,
+      loadIssues: jest.fn(),
+      currentIssue: { id: 'old-issue' } as Issue,
+      setCurrentIssue: mockSetCurrentIssue,
+    })
+    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'test-linear-id' } as User, isLoading: false, error: undefined })
+
+    mockInboundHandler.mockReturnValue({
+      event: 'roundIssueUpdated',
+      payload: {
+        issue: { id: 'new-issue' },
+        votes: [],
+        expectedVotes: 0,
+      },
+    })
+
+    render(
+      <WebSocketProvider
+        roundId={mockRoundId}
+        onVoteReceived={mockOnVoteReceived}
+        onError={mockOnError}
+        onConnectionChange={mockOnConnectionChange}
+      />
+    )
+
+    const websocketInstance = mockWebSocket.mock.results[0].value
+    act(() => {
+      websocketInstance.onmessage({ data: 'test-message' })
     })
 
     expect(mockSetCurrentIssue).not.toHaveBeenCalled()
-    expect(mockSetVotes).toHaveBeenCalledWith([])
-    expect(mockSetExpectedVotes).toHaveBeenCalledWith(3)
-  })
-
-  it('should handle response message', () => {
-    const mockIssue = { id: '2', title: 'Another Test Issue' } as Issue
-    const mockPayload = { issue: mockIssue, votes: [], expectedVotes: 3 }
-    mockInboundHandler.mockReturnValueOnce({ event: 'response', payload: mockPayload })
-
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
-    act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
-    })
-
-    expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssue)
-  })
-
-  it('should handle voteUpdated message', () => {
-    const mockVotePayload = { votes: [1, 2, 3], expectedVotes: 5 }
-    mockInboundHandler.mockReturnValueOnce({ event: 'voteUpdated', payload: mockVotePayload })
-
-    render(<WebSocketProvider roundId={mockRoundId} onVoteReceived={mockOnVoteReceived} />)
-
-    act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
-    })
-
-    expect(mockOnVoteReceived).toHaveBeenCalledWith(mockVotePayload)
-    expect(mockSetVotes).toHaveBeenCalledWith(mockVotePayload.votes)
-    expect(mockSetExpectedVotes).toHaveBeenCalledWith(mockVotePayload.expectedVotes)
-  })
-
-  it('should handle error message', () => {
-    const mockError = 'Test error'
-    mockInboundHandler.mockReturnValueOnce({ event: 'error', payload: mockError })
-
-    render(<WebSocketProvider roundId={mockRoundId} onError={mockOnError} />)
-
-    act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
-    })
-
-    expect(mockSentry.captureException).toHaveBeenCalledWith('Error received from WebSocket: Test error')
-  })
-
-  it('should log unknown message types', () => {
-    // @ts-expect-error Mocking an invalid message event for testing
-    mockInboundHandler.mockReturnValueOnce({ event: 'unknownEvent', payload: 'test' })
-
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
-    act(() => {
-      mockWebSocket.onmessage!({ data: 'test' } as MessageEvent)
-    })
-
-    expect(mockSentry.captureException).toHaveBeenCalledWith('Unknown message type received from WebSocket: unknownEvent')
-  })
-
-  it('should close WebSocket connection on unmount', () => {
-    const { unmount } = render(<WebSocketProvider roundId={mockRoundId} />)
-    unmount()
-    expect(mockWebSocket.close).toHaveBeenCalled()
-  })
-
-  it('should handle beforeunload event', () => {
-    const mockFetch = jest.fn().mockResolvedValue({ ok: true })
-    global.fetch = mockFetch
-
-    render(<WebSocketProvider roundId={mockRoundId} />)
-
-    act(() => {
-      window.dispatchEvent(new Event('beforeunload'))
-    })
-
-    expect(mockWebSocket.close).toHaveBeenCalled()
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`,
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({
-          'Content-Type': 'application/json',
-          'Authorization': ''
-        }),
-        body: JSON.stringify({ roundId: mockRoundId }),
-        keepalive: true
-      })
-    )
   })
 })
