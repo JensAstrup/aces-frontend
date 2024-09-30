@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
@@ -17,6 +17,7 @@ interface WebSocketProviderProps {
   roundId: string
   onVoteReceived?: (vote: VotePayload) => void
   onError?: (error: string) => void
+  onConnectionChange: (isConnected: boolean) => void
 }
 
 enum WebSocketEvent {
@@ -29,13 +30,15 @@ enum WebSocketEvent {
 const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   roundId,
   onVoteReceived,
-  onError
+  onError,
+  onConnectionChange
 }) => {
   const { currentIssue, setCurrentIssue } = useIssues()
   const { setVotes, setExpectedVotes } = useVotes()
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
+  const [, setIsConnected] = useState(false)
   const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
@@ -95,9 +98,16 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     isUnmounting.current = false
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
 
+    socketRef.current.onopen = () => {
+      setIsConnected(true)
+      onConnectionChange(true)
+    }
+
     socketRef.current.onmessage = handleMessage
 
     socketRef.current.onclose = () => {
+      setIsConnected(false)
+      onConnectionChange(false)
       if (isUnmounting.current) {
         disconnect()
       }
@@ -120,7 +130,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         socketRef.current.close()
       }
     }
-  }, [roundId, disconnect])
+  }, [roundId])
 
   return null // This component doesn't render anything
 }

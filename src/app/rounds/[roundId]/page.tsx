@@ -1,8 +1,9 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
 import WebSocketProvider from '@aces/app/web-socket-provider'
+import Disconnected from '@aces/components/disconnected/disconnected'
 import useVote from '@aces/lib/api/set-vote'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
@@ -20,13 +21,17 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const { trigger } = useVote(roundId)
   const { csrfToken } = useCsrfToken()
   useMigrateCookie(csrfToken)
+  const [isConnected, setIsConnected] = useState(true)
 
+  const handleConnectionChange = (connected: boolean) => {
+    setIsConnected(connected)
+  }
   return (
     <ViewProvider>
       <IssuesProvider>
         <VotesProvider>
-          <RoundComponent params={params} />
-          <WebSocketProvider roundId={roundId} onVoteReceived={trigger} />
+          {isConnected ? <RoundComponent params={params} /> : <Disconnected /> }
+          <WebSocketProvider roundId={roundId} onVoteReceived={trigger} onConnectionChange={handleConnectionChange} />
         </VotesProvider>
       </IssuesProvider>
     </ViewProvider>
