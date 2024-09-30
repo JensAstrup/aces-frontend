@@ -2,25 +2,17 @@ import React from 'react'
 
 import { CommentList } from '@aces/components/comments/comment-list'
 import IssueSection from '@aces/components/issues/issue-section'
-import { Issue } from '@aces/interfaces/issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 
-interface IssueContentProps {
-  issue: Issue | null
-  handleNavigate: (direction: 'next' | 'previous') => void
-}
+const IssueContent: React.FC = () => {
+  const { currentIssue } = useIssues()
 
-const IssueContent: React.FC<IssueContentProps> = ({ issue, handleNavigate }) => {
-  if (issue) {
+  if (currentIssue) {
     return (
       <div>
-        <IssueSection
-          hasNextIssue={true}
-          hasPrevIssue={true}
-          issue={issue}
-          handleNavigate={handleNavigate}
-        />
-        <CommentList issue={issue} />
+        <IssueSection />
+        <CommentList />
       </div>
     )
   }
