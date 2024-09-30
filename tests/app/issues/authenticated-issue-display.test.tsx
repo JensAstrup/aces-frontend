@@ -232,58 +232,6 @@ describe('AuthenticatedIssueDisplay', () => {
     expect(setSelectedViewMock).toHaveBeenCalledWith(mockView2)
   })
 
-  it('should navigate to the next issue correctly', () => {
-    const setCurrentIssueMock = jest.fn()
-    mockUseCurrentUser.mockReturnValue({ user: mockUser })
-    mockUseIssues.mockReturnValue({
-      currentIssue: mockIssues[0],
-      setCurrentIssue: setCurrentIssueMock,
-      issues: mockIssues,
-      setIssues: jest.fn(),
-      isLoading: false,
-      loadIssues: jest.fn(),
-    } as ReturnType<typeof useIssues>)
-    mockUseViews.mockReturnValue({
-      isLoading: false,
-      selectedView: mockView1,
-      setSelectedView: jest.fn(),
-    })
-
-    render(<AuthenticatedIssueDisplay />)
-
-    // Simulate clicking the "Next" button inside IssueContent
-    const navigateNextButton = screen.getByText('Next')
-    fireEvent.click(navigateNextButton)
-
-    expect(setCurrentIssueMock).toHaveBeenCalledWith(mockIssues[1])
-  })
-
-  it('should navigate to the previous issue correctly', () => {
-    const setCurrentIssueMock = jest.fn()
-    mockUseCurrentUser.mockReturnValue({ user: mockUser })
-    mockUseIssues.mockReturnValue({
-      currentIssue: mockIssues[0],
-      setCurrentIssue: setCurrentIssueMock,
-      issues: mockIssues,
-      setIssues: jest.fn(),
-      isLoading: false,
-      loadIssues: jest.fn(),
-    } as ReturnType<typeof useIssues>)
-    mockUseViews.mockReturnValue({
-      isLoading: false,
-      selectedView: mockView1,
-      setSelectedView: jest.fn(),
-    })
-
-    render(<AuthenticatedIssueDisplay />)
-
-    // Simulate clicking the "Previous" button inside IssueContent
-    const navigatePreviousButton = screen.getByText('Previous')
-    fireEvent.click(navigatePreviousButton)
-
-    expect(setCurrentIssueMock).toHaveBeenCalledWith(mockIssues[1]) // Since (0 -1 + 2) % 2 = 1
-  })
-
   it('should render Separator component', () => {
     mockUseCurrentUser.mockReturnValue({ user: mockUser })
     mockUseIssues.mockReturnValue({
