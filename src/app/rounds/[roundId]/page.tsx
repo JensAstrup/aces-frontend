@@ -26,6 +26,7 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const handleConnectionChange = (connected: boolean) => {
     setIsConnected(connected)
   }
+
   return (
     <ViewProvider>
       <IssuesProvider>
