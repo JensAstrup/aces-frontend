@@ -13,7 +13,7 @@ interface ViewsContextProps {
 
 const ViewsContext = createContext<ViewsContextProps | undefined>(undefined)
 
-const ViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const ViewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [views, setViews] = useState<View[]>([])
   const [selectedView, setSelectedView] = useState<View | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -46,10 +46,10 @@ const ViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 const useViews = (): ViewsContextProps => {
   const context = useContext(ViewsContext)
   if (!context) {
-    throw new Error('useViews must be used within a ViewProvider')
+    throw new Error('useViews must be used within a ViewsProvider')
   }
   return context
 }
 
 export default useViews
-export { ViewProvider }
+export { ViewsProvider }
