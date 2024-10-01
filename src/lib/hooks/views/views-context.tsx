@@ -4,14 +4,14 @@ import { View } from '@aces/interfaces/view'
 import { getViews } from '@aces/lib/api/views/get-favorite-views'
 
 
-interface ViewContextProps {
+interface ViewsContextProps {
   views: View[]
   selectedView: View | null
   setSelectedView: (view: View) => void
   isLoading: boolean
 }
 
-const ViewContext = createContext<ViewContextProps | undefined>(undefined)
+const ViewsContext = createContext<ViewsContextProps | undefined>(undefined)
 
 const ViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [views, setViews] = useState<View[]>([])
@@ -37,14 +37,14 @@ const ViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [])
 
   return (
-    <ViewContext.Provider value={{ views, selectedView, setSelectedView, isLoading }}>
+    <ViewsContext.Provider value={{ views, selectedView, setSelectedView, isLoading }}>
       {children}
-    </ViewContext.Provider>
+    </ViewsContext.Provider>
   )
 }
 
-const useViews = (): ViewContextProps => {
-  const context = useContext(ViewContext)
+const useViews = (): ViewsContextProps => {
+  const context = useContext(ViewsContext)
   if (!context) {
     throw new Error('useViews must be used within a ViewProvider')
   }
