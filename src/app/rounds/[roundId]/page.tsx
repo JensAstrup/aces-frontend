@@ -8,7 +8,7 @@ import useVote from '@aces/lib/api/set-vote'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
 import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
-import { ViewProvider } from '@aces/lib/hooks/views/views-context'
+import { ViewsProvider } from '@aces/lib/hooks/views/views-context'
 import { VotesProvider } from '@aces/lib/hooks/votes/use-votes'
 
 
@@ -21,21 +21,21 @@ function RoundPage({ params }: RoundPageProps): React.ReactElement {
   const { trigger } = useVote(roundId)
   const { csrfToken } = useCsrfToken()
   useMigrateCookie(csrfToken)
-  const [isConnected, setIsConnected] = useState<boolean | null>(true)
+  const [isConnected, setIsConnected] = useState<boolean | null>(null)
 
   const handleConnectionChange = (connected: boolean) => {
     setIsConnected(connected)
   }
 
   return (
-    <ViewProvider>
+    <ViewsProvider>
       <IssuesProvider>
         <VotesProvider>
-          {isConnected || isConnected === null ? <RoundComponent params={params} /> : <Disconnected /> }
+          { isConnected === false ? <Disconnected /> : <RoundComponent params={params} /> }
           <WebSocketProvider roundId={roundId} onVoteReceived={trigger} onConnectionChange={handleConnectionChange} />
         </VotesProvider>
       </IssuesProvider>
-    </ViewProvider>
+    </ViewsProvider>
   )
 }
 
