@@ -16,8 +16,7 @@ interface RoundSidebarProps {
 }
 
 export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
-  const { currentIssue, state: issueState } = useIssues()
-  const { isLoading } = issueState
+  const { currentIssue, isLoading } = useIssues()
   const { votes, expectedVotes } = useVotes()
 
   if (isLoading) {

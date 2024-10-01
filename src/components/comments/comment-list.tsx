@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import React from 'react'
 
-import { Issue } from '@aces/interfaces/issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import getHumanComments from '@aces/lib/utils/comments/get-human-comments'
 import renderComment from '@aces/lib/utils/comments/render-comment'
 import sortComments from '@aces/lib/utils/comments/sort-comments'
@@ -10,14 +10,14 @@ import sortComments from '@aces/lib/utils/comments/sort-comments'
 
 dayjs.extend(RelativeTime)
 
-interface CommentProps {
-  issue?: Issue
-}
 
-const CommentList: React.FC<CommentProps> = ({ issue }) => {
+const CommentList: React.FC = () => {
+  const { currentIssue: issue } = useIssues()
+
   if (!issue) {
     return
   }
+
   const comments = issue.comments.nodes
   const humanComments = getHumanComments(comments)
   const sortedComments = sortComments(humanComments)

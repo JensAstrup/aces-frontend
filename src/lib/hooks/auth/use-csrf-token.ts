@@ -1,6 +1,16 @@
 import useSWR from 'swr'
 
 
+async function getCsrfToken(): Promise<{ csrfToken: string }> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`, { credentials: 'include' })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch CSRF token')
+  }
+
+  return response.json()
+}
+
 async function fetcher(url: string) {
   return fetch(url, { credentials: 'include' }).then(res => res.json())
 }
@@ -16,3 +26,4 @@ function useCsrfToken() {
 }
 
 export { useCsrfToken }
+export { getCsrfToken }

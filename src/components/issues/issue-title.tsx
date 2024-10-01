@@ -3,7 +3,7 @@ import { CalendarIcon, User, Users } from 'lucide-react'
 import React from 'react'
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@aces/components/ui/hover-card'
-import { Issue } from '@aces/interfaces/issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 
 const MAX_TITLE_LENGTH = 41
@@ -12,8 +12,9 @@ function truncateTitle(title: string, maxLength: number): string {
   return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title
 }
 
-export function IssueTitle(props: { issue: Issue }) {
-  const { issue } = props
+export function IssueTitle() {
+  const { currentIssue: issue } = useIssues()
+  if (!issue) return null
   const createdAt = dayjs(issue.createdAt).format('MMM DD, YYYY')
   return (
     <HoverCard>

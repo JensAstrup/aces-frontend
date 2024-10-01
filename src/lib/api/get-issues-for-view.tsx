@@ -1,8 +1,15 @@
 import useSWR, { SWRResponse } from 'swr'
 
+import { Issue } from '@aces/interfaces/issue'
 import { View } from '@aces/interfaces/view'
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
+
+async function getIssuesForView(viewId: string): Promise<{ issues: Issue[], nextPage: string }> {
+  const { csrfToken } = await getCsrfToken()
+  const issues = await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/views/${viewId}/issues`, csrfToken)
+  return issues
+}
 
 const fetcher = async (url: string, csrfToken: string) => {
   const response = await fetch(url, {
@@ -39,3 +46,4 @@ function useGetIssuesForView(selectedView: View | null) {
 }
 
 export default useGetIssuesForView
+export { getIssuesForView }

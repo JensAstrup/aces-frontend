@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import React, { useCallback, useEffect, useRef } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
@@ -16,6 +17,7 @@ interface WebSocketProviderProps {
   roundId: string
   onVoteReceived?: (vote: VotePayload) => void
   onError?: (error: string) => void
+  onConnectionChange: (isConnected: boolean) => void
 }
 
 enum WebSocketEvent {
@@ -28,13 +30,15 @@ enum WebSocketEvent {
 const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   roundId,
   onVoteReceived,
-  onError
+  onError,
+  onConnectionChange
 }) => {
   const { currentIssue, setCurrentIssue } = useIssues()
   const { setVotes, setExpectedVotes } = useVotes()
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
+  const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
@@ -46,7 +50,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         const newIssue = messagePayload.issue
         setVotes(messagePayload.votes)
         setExpectedVotes(messagePayload.expectedVotes)
-        if (newIssue.id !== currentIssue?.id) {
+        if (newIssue.id !== currentIssue?.id && !user?.linearId) {
           setCurrentIssue(newIssue)
         }
 
@@ -69,6 +73,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         Sentry.captureException(`Unknown message type received from WebSocket: ${message.event}`)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setVotes, setExpectedVotes, currentIssue?.id, onVoteReceived, onError, setCurrentIssue])
 
   const disconnect = useCallback(() => {
@@ -93,9 +98,14 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     isUnmounting.current = false
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
 
+    socketRef.current.onopen = () => {
+      onConnectionChange(true)
+    }
+
     socketRef.current.onmessage = handleMessage
 
     socketRef.current.onclose = () => {
+      onConnectionChange(false)
       if (isUnmounting.current) {
         disconnect()
       }
@@ -118,7 +128,9 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         socketRef.current.close()
       }
     }
-  }, [roundId, handleMessage, disconnect])
+    // Following this rule would cause the effect to be run over and over again
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundId])
 
   return null // This component doesn't render anything
 }

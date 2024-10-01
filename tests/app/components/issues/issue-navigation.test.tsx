@@ -1,72 +1,133 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import React from 'react'
+import React, { act } from 'react'
 
 import { IssueNavigation } from '@aces/components/issues/issue-navigation'
+import { Issue } from '@aces/interfaces/issue'
+import User from '@aces/interfaces/user'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 
+jest.mock('@aces/lib/hooks/auth/use-current-user')
+jest.mock('@aces/lib/hooks/issues/issues-context')
 
-jest.mock('lucide-react', () => ({
-  ChevronLeft: () => <div data-testid="chevron-left" />,
-  ChevronRight: () => <div data-testid="chevron-right" />,
-}))
+const mockUseCurrentUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
+const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 
 describe('IssueNavigation', () => {
-  it('should render nothing when handleNavigate is not provided', () => {
+  const mockSetCurrentIssue = jest.fn()
+  const mockIssues = [
+    { id: '1', title: 'Issue 1' },
+    { id: '2', title: 'Issue 2' },
+    { id: '3', title: 'Issue 3' },
+  ] as Issue[]
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user1' } as User, isLoading: false, error: null })
+    mockUseIssues.mockReturnValue({
+      currentIssue: mockIssues[1],
+      setCurrentIssue: mockSetCurrentIssue,
+      issues: mockIssues,
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+      isLoading: false,
+    })
+  })
+
+  it('should render navigation buttons when user has linearId', () => {
+    render(<IssueNavigation />)
+    expect(screen.getByRole('button', { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument()
+  })
+
+  it('should not render anything when user has no linearId', () => {
+    mockUseCurrentUser.mockReturnValue({ user: {} as User, isLoading: false, error: null })
     const { container } = render(<IssueNavigation />)
-    expect(container.firstChild).toBeNull()
+    expect(container).toBeEmptyDOMElement()
   })
 
-  it('should render navigation buttons when handleNavigate is provided', () => {
-    render(<IssueNavigation handleNavigate={() => {}} />)
-    expect(screen.getByTestId('chevron-left')).toBeInTheDocument()
-    expect(screen.getByTestId('chevron-right')).toBeInTheDocument()
+  it('should navigate to the previous issue when clicking the previous button', () => {
+    render(<IssueNavigation />)
+    const prevButton = screen.getByRole('button', { name: /previous/i })
+    act(() => {
+      fireEvent.click(prevButton)
+    })
+    expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[0])
   })
 
-  it('should disable previous button when hasPrevIssue is false', () => {
-    render(<IssueNavigation handleNavigate={() => {}} hasPrevIssue={false} hasNextIssue={true} />)
-    const prevButton = screen.getByTestId('chevron-left').closest('button')
-    const nextButton = screen.getByTestId('chevron-right').closest('button')
+  it('should navigate to the next issue when clicking the next button', () => {
+    render(<IssueNavigation />)
+    const nextButton = screen.getByRole('button', { name: /next/i })
+    act(() => {
+      fireEvent.click(nextButton)
+    })
+    expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[2])
+  })
+
+  it('should disable the previous button when on the first issue', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: mockIssues[0],
+      setCurrentIssue: mockSetCurrentIssue,
+      issues: mockIssues,
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+      isLoading: false,
+    })
+    render(<IssueNavigation />)
+    const prevButton = screen.getByRole('button', { name: /previous/i })
     expect(prevButton).toBeDisabled()
-    expect(nextButton).not.toBeDisabled()
   })
 
-  it('should disable next button when hasNextIssue is false', () => {
-    render(<IssueNavigation handleNavigate={() => {}} hasPrevIssue={true} hasNextIssue={false} />)
-    const prevButton = screen.getByTestId('chevron-left').closest('button')
-    const nextButton = screen.getByTestId('chevron-right').closest('button')
-    expect(prevButton).not.toBeDisabled()
+  it('should disable the next button when on the last issue', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: mockIssues[2],
+      setCurrentIssue: mockSetCurrentIssue,
+      issues: mockIssues,
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+      isLoading: false,
+    })
+    render(<IssueNavigation />)
+    const nextButton = screen.getByRole('button', { name: /next/i })
     expect(nextButton).toBeDisabled()
   })
 
-  it('should call handleNavigate with "previous" when previous button is clicked', () => {
-    const handleNavigateMock = jest.fn()
-    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={true} hasNextIssue={true} />)
-    const prevButton = screen.getByTestId('chevron-left').closest('button')
-    fireEvent.click(prevButton as HTMLElement)
-    expect(handleNavigateMock).toHaveBeenCalledWith('previous')
+  it('should not navigate when there is no current issue', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: null,
+      setCurrentIssue: mockSetCurrentIssue,
+      issues: mockIssues,
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+      isLoading: false,
+    })
+    render(<IssueNavigation />)
+    const prevButton = screen.getByRole('button', { name: /previous/i })
+    const nextButton = screen.getByRole('button', { name: /next/i })
+    act(() => {
+      fireEvent.click(prevButton)
+      fireEvent.click(nextButton)
+    })
+    expect(mockSetCurrentIssue).not.toHaveBeenCalled()
   })
 
-  it('should call handleNavigate with "next" when next button is clicked', () => {
-    const handleNavigateMock = jest.fn()
-    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={true} hasNextIssue={true} />)
-    const nextButton = screen.getByTestId('chevron-right').closest('button')
-    fireEvent.click(nextButton as HTMLElement)
-    expect(handleNavigateMock).toHaveBeenCalledWith('next')
-  })
-
-  it('should not call handleNavigate when disabled previous button is clicked', () => {
-    const handleNavigateMock = jest.fn()
-    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={false} hasNextIssue={true} />)
-    const prevButton = screen.getByTestId('chevron-left').closest('button')
-    fireEvent.click(prevButton as HTMLElement)
-    expect(handleNavigateMock).not.toHaveBeenCalled()
-  })
-
-  it('should not call handleNavigate when disabled next button is clicked', () => {
-    const handleNavigateMock = jest.fn()
-    render(<IssueNavigation handleNavigate={handleNavigateMock} hasPrevIssue={true} hasNextIssue={false} />)
-    const nextButton = screen.getByTestId('chevron-right').closest('button')
-    fireEvent.click(nextButton as HTMLElement)
-    expect(handleNavigateMock).not.toHaveBeenCalled()
+  it('should handle navigation when current issue is not in the issues array', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: { id: '4', title: 'Not in array' } as Issue,
+      setCurrentIssue: mockSetCurrentIssue,
+      issues: mockIssues,
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+      isLoading: false,
+    })
+    render(<IssueNavigation />)
+    const prevButton = screen.getByRole('button', { name: /previous/i })
+    const nextButton = screen.getByRole('button', { name: /next/i })
+    act(() => {
+      fireEvent.click(prevButton)
+      fireEvent.click(nextButton)
+    })
+    expect(mockSetCurrentIssue).not.toHaveBeenCalled()
   })
 })
