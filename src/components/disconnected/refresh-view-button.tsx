@@ -3,11 +3,13 @@ import { Button } from '@aces/components/ui/button'
 
 
 function RefreshViewButton() {
-  const handleRefresh = () => {
-    window.location.reload()
-  }
   return (
-    <Button onClick={handleRefresh} className="w-full">
+    <Button
+      onClick={() => {
+        window.location.reload()
+      }}
+      className="w-full"
+    >
       Reload Page
     </Button>
   )
