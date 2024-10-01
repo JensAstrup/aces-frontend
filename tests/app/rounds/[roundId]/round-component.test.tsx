@@ -85,8 +85,6 @@ describe('RoundComponent', () => {
 
     const sidebar = screen.getByTestId('round-sidebar')
     expect(sidebar).toBeInTheDocument()
-    // Note: In a real scenario, you might want to check if the prop is passed correctly.
-    // This would require adjusting the mock to accept and verify props.
   })
 
   it('should handle state updates correctly', () => {
@@ -101,5 +99,6 @@ describe('RoundComponent', () => {
     rerender(<RoundComponent params={mockParams} />)
 
     expect(screen.getByTestId('authenticated-issue-display')).toBeInTheDocument()
+    expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
   })
 })

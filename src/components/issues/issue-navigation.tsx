@@ -9,8 +9,8 @@ import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 export function IssueNavigation() {
   const { user } = useCurrentUser()
   const { currentIssue, setCurrentIssue, issues } = useIssues()
-  const [hasNextIssue, setHasNextIssue] = useState(true)
-  const [hasPrevIssue, setHasPrevIssue] = useState(true)
+  const [hasNextIssue, setHasNextIssue] = useState(false)
+  const [hasPrevIssue, setHasPrevIssue] = useState(false)
 
   const getIssueIndex = useCallback(() => {
     if (!currentIssue) return null
