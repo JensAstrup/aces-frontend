@@ -4,6 +4,7 @@ import React from 'react'
 
 import { IssueTitle } from '@aces/components/issues/issue-title'
 import { Issue } from '@aces/interfaces/issue'
+import useIssues from '@aces/lib/hooks/issues/issues-context'
 
 
 jest.mock('lucide-react', () => ({
@@ -18,6 +19,12 @@ jest.mock('@aces/components/ui/hover-card', () => ({
   HoverCardContent: ({ children }: { children: React.ReactNode }) => <div data-testid="hover-card-content">{children}</div>,
 }))
 
+
+jest.mock('@aces/lib/hooks/issues/issues-context')
+const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
+
+const useIssuesReturnValue = { currentIssue: null, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] }
+
 describe('IssueTitle', () => {
   const mockIssue: Issue = {
     id: '1',
@@ -28,24 +35,28 @@ describe('IssueTitle', () => {
   } as Issue
 
   it('should render the issue title', () => {
-    render(<IssueTitle issue={mockIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: mockIssue })
+    render(<IssueTitle />)
     expect(screen.queryAllByText('Test Issue')).toHaveLength(2)
   })
 
   it('should truncate long titles', () => {
     const longTitleIssue = { ...mockIssue, title: 'This is a very long title that should be truncated' }
-    render(<IssueTitle issue={longTitleIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: longTitleIssue })
+    render(<IssueTitle />)
     expect(screen.getByText('This is a very long title that should be ...')).toBeInTheDocument()
   })
 
   it('should not truncate titles shorter than or equal to 41 characters', () => {
     const shortTitleIssue = { ...mockIssue, title: 'This title is exactly 41 characters long..' }
-    render(<IssueTitle issue={shortTitleIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: shortTitleIssue })
+    render(<IssueTitle />)
     expect(screen.getByText('This title is exactly 41 characters long..')).toBeInTheDocument()
   })
 
   it('should render hover card content with full issue details', () => {
-    render(<IssueTitle issue={mockIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: mockIssue })
+    render(<IssueTitle />)
     const dateCreated = dayjs(mockIssue.createdAt).format('MMM DD, YYYY')
     expect(screen.queryAllByText('Test Issue')).toHaveLength(2)
     expect(screen.getByText(`Created ${dateCreated}`)).toBeInTheDocument()
@@ -57,12 +68,14 @@ describe('IssueTitle', () => {
   it('should format the creation date correctly', () => {
     const dateIssue = { ...mockIssue, createdAt: '2023-12-25T12:34:56Z' }
     const dateCreated = dayjs('2023-12-25T12:34:56Z').format('MMM DD, YYYY')
-    render(<IssueTitle issue={dateIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: dateIssue })
+    render(<IssueTitle />)
     expect(screen.getByText(`Created ${dateCreated}`)).toBeInTheDocument()
   })
 
   it('should render icons', () => {
-    render(<IssueTitle issue={mockIssue} />)
+    mockUseIssues.mockReturnValue({ ...useIssuesReturnValue, currentIssue: mockIssue })
+    render(<IssueTitle />)
     expect(screen.getByTestId('calendar-icon')).toBeInTheDocument()
     expect(screen.getByTestId('users-icon')).toBeInTheDocument()
     expect(screen.getByTestId('user-icon')).toBeInTheDocument()

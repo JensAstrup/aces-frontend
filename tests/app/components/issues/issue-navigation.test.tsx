@@ -8,7 +8,6 @@ import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 
 
-
 jest.mock('@aces/lib/hooks/auth/use-current-user')
 jest.mock('@aces/lib/hooks/issues/issues-context')
 
@@ -25,73 +24,72 @@ describe('IssueNavigation', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseCurrentUser.mockReturnValue({ user: { linearId: '123' } as User, isLoading: false, error: null })
+    mockUseCurrentUser.mockReturnValue({ user: { linearId: 'user1' } as User, isLoading: false, error: null })
     mockUseIssues.mockReturnValue({
       currentIssue: mockIssues[1],
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      isLoading: false,
       loadIssues: jest.fn(),
+      isLoading: false,
     })
   })
 
   it('should render navigation buttons when user has linearId', () => {
     render(<IssueNavigation />)
-    expect(screen.getByLabelText('Previous Issue')).toBeInTheDocument()
-    expect(screen.getByLabelText('Next Issue')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument()
   })
 
-  it('should not render navigation buttons when user has no linearId', () => {
-    mockUseCurrentUser.mockReturnValue({ user: { linearId: null } as User, isLoading: false, error: null })
-    render(<IssueNavigation />)
-    expect(screen.queryByLabelText('Previous Issue')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('Next Issue')).not.toBeInTheDocument()
+  it('should not render anything when user has no linearId', () => {
+    mockUseCurrentUser.mockReturnValue({ user: {} as User, isLoading: false, error: null })
+    const { container } = render(<IssueNavigation />)
+    expect(container).toBeEmptyDOMElement()
   })
 
-  it('should navigate to previous issue when previous button is clicked', () => {
+  it('should navigate to the previous issue when clicking the previous button', () => {
     render(<IssueNavigation />)
-    const prevButton = screen.getByLabelText('Previous Issue')
+    const prevButton = screen.getByRole('button', { name: /previous/i })
     act(() => {
       fireEvent.click(prevButton)
     })
     expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[0])
   })
 
-  it('should navigate to next issue when next button is clicked', () => {
+  it('should navigate to the next issue when clicking the next button', () => {
     render(<IssueNavigation />)
-    const nextButton = screen.getByLabelText('Next Issue')
+    const nextButton = screen.getByRole('button', { name: /next/i })
     act(() => {
       fireEvent.click(nextButton)
     })
     expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[2])
   })
 
-  it('should disable previous button when on first issue', () => {
+  it('should disable the previous button when on the first issue', () => {
     mockUseIssues.mockReturnValue({
       currentIssue: mockIssues[0],
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      isLoading: false,
       loadIssues: jest.fn(),
-    } as ReturnType<typeof useIssues>)
+      isLoading: false,
+    })
     render(<IssueNavigation />)
-    const prevButton = screen.getByLabelText('Previous Issue')
+    const prevButton = screen.getByRole('button', { name: /previous/i })
     expect(prevButton).toBeDisabled()
   })
 
-  it('should disable next button when on last issue', () => {
+  it('should disable the next button when on the last issue', () => {
     mockUseIssues.mockReturnValue({
       currentIssue: mockIssues[2],
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      isLoading: false,
       loadIssues: jest.fn(),
+      isLoading: false,
     })
     render(<IssueNavigation />)
-    const nextButton = screen.getByLabelText('Next Issue')
+    const nextButton = screen.getByRole('button', { name: /next/i })
     expect(nextButton).toBeDisabled()
   })
 
@@ -101,12 +99,12 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      isLoading: false,
       loadIssues: jest.fn(),
+      isLoading: false,
     })
     render(<IssueNavigation />)
-    const prevButton = screen.getByLabelText('Previous Issue')
-    const nextButton = screen.getByLabelText('Next Issue')
+    const prevButton = screen.getByRole('button', { name: /previous/i })
+    const nextButton = screen.getByRole('button', { name: /next/i })
     act(() => {
       fireEvent.click(prevButton)
       fireEvent.click(nextButton)
@@ -116,16 +114,16 @@ describe('IssueNavigation', () => {
 
   it('should handle navigation when current issue is not in the issues array', () => {
     mockUseIssues.mockReturnValue({
-      currentIssue: { id: '4', title: 'Unknown Issue' } as Issue,
+      currentIssue: { id: '4', title: 'Not in array' } as Issue,
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      isLoading: false,
       loadIssues: jest.fn(),
+      isLoading: false,
     })
     render(<IssueNavigation />)
-    const prevButton = screen.getByLabelText('Previous Issue')
-    const nextButton = screen.getByLabelText('Next Issue')
+    const prevButton = screen.getByRole('button', { name: /previous/i })
+    const nextButton = screen.getByRole('button', { name: /next/i })
     act(() => {
       fireEvent.click(prevButton)
       fireEvent.click(nextButton)

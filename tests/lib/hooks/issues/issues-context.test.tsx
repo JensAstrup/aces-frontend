@@ -208,7 +208,7 @@ describe('IssuesProvider', () => {
   it('should throw an error when useIssues is used outside of IssuesProvider', () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    expect(() => render(<TestComponent />)).toThrow('useSimpleIssues must be used within a IssuesProvider')
+    expect(() => render(<TestComponent />)).toThrow('useIssues must be used within an IssuesProvider')
 
     consoleErrorSpy.mockRestore()
   })

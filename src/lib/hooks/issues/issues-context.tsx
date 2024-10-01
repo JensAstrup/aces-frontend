@@ -19,7 +19,7 @@ interface IssuesContextProps {
 
 const IssuesContext = createContext<IssuesContextProps | undefined>(undefined)
 
-export const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [issues, setIssues] = useState<Issue[]>([])
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -79,10 +79,13 @@ export const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   )
 }
 
-export const useIssues = (): IssuesContextProps => {
+const useIssues = (): IssuesContextProps => {
   const context = useContext(IssuesContext)
   if (!context) {
-    throw new Error('useSimpleIssues must be used within an IssuesProvider')
+    throw new Error('useIssues must be used within an IssuesProvider')
   }
   return context
 }
+
+export default useIssues
+export { IssuesProvider, useIssues }

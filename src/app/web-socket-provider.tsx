@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'

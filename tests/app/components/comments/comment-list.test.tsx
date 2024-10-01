@@ -5,10 +5,10 @@ import React from 'react'
 import { CommentList } from '@aces/components/comments/comment-list'
 import { Comment } from '@aces/interfaces/comment'
 import { Issue } from '@aces/interfaces/issue'
+import useIssues from '@aces/lib/hooks/issues/issues-context'
 import getHumanComments from '@aces/lib/utils/comments/get-human-comments'
 import renderComment from '@aces/lib/utils/comments/render-comment'
 import sortComments from '@aces/lib/utils/comments/sort-comments'
-
 
 
 jest.mock('dayjs', () => {
@@ -23,6 +23,9 @@ jest.mock('dayjs', () => {
 jest.mock('@aces/lib/utils/comments/get-human-comments')
 jest.mock('@aces/lib/utils/comments/sort-comments')
 jest.mock('@aces/lib/utils/comments/render-comment')
+jest.mock('@aces/lib/hooks/issues/issues-context')
+const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
+
 
 describe('CommentList', () => {
   const mockGetHumanComments = getHumanComments as jest.MockedFunction<typeof getHumanComments>
@@ -34,6 +37,7 @@ describe('CommentList', () => {
   })
 
   it('should render nothing when issue is undefined', () => {
+    mockUseIssues.mockReturnValue({ currentIssue: null, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     const { container } = render(<CommentList />)
     expect(container.firstChild).toBeNull()
   })
@@ -42,11 +46,12 @@ describe('CommentList', () => {
     const issue: Issue = {
       comments: { nodes: [] },
     } as unknown as Issue
+    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
 
     mockGetHumanComments.mockReturnValue([])
     mockSortComments.mockReturnValue([])
 
-    render(<CommentList issue={issue} />)
+    render(<CommentList />)
 
     expect(screen.getByText('Comments')).toBeInTheDocument()
     expect(screen.getByText('No comments yet')).toBeInTheDocument()
@@ -80,11 +85,12 @@ describe('CommentList', () => {
       comments: { nodes: comments },
     } as Issue
 
+    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     mockGetHumanComments.mockReturnValue(comments)
     mockSortComments.mockReturnValue(comments)
     mockRenderComment.mockImplementation(comment => <div key={comment.id}>{comment.body}</div>)
 
-    render(<CommentList issue={issue} />)
+    render(<CommentList />)
 
     expect(screen.getByText('Comments')).toBeInTheDocument()
     expect(screen.getByText('Comment 1')).toBeInTheDocument()
@@ -119,11 +125,12 @@ describe('CommentList', () => {
       comments: { nodes: comments },
     } as Issue
 
+    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     mockGetHumanComments.mockReturnValue(comments)
     mockSortComments.mockReturnValue(comments)
     mockRenderComment.mockImplementation(comment => <div key={comment.id}>{comment.body}</div>)
 
-    render(<CommentList issue={issue} />)
+    render(<CommentList />)
 
     expect(mockGetHumanComments).toHaveBeenCalledWith(issue.comments.nodes)
     expect(mockSortComments).toHaveBeenCalledWith(comments)

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { Button } from '@aces/components/ui/button'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
@@ -17,10 +17,10 @@ export function IssueNavigation() {
     return issues.findIndex(issue => issue.id === currentIssue.id)
   }, [currentIssue, issues])
 
-  useCallback(() => {
-    if (!currentIssue) return false
+  useEffect(() => {
+    if (!currentIssue) return
     const currentIndex = getIssueIndex()
-    if (currentIndex === -1 || currentIndex === null) return false
+    if (currentIndex === -1 || currentIndex === null) return
     setHasNextIssue(currentIndex < issues.length - 1)
     setHasPrevIssue(currentIndex > 0)
   }, [currentIssue, getIssueIndex, issues])
@@ -52,6 +52,7 @@ export function IssueNavigation() {
         }}
         size="icon"
         variant="outline"
+        aria-label="Previous"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -62,6 +63,7 @@ export function IssueNavigation() {
         }}
         size="icon"
         variant="outline"
+        aria-label="Next"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
