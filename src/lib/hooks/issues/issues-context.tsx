@@ -11,7 +11,7 @@ import useViews from '@aces/lib/hooks/views/views-context'
 interface IssuesContextProps {
   issues: Issue[]
   currentIssue: Issue | null
-  setCurrentIssue: (issue: Issue | null) => void
+  setCurrentIssue: (issue: Issue | null) => Promise<void>
   setIssues: (issues: Issue[]) => void
   isLoading: boolean
   loadIssues: () => void
