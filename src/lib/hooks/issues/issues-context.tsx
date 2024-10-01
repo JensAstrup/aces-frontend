@@ -82,7 +82,7 @@ export const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 export const useIssues = (): IssuesContextProps => {
   const context = useContext(IssuesContext)
   if (!context) {
-    throw new Error('useSimpleIssues must be used within a IssuesProvider')
+    throw new Error('useSimpleIssues must be used within an IssuesProvider')
   }
   return context
 }
