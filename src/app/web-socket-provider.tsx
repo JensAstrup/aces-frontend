@@ -38,7 +38,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
-  const [, setIsConnected] = useState<boolean | null>(null)
   const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
@@ -100,14 +99,12 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
 
     socketRef.current.onopen = () => {
-      setIsConnected(true)
       onConnectionChange(true)
     }
 
     socketRef.current.onmessage = handleMessage
 
     socketRef.current.onclose = () => {
-      setIsConnected(false)
       onConnectionChange(false)
       if (isUnmounting.current) {
         disconnect()

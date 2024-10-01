@@ -22,14 +22,8 @@ export function IssueNavigation() {
     const currentIndex = getIssueIndex()
     if (currentIndex === -1 || currentIndex === null) return false
     setHasNextIssue(currentIndex < issues.length - 1)
-  }, [currentIssue, getIssueIndex, issues])
-
-  useCallback(() => {
-    if (!currentIssue) return false
-    const currentIndex = getIssueIndex()
-    if (currentIndex === -1 || currentIndex === null) return false
     setHasPrevIssue(currentIndex > 0)
-  }, [currentIssue, getIssueIndex])
+  }, [currentIssue, getIssueIndex, issues])
 
   const handleNavigate = useCallback((direction: 'next' | 'previous') => {
     if (!currentIssue) return
