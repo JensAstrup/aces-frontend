@@ -46,7 +46,7 @@ const ViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 const useViews = (): ViewContextProps => {
   const context = useContext(ViewContext)
   if (!context) {
-    throw new Error('useView must be used within a ViewProvider')
+    throw new Error('useViews must be used within a ViewProvider')
   }
   return context
 }
