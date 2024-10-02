@@ -103,4 +103,19 @@ describe('ViewsContext', () => {
 
     consoleErrorSpy.mockRestore()
   })
+
+  it('should select the first view when multiple views are returned', async () => {
+    const multipleViews = [...mockViews, { id: '3', name: 'View 3' } as View]
+    mockGetViews.mockResolvedValue(multipleViews)
+
+    const { result } = renderHook(() => useViews(), {
+      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
+    })
+
+    await waitFor(() => {
+      expect(result.current.views).toEqual(multipleViews)
+      expect(result.current.selectedView).toEqual(multipleViews[0])
+      expect(result.current.isLoading).toBe(false)
+    })
+  })
 })

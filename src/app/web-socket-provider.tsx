@@ -107,6 +107,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     socketRef.current.onmessage = handleMessage
 
     socketRef.current.onclose = () => {
+      onConnectionChange(false)
       if (isUnmounting.current) {
         disconnect()
       }
