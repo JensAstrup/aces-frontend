@@ -82,13 +82,11 @@ describe('IssuesProvider', () => {
     const mockIssues = [{ id: 'issue1', title: 'Issue 1' }, { id: 'issue2', title: 'Issue 2' }] as Issue[]
     mockGetIssuesForView.mockResolvedValue({ issues: mockIssues, nextPage: 'nextPage' })
 
-    act(() => {
-      render(
-        <IssuesProvider>
-          <TestComponent />
-        </IssuesProvider>
-      )
-    })
+    render(
+      <IssuesProvider>
+        <TestComponent />
+      </IssuesProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByTestId('issues-count')).toHaveTextContent('2')
@@ -103,13 +101,11 @@ describe('IssuesProvider', () => {
     mockGetIssuesForView.mockRejectedValue(new Error('Failed to fetch'))
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    act(() => {
-      render(
-        <IssuesProvider>
-          <TestComponent />
-        </IssuesProvider>
-      )
-    })
+    render(
+      <IssuesProvider>
+        <TestComponent />
+      </IssuesProvider>
+    )
 
     await waitFor(() => {
       expect(screen.getByTestId('issues-count')).toHaveTextContent('0')
@@ -121,13 +117,11 @@ describe('IssuesProvider', () => {
   })
 
   it('should update current issue and call setRoundIssue', () => {
-    act(() => {
-      render(
-        <IssuesProvider>
-          <TestComponent />
-        </IssuesProvider>
-      )
-    })
+    render(
+      <IssuesProvider>
+        <TestComponent />
+      </IssuesProvider>
+    )
 
     act(() => {
       screen.getByText('Set New Issue').click()
@@ -140,13 +134,11 @@ describe('IssuesProvider', () => {
   it('should not call setRoundIssue when user has no linearId', () => {
     mockUseCurrentUser.mockReturnValue({ user: { id: 'user1' } } as ReturnType<typeof useCurrentUser>)
 
-    act(() => {
-      render(
-        <IssuesProvider>
-          <TestComponent />
-        </IssuesProvider>
-      )
-    })
+    render(
+      <IssuesProvider>
+        <TestComponent />
+      </IssuesProvider>
+    )
 
     act(() => {
       screen.getByText('Set New Issue').click()
