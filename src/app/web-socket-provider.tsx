@@ -116,6 +116,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     const handleBeforeUnload = () => {
       isUnmounting.current = true
       if (socketRef.current) {
+        onConnectionChange(false)
         socketRef.current.close()
       }
       disconnect()
