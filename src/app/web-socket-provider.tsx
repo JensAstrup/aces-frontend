@@ -81,6 +81,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       return
     }
     isDisconnecting.current = true
+    onConnectionChange(false)
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': localStorage.getItem('accessToken') || localStorage.getItem('guestToken') || ''
@@ -97,6 +98,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   useEffect(() => {
     isUnmounting.current = false
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
+    onConnectionChange(true)
 
     socketRef.current.onopen = () => {
       onConnectionChange(true)
@@ -105,7 +107,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     socketRef.current.onmessage = handleMessage
 
     socketRef.current.onclose = () => {
-      onConnectionChange(false)
       if (isUnmounting.current) {
         disconnect()
       }
