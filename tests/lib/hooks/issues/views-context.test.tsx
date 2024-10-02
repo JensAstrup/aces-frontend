@@ -104,6 +104,14 @@ describe('ViewsContext', () => {
     consoleErrorSpy.mockRestore()
   })
 
+  it('should not throw error when useViews is used within ViewsProvider', () => {
+    expect(() =>
+      renderHook(() => useViews(), {
+        wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
+      })
+    ).not.toThrow()
+  })
+
   it('should select the first view when multiple views are returned', async () => {
     const multipleViews = [...mockViews, { id: '3', name: 'View 3' } as View]
     mockGetViews.mockResolvedValue(multipleViews)
