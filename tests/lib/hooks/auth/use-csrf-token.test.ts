@@ -2,12 +2,44 @@ import { renderHook } from '@testing-library/react'
 import { act } from 'react'
 import useSWR from 'swr'
 
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 jest.mock('swr')
 
 const mockedUseSWR = useSWR as jest.MockedFunction<typeof useSWR>
+
+describe('getCsrfToken', () => {
+  it('should successfully fetch the CSRF token', async () => {
+    const mockCsrfToken = 'mock-csrf-token'
+    const mockFetchResponse = {
+      ok: true,
+      json: jest.fn().mockResolvedValue({ csrfToken: mockCsrfToken }),
+    }
+    const mockFetch = jest.fn().mockResolvedValue(mockFetchResponse)
+    global.fetch = mockFetch
+
+    const result = await getCsrfToken()
+    expect(result.csrfToken).toBe(mockCsrfToken)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`,
+      { credentials: 'include' }
+    )
+    expect(mockFetchResponse.json).toHaveBeenCalled()
+  })
+
+  it('should throw an error when fetching the CSRF token fails', async () => {
+    const mockFetchResponse = { ok: false }
+    const mockFetch = jest.fn().mockResolvedValue(mockFetchResponse)
+    global.fetch = mockFetch
+
+    await expect(getCsrfToken()).rejects.toThrow('Failed to fetch CSRF token')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`,
+      { credentials: 'include' }
+    )
+  })
+})
 
 describe('useCsrfToken', () => {
   const mockApiUrl = 'https://api.example.com'
