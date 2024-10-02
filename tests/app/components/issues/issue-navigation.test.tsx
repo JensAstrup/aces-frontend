@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import React, { act } from 'react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import React from 'react'
 
 import { IssueNavigation } from '@aces/components/issues/issue-navigation'
 import { Issue } from '@aces/interfaces/issue'
@@ -50,18 +50,14 @@ describe('IssueNavigation', () => {
   it('should navigate to the previous issue when clicking the previous button', () => {
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })
-    act(() => {
-      fireEvent.click(prevButton)
-    })
+    fireEvent.click(prevButton)
     expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[0])
   })
 
   it('should navigate to the next issue when clicking the next button', () => {
     render(<IssueNavigation />)
     const nextButton = screen.getByRole('button', { name: /next/i })
-    act(() => {
-      fireEvent.click(nextButton)
-    })
+    fireEvent.click(nextButton)
     expect(mockSetCurrentIssue).toHaveBeenCalledWith(mockIssues[2])
   })
 
@@ -105,10 +101,8 @@ describe('IssueNavigation', () => {
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })
     const nextButton = screen.getByRole('button', { name: /next/i })
-    act(() => {
-      fireEvent.click(prevButton)
-      fireEvent.click(nextButton)
-    })
+    fireEvent.click(prevButton)
+    fireEvent.click(nextButton)
     expect(mockSetCurrentIssue).not.toHaveBeenCalled()
   })
 
@@ -124,10 +118,8 @@ describe('IssueNavigation', () => {
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })
     const nextButton = screen.getByRole('button', { name: /next/i })
-    act(() => {
-      fireEvent.click(prevButton)
-      fireEvent.click(nextButton)
-    })
+    fireEvent.click(prevButton)
+    fireEvent.click(nextButton)
     expect(mockSetCurrentIssue).not.toHaveBeenCalled()
   })
 })
