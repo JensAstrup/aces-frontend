@@ -2,7 +2,6 @@ import * as Sentry from '@sentry/nextjs'
 import { act, render, waitFor } from '@testing-library/react'
 import React from 'react'
 
-import { Issue } from '@aces/interfaces/issue'
 import useVote from '@aces/lib/api/set-vote'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useIssues from '@aces/lib/hooks/issues/issues-context'
