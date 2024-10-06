@@ -7,14 +7,21 @@ import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 
 
+jest.mock('@aces/components/icons', () => ({
+  __esModule: true,
+  Icons: {
+    spinner: () => <div>Spinner</div>,
+  },
+}))
 jest.mock('@aces/lib/hooks/issues/issues-context')
 jest.mock('@aces/lib/hooks/votes/use-votes')
 jest.mock('@aces/components/estimates/estimate-section', () => ({
   __esModule: true,
-  default: () => <div data-testid="estimate-section" />,
+  default: () => <div>Estimate Section</div>,
 }))
-jest.mock('next/dynamic', () => (func: () => Promise<{ default: React.ComponentType }>) => {
-  return React.memo(func() as unknown as React.ComponentType)
+jest.mock('next/dynamic', () => () => {
+  const Component = (props: object) => <div data-testid={Object.keys(props)[0]} {...props} />
+  return Component
 })
 
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
@@ -47,7 +54,7 @@ describe('RoundSidebar', () => {
 
     render(<RoundSidebar {...defaultProps} />)
 
-    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByText('Spinner')).toBeInTheDocument()
   })
 
   it('should render EstimateSection when there are no votes', () => {
@@ -68,7 +75,7 @@ describe('RoundSidebar', () => {
 
     render(<RoundSidebar {...defaultProps} />)
 
-    expect(screen.getByTestId('estimate-section')).toBeInTheDocument()
+    expect(screen.getByText('Estimate Section')).toBeInTheDocument()
   })
 
   it('should render EstimateSection and Votes when votes are incomplete', () => {
@@ -89,8 +96,8 @@ describe('RoundSidebar', () => {
 
     render(<RoundSidebar {...defaultProps} />)
 
-    expect(screen.getByTestId('estimate-section')).toBeInTheDocument()
-    expect(screen.getByText('Votes')).toBeInTheDocument()
+    expect(screen.getByText('Estimate Section')).toBeInTheDocument()
+    expect(screen.getByTestId('votes')).toBeInTheDocument()
   })
 
   it('should render Votes and Stats when all expected votes are in', () => {
@@ -111,7 +118,6 @@ describe('RoundSidebar', () => {
 
     render(<RoundSidebar {...defaultProps} />)
 
-    expect(screen.getByText('Votes')).toBeInTheDocument()
-    expect(screen.getByText('Stats')).toBeInTheDocument()
+    expect(screen.getAllByTestId('votes')).toHaveLength(2)
   })
 })
