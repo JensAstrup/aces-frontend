@@ -78,6 +78,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       return
     }
     isDisconnecting.current = true
+    onConnectionChange(false)
     const headers = {
       'Content-Type': 'application/json',
     }
