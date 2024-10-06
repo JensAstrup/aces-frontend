@@ -1,0 +1,117 @@
+import { render, screen } from '@testing-library/react'
+import React from 'react'
+
+import { RoundSidebar } from '@aces/components/rounds/sidebar'
+import { Issue } from '@aces/interfaces/issue'
+import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import { useVotes } from '@aces/lib/hooks/votes/use-votes'
+
+
+jest.mock('@aces/lib/hooks/issues/issues-context')
+jest.mock('@aces/lib/hooks/votes/use-votes')
+jest.mock('@aces/components/estimates/estimate-section', () => ({
+  __esModule: true,
+  default: () => <div data-testid="estimate-section" />,
+}))
+jest.mock('next/dynamic', () => (func: () => Promise<{ default: React.ComponentType }>) => {
+  return React.memo(func() as unknown as React.ComponentType)
+})
+
+const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
+const mockUseVotes = useVotes as jest.MockedFunction<typeof useVotes>
+
+describe('RoundSidebar', () => {
+  const defaultProps = {
+    roundId: 'test-round-id',
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should render loading spinner when isLoading is true', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: null,
+      isLoading: true,
+      issues: [],
+      setCurrentIssue: jest.fn(),
+      setIssues: jest.fn(),
+      loadIssues: jest.fn(),
+    })
+    mockUseVotes.mockReturnValue({
+      votes: [],
+      expectedVotes: 0,
+      setVotes: jest.fn(),
+      setExpectedVotes: jest.fn()
+    })
+
+    render(<RoundSidebar {...defaultProps} />)
+
+    expect(screen.getByRole('status')).toBeInTheDocument()
+  })
+
+  it('should render EstimateSection when there are no votes', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: { id: '1', title: 'Test Issue' } as Issue,
+      isLoading: false,
+      issues: [],
+      setCurrentIssue: jest.fn(),
+      setIssues: jest.fn(),
+      loadIssues: jest.fn()
+    })
+    mockUseVotes.mockReturnValue({
+      votes: [],
+      expectedVotes: 3,
+      setVotes: jest.fn(),
+      setExpectedVotes: jest.fn()
+    })
+
+    render(<RoundSidebar {...defaultProps} />)
+
+    expect(screen.getByTestId('estimate-section')).toBeInTheDocument()
+  })
+
+  it('should render EstimateSection and Votes when votes are incomplete', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: { id: '1', title: 'Test Issue' } as Issue,
+      isLoading: false,
+      issues: [],
+      setCurrentIssue: jest.fn(),
+      setIssues: jest.fn(),
+      loadIssues: jest.fn()
+    })
+    mockUseVotes.mockReturnValue({
+      votes: [1, 2],
+      expectedVotes: 3,
+      setVotes: jest.fn(),
+      setExpectedVotes: jest.fn()
+    })
+
+    render(<RoundSidebar {...defaultProps} />)
+
+    expect(screen.getByTestId('estimate-section')).toBeInTheDocument()
+    expect(screen.getByText('Votes')).toBeInTheDocument()
+  })
+
+  it('should render Votes and Stats when all expected votes are in', () => {
+    mockUseIssues.mockReturnValue({
+      currentIssue: { id: '1', title: 'Test Issue' } as Issue,
+      isLoading: false,
+      issues: [],
+      setCurrentIssue: jest.fn(),
+      setIssues: jest.fn(),
+      loadIssues: jest.fn()
+    })
+    mockUseVotes.mockReturnValue({
+      votes: [1, 2, 3],
+      expectedVotes: 3,
+      setVotes: jest.fn(),
+      setExpectedVotes: jest.fn()
+    })
+
+    render(<RoundSidebar {...defaultProps} />)
+
+    expect(screen.getByText('Votes')).toBeInTheDocument()
+    expect(screen.getByText('Stats')).toBeInTheDocument()
+  })
+})
