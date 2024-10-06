@@ -92,7 +92,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   useEffect(() => {
     let ws: WebSocket | null = null
-
     const connect = () => {
       ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
       socketRef.current = ws
