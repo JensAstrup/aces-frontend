@@ -89,3 +89,4 @@ const useIssues = (): IssuesContextProps => {
 
 export default useIssues
 export { IssuesProvider, useIssues }
+export type { IssuesContextProps }
