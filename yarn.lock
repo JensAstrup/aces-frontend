@@ -838,10 +838,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@linear/sdk@^29.0.0":
-  version "29.0.0"
-  resolved "https://registry.yarnpkg.com/@linear/sdk/-/sdk-29.0.0.tgz#1de7ee7f16567c93acd6ca0c7f9238bb041c7992"
-  integrity sha512-c3hmWW4L0sIL2Aaf0wt7LhfIc58AHdsHcQOCxWZC3nXb0dDvrG6/g9WFXM5k2dYSgPJHcZ21O/+KlI/KTOkK1A==
+"@linear/sdk@^31.0.0":
+  version "31.0.0"
+  resolved "https://registry.yarnpkg.com/@linear/sdk/-/sdk-31.0.0.tgz#05faac8bbb9ebd7b530760e9535f5bd7fe2f3618"
+  integrity sha512-51mKO/R5JBnQERDfg5uMryHGRyavUAkveIiHxxshItvEIwFVACJi8S7N2oabhSlqqNZf2rL0YlVokeRxd72s6A==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.0"
     graphql "^15.4.0"
