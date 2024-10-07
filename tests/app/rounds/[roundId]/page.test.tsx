@@ -17,7 +17,7 @@ jest.mock('@aces/app/rounds/[roundId]/round-component', () => ({
   ))
 }))
 
-jest.mock('@aces/lib/socket/web-socket-context', () => ({
+jest.mock('@aces/lib/socket/web-socket-provider', () => ({
   WebSocketProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="web-socket-provider">{children}</div>
   ),

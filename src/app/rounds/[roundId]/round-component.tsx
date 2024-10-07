@@ -7,8 +7,8 @@ import Disconnected from '@aces/components/disconnected/disconnected'
 import { RoundSidebar } from '@aces/components/rounds/sidebar'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
-import { useWebSocket } from '@aces/lib/socket/web-socket-context'
-import WebSocketProvider from '@aces/lib/socket/web-socket-provider'
+import WebSocketConnection from '@aces/lib/socket/web-socket-connection'
+import { useWebSocket } from '@aces/lib/socket/web-socket-provider'
 
 
 interface RoundComponentProps {
@@ -35,7 +35,7 @@ function RoundComponent({ params }: RoundComponentProps): React.ReactElement {
           roundId={roundId}
         />
       </div>
-      <WebSocketProvider roundId={roundId} />
+      <WebSocketConnection roundId={roundId} />
     </div>
   )
 }

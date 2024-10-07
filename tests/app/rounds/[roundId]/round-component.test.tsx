@@ -23,13 +23,18 @@ jest.mock('@aces/components/disconnected/disconnected', () => ({
   default: () => <div data-testid="disconnected" />,
 }))
 
+jest.mock('@aces/lib/socket/web-socket-connection', () => ({
+  __esModule: true,
+  default: () => <div data-testid="web-socket-connection" />,
+}))
+
 jest.mock('@aces/lib/hooks/auth/use-current-user')
 jest.mock('@aces/lib/hooks/auth/use-register-viewer')
-jest.mock('@aces/lib/socket/web-socket-context')
+jest.mock('@aces/lib/socket/web-socket-provider')
 
 const mockUseCurrentUser = jest.requireMock('@aces/lib/hooks/auth/use-current-user').default
 const mockUseRegisterViewer = jest.requireMock('@aces/lib/hooks/auth/use-register-viewer').default
-const mockUseWebSocket = jest.requireMock('@aces/lib/socket/web-socket-context').useWebSocket
+const mockUseWebSocket = jest.requireMock('@aces/lib/socket/web-socket-provider').useWebSocket
 
 describe('RoundComponent', () => {
   const mockParams = { roundId: 'test-round-id' }
@@ -50,6 +55,7 @@ describe('RoundComponent', () => {
     expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
     expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
     expect(screen.queryByTestId('round-sidebar')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('web-socket-connection')).not.toBeInTheDocument()
   })
 
   it('should render UnauthenticatedIssueDisplay when user is not authenticated and connected', () => {
@@ -61,6 +67,7 @@ describe('RoundComponent', () => {
     expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
+    expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
   })
 
   it('should render AuthenticatedIssueDisplay when user is authenticated with linearId and connected', () => {
@@ -72,6 +79,7 @@ describe('RoundComponent', () => {
     expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
+    expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
   })
 
   it('should render UnauthenticatedIssueDisplay when user is authenticated without linearId and connected', () => {
@@ -83,6 +91,7 @@ describe('RoundComponent', () => {
     expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
+    expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
   })
 
   it('should call useRegisterViewer with correct arguments when user is not loading', () => {
@@ -114,6 +123,7 @@ describe('RoundComponent', () => {
 
     expect(screen.getByTestId('unauthenticated-issue-display')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
+    expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
 
     mockUseWebSocket.mockReturnValue({ isConnected: false })
 
@@ -121,5 +131,8 @@ describe('RoundComponent', () => {
 
     expect(screen.getByTestId('disconnected')).toBeInTheDocument()
     expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('round-sidebar')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('web-socket-connection')).not.toBeInTheDocument()
   })
 })

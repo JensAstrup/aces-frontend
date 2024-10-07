@@ -7,7 +7,7 @@ import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
 import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
 import { ViewsProvider } from '@aces/lib/hooks/views/views-context'
 import { VotesProvider } from '@aces/lib/hooks/votes/use-votes'
-import { WebSocketProvider } from '@aces/lib/socket/web-socket-context'
+import { WebSocketProvider } from '@aces/lib/socket/web-socket-provider'
 
 
 interface RoundPageProps {
