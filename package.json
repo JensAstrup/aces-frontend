@@ -17,7 +17,7 @@
     "schema": "./src/prisma/schema.prisma"
   },
   "dependencies": {
-    "@linear/sdk": "^29.0.0",
+    "@linear/sdk": "^31.0.0",
     "@prisma/client": "5.19.1",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
