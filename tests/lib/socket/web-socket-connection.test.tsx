@@ -23,7 +23,7 @@ const mockUseVote = useVote as jest.MockedFunction<typeof useVote>
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 const mockUseCurrentUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
 
-describe('WebSocketProvider', () => {
+describe('WebSocketConnection', () => {
   let mockWebSocket: jest.Mock
   let mockSetIsConnected: jest.Mock
   let mockSetVotes: jest.Mock

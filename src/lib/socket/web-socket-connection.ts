@@ -15,7 +15,7 @@ interface VotePayload {
   point: number
 }
 
-interface WebSocketProviderProps {
+interface WebSocketConnectionProps {
   roundId: string
   onVoteReceived?: (vote: VotePayload) => void
   onError?: (error: string) => void
@@ -28,7 +28,7 @@ enum WebSocketEvent {
   ERROR = 'error',
 }
 
-const WebSocketConnection: React.FC<WebSocketProviderProps> = ({
+const WebSocketConnection: React.FC<WebSocketConnectionProps> = ({
   roundId,
   onError,
 }) => {
