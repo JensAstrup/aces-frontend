@@ -6,11 +6,11 @@ import useVote from '@aces/lib/api/set-vote'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useIssues from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
-import { useWebSocket } from '@aces/lib/socket/web-socket-context'
-import WebSocketProvider from '@aces/lib/socket/web-socket-provider'
+import WebSocketConnection from '@aces/lib/socket/web-socket-connection'
+import { useWebSocket } from '@aces/lib/socket/web-socket-provider'
 
 
-jest.mock('@aces/lib/socket/web-socket-context')
+jest.mock('@aces/lib/socket/web-socket-provider')
 jest.mock('@aces/lib/hooks/votes/use-votes')
 jest.mock('@aces/lib/api/set-vote')
 jest.mock('@aces/lib/hooks/issues/issues-context')
@@ -23,7 +23,7 @@ const mockUseVote = useVote as jest.MockedFunction<typeof useVote>
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 const mockUseCurrentUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
 
-describe('WebSocketProvider', () => {
+describe('WebSocketConnection', () => {
   let mockWebSocket: jest.Mock
   let mockSetIsConnected: jest.Mock
   let mockSetVotes: jest.Mock
@@ -83,7 +83,7 @@ describe('WebSocketProvider', () => {
   })
 
   it('should establish a WebSocket connection on mount', async () => {
-    render(<WebSocketProvider roundId="test-round" />)
+    render(<WebSocketConnection roundId="test-round" />)
 
     await waitFor(() => {
       expect(mockWebSocket).toHaveBeenCalledWith('ws://test.com?roundId=test-round')
@@ -100,7 +100,7 @@ describe('WebSocketProvider', () => {
     const mockOnError = jest.fn()
     const mockCaptureException = jest.spyOn(Sentry, 'captureException').mockImplementation()
 
-    render(<WebSocketProvider roundId="test-round" onError={mockOnError} />)
+    render(<WebSocketConnection roundId="test-round" onError={mockOnError} />)
 
     await waitFor(() => {
       expect(mockWebSocket).toHaveBeenCalled()

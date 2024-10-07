@@ -7,7 +7,7 @@ import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useIssues from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
-import { useWebSocket } from '@aces/lib/socket/web-socket-context'
+import { useWebSocket } from '@aces/lib/socket/web-socket-provider'
 
 
 interface VotePayload {
@@ -15,7 +15,7 @@ interface VotePayload {
   point: number
 }
 
-interface WebSocketProviderProps {
+interface WebSocketConnectionProps {
   roundId: string
   onVoteReceived?: (vote: VotePayload) => void
   onError?: (error: string) => void
@@ -28,7 +28,7 @@ enum WebSocketEvent {
   ERROR = 'error',
 }
 
-const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
+const WebSocketConnection: React.FC<WebSocketConnectionProps> = ({
   roundId,
   onError,
 }) => {
@@ -92,7 +92,6 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   useEffect(() => {
     let ws: WebSocket | null = null
-
     const connect = () => {
       ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
       socketRef.current = ws
@@ -129,4 +128,4 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   return null
 }
 
-export default WebSocketProvider
+export default WebSocketConnection
