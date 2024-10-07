@@ -19,5 +19,6 @@ yarn dev
 ## Patterns
 - No logic should be in the components. All logic should be in the `app` or `lib` directories.
 - Hooks are stored in the `lib/hooks` directory.
+- `data-testid` attributes are not used for testing. Production code should not be polluted with test code.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

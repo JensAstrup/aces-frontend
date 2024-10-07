@@ -1,8 +1,13 @@
 import useSWR from 'swr'
 
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
+import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import { HttpStatusCodes } from '@aces/lib/utils/http-status-codes'
 
+
+async function setRoundIssue(roundId: string, issueId: string) {
+  const { csrfToken } = await getCsrfToken()
+  return setRoundIssueFetcher(`${process.env.NEXT_PUBLIC_API_URL}/rounds/${roundId}/issue`, issueId, csrfToken)
+}
 
 async function setRoundIssueFetcher(url: string, issueId: string, csrfToken: string) {
   const response = await fetch(url, {
@@ -40,4 +45,4 @@ function useSetRoundIssue(roundId: string, issueId: string) {
 }
 
 export default useSetRoundIssue
-export { setRoundIssueFetcher }
+export { setRoundIssueFetcher, setRoundIssue }

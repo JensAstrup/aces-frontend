@@ -5,7 +5,6 @@ import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 const fetcher = async (url: string, csrfToken: string): Promise<string> => {
-  console.log('fetcher', url, csrfToken)
   const response = await fetch(url, {
     method: 'POST',
     headers: {

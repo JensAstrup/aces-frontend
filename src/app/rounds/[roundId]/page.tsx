@@ -2,12 +2,12 @@
 import React from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
-import WebSocketProvider from '@aces/app/web-socket-provider'
-import useVote from '@aces/lib/api/set-vote'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
 import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
+import { ViewsProvider } from '@aces/lib/hooks/views/views-context'
 import { VotesProvider } from '@aces/lib/hooks/votes/use-votes'
+import { WebSocketProvider } from '@aces/lib/socket/web-socket-provider'
 
 
 interface RoundPageProps {
@@ -15,19 +15,19 @@ interface RoundPageProps {
 }
 
 function RoundPage({ params }: RoundPageProps): React.ReactElement {
-  const { roundId } = params
-  const { trigger } = useVote(roundId)
   const { csrfToken } = useCsrfToken()
   useMigrateCookie(csrfToken)
 
-
   return (
-    <IssuesProvider>
-      <VotesProvider>
-        <RoundComponent params={params} />
-        <WebSocketProvider roundId={roundId} onVoteReceived={trigger} />
-      </VotesProvider>
-    </IssuesProvider>
+    <ViewsProvider>
+      <IssuesProvider>
+        <VotesProvider>
+          <WebSocketProvider>
+            <RoundComponent params={params} />
+          </WebSocketProvider>
+        </VotesProvider>
+      </IssuesProvider>
+    </ViewsProvider>
   )
 }
 

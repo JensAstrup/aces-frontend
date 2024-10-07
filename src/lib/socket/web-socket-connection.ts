@@ -2,9 +2,12 @@ import * as Sentry from '@sentry/nextjs'
 import React, { useCallback, useEffect, useRef } from 'react'
 
 import { RoundIssueMessage, VoteUpdatedPayload } from '@aces/interfaces/socket-message'
-import { useIssues } from '@aces/lib/hooks/issues/issues-context'
+import useVote from '@aces/lib/api/set-vote'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import useIssues from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 import inboundHandler from '@aces/lib/socket/inbound-handler'
+import { useWebSocket } from '@aces/lib/socket/web-socket-provider'
 
 
 interface VotePayload {
@@ -12,7 +15,7 @@ interface VotePayload {
   point: number
 }
 
-interface WebSocketProviderProps {
+interface WebSocketConnectionProps {
   roundId: string
   onVoteReceived?: (vote: VotePayload) => void
   onError?: (error: string) => void
@@ -25,16 +28,18 @@ enum WebSocketEvent {
   ERROR = 'error',
 }
 
-const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
+const WebSocketConnection: React.FC<WebSocketConnectionProps> = ({
   roundId,
-  onVoteReceived,
-  onError
+  onError,
 }) => {
-  const { currentIssue, setCurrentIssue } = useIssues()
+  const { setIsConnected } = useWebSocket()
   const { setVotes, setExpectedVotes } = useVotes()
+  const { trigger: onVoteReceived } = useVote(roundId)
+  const { setCurrentIssue, currentIssue } = useIssues()
   const socketRef = useRef<WebSocket | null>(null)
   const isUnmounting = useRef(false)
   const isDisconnecting = useRef(false)
+  const { user } = useCurrentUser()
 
   const handleMessage = useCallback((event: MessageEvent) => {
     const message = inboundHandler(event)
@@ -46,16 +51,12 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         const newIssue = messagePayload.issue
         setVotes(messagePayload.votes)
         setExpectedVotes(messagePayload.expectedVotes)
-        if (newIssue.id !== currentIssue?.id) {
+        if (newIssue.id !== currentIssue?.id && !user?.linearId) {
           setCurrentIssue(newIssue)
         }
-
         break
       case WebSocketEvent.VOTE_UPDATED:
-        if (onVoteReceived) {
-          console.log('Vote received from WebSocket:', message.payload)
-          onVoteReceived(message.payload as VotePayload)
-        }
+        onVoteReceived(message.payload as VotePayload)
         const data = message.payload as VoteUpdatedPayload
         setVotes(data.votes)
         setExpectedVotes(data.expectedVotes)
@@ -70,7 +71,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         Sentry.captureException(`Unknown message type received from WebSocket: ${message.event}`)
       }
     }
-  }, [setVotes, setExpectedVotes, currentIssue?.id, onVoteReceived, onError, setCurrentIssue])
+  }, [setVotes, setExpectedVotes, currentIssue?.id, user?.linearId, onVoteReceived, onError, setCurrentIssue])
 
   const disconnect = useCallback(() => {
     if (isDisconnecting.current) {
@@ -79,50 +80,52 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     isDisconnecting.current = true
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': localStorage.getItem('accessToken') || localStorage.getItem('guestToken') || ''
     }
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/disconnect`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ roundId }),
-      // Use keepalive to allow the request to outlive the page
-      keepalive: true
+      keepalive: true,
+      credentials: 'include'
     })
   }, [roundId])
 
   useEffect(() => {
-    isUnmounting.current = false
-    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
+    let ws: WebSocket | null = null
+    const connect = () => {
+      ws = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET}?roundId=${roundId}`)
+      socketRef.current = ws
 
-    socketRef.current.onmessage = handleMessage
+      ws.onopen = () => {
+        setIsConnected(true)
+      }
 
-    socketRef.current.onclose = (event) => {
-      console.log('WebSocket connection closed:', event)
-      if (isUnmounting.current) {
+      ws.onmessage = handleMessage
+
+      ws.onclose = () => {
         disconnect()
+        setIsConnected(false)
       }
     }
 
+    if (!isUnmounting.current && !socketRef.current) {
+      connect()
+    }
+  }, [roundId, handleMessage, setIsConnected, disconnect])
+
+  useEffect(() => {
     const handleBeforeUnload = () => {
-      isUnmounting.current = true
-      if (socketRef.current) {
-        socketRef.current.close()
-      }
       disconnect()
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
-      isUnmounting.current = true
       window.removeEventListener('beforeunload', handleBeforeUnload)
-      if (socketRef.current) {
-        socketRef.current.close()
-      }
     }
-  }, [roundId, handleMessage, disconnect])
+  }, [disconnect])
 
-  return null // This component doesn't render anything
+  return null
 }
 
-export default WebSocketProvider
+export default WebSocketConnection

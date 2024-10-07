@@ -1,83 +1,92 @@
-import React, { ReactNode, createContext, useCallback, useContext, useReducer, useState } from 'react'
+import { useParams } from 'next/navigation'
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
 import { Issue } from '@aces/interfaces/issue'
-import { View } from '@aces/interfaces/view'
+import { getIssuesForView } from '@aces/lib/api/get-issues-for-view'
+import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import { setRoundIssue } from '@aces/lib/hooks/rounds/use-set-round-issue'
+import useViews from '@aces/lib/hooks/views/views-context'
 
 
-interface IssuesState {
+interface IssuesContextProps {
   issues: Issue[]
-  currentIssueIndex: number
-  selectedView: View | null
-  nextPage: string | null
-  isLoading: boolean
-}
-
-type Action =
-  | { type: 'SET_ISSUES', payload: Issue[] }
-  | { type: 'SET_CURRENT_ISSUE_INDEX', payload: number }
-  | { type: 'SET_SELECTED_VIEW', payload: View | null }
-  | { type: 'SET_NEXT_PAGE', payload: string | null }
-  | { type: 'SET_LOADING', payload: boolean }
-  | { type: 'APPEND_ISSUES', payload: Issue[] }
-
-const initialState: IssuesState = {
-  issues: [],
-  currentIssueIndex: 0,
-  selectedView: null,
-  nextPage: null,
-  isLoading: false,
-}
-
-function issuesReducer(state: IssuesState, action: Action): IssuesState {
-  switch (action.type) {
-  case 'SET_ISSUES':
-    return { ...state, issues: action.payload, isLoading: false }
-  case 'SET_CURRENT_ISSUE_INDEX':
-    return { ...state, currentIssueIndex: action.payload, isLoading: false }
-  case 'SET_SELECTED_VIEW':
-    return { ...state, selectedView: action.payload, issues: [], currentIssueIndex: 0, nextPage: null, isLoading: true }
-  case 'SET_NEXT_PAGE':
-    return { ...state, nextPage: action.payload }
-  case 'SET_LOADING':
-    return { ...state, isLoading: action.payload }
-  case 'APPEND_ISSUES':
-    return { ...state, issues: [...state.issues, ...action.payload] }
-  default:
-    return state
-  }
-}
-
-const IssuesContext = createContext<{
-  state: IssuesState
-  dispatch: React.Dispatch<Action>
   currentIssue: Issue | null
-  setCurrentIssue: (issue: Issue | null) => void
-    } | undefined>(undefined)
+  setCurrentIssue: (issue: Issue | null) => Promise<void>
+  setIssues: (issues: Issue[]) => void
+  isLoading: boolean
+  loadIssues: () => void
+}
 
-function IssuesProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(issuesReducer, initialState)
+const IssuesContext = createContext<IssuesContextProps | undefined>(undefined)
 
+const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [issues, setIssues] = useState<Issue[]>([])
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { roundId } = useParams<{ roundId: string }>()
+  const { selectedView } = useViews()
+  const { user } = useCurrentUser()
 
-  const setCurrentIssueCallback = useCallback((issue: Issue | null) => {
-    console.log('Setting current issue:', issue)
+  useEffect(() => {
+    if (selectedView) {
+      loadIssues()
+    }
+    else {
+      setIssues([])
+      setCurrentIssue(null)
+    }
+  }, [selectedView])
+
+  async function loadIssues() {
+    setIsLoading(true)
+    try {
+      const { issues } = await getIssuesForView(selectedView!.id)
+      setIssues(issues)
+      const firstIssue: Issue | null = issues[0] || null
+      setCurrentIssue(firstIssue)
+      await setRoundIssue(roundId, firstIssue.id)
+    }
+    catch (error) {
+      console.error('Failed to fetch issues:', error)
+      setIssues([])
+      setCurrentIssue(null)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleIssueChanged(issue: Issue | null) {
     setCurrentIssue(issue)
-  }, [])
+    if (issue && user?.linearId) {
+      await setRoundIssue(roundId, issue.id)
+    }
+  }
 
   return (
-    <IssuesContext.Provider value={{ state, dispatch, currentIssue, setCurrentIssue: setCurrentIssueCallback }}>
+    <IssuesContext.Provider
+      value={{
+        issues,
+        currentIssue,
+        setCurrentIssue: handleIssueChanged,
+        setIssues,
+        isLoading,
+        loadIssues,
+      }}
+    >
       {children}
     </IssuesContext.Provider>
   )
 }
 
-function useIssues() {
+const useIssues = (): IssuesContextProps => {
   const context = useContext(IssuesContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useIssues must be used within an IssuesProvider')
   }
   return context
 }
 
+export default useIssues
 export { IssuesProvider, useIssues }
-export type { IssuesState }
+export type { IssuesContextProps }

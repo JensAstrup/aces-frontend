@@ -1,12 +1,12 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
 
+import EstimateSection from '@aces/components/estimates/estimate-section'
 import { Icons } from '@aces/components/icons'
 import { useIssues } from '@aces/lib/hooks/issues/issues-context'
 import { useVotes } from '@aces/lib/hooks/votes/use-votes'
 
 
-const Estimate = dynamic(() => import('@aces/components/estimates/estimate-section'))
 const Votes = dynamic(() => import('@aces/components/rounds/votes'))
 const Stats = dynamic(() => import('@aces/components/stats'))
 
@@ -16,8 +16,7 @@ interface RoundSidebarProps {
 }
 
 export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
-  const { currentIssue, state: issueState } = useIssues()
-  const { isLoading } = issueState
+  const { currentIssue, isLoading } = useIssues()
   const { votes, expectedVotes } = useVotes()
 
   if (isLoading) {
@@ -29,13 +28,13 @@ export function RoundSidebar({ roundId }: RoundSidebarProps): JSX.Element {
   }
 
   if (votes.length === 0) {
-    return <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+    return <EstimateSection isLoading={isLoading} roundId={roundId} issue={currentIssue} />
   }
 
   if (votes.length !== expectedVotes) {
     return (
       <>
-        <Estimate isLoading={isLoading} roundId={roundId} issue={currentIssue} />
+        <EstimateSection isLoading={isLoading} roundId={roundId} issue={currentIssue} />
         <Votes votes={votes} expectedVotes={expectedVotes} />
       </>
     )
