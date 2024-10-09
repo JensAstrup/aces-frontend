@@ -1,33 +1,32 @@
-'use client'
 import React from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
-import useMigrateCookie from '@aces/lib/hooks/auth/use-migrate-cookie'
-import { IssuesProvider } from '@aces/lib/hooks/issues/issues-context'
-import { ViewsProvider } from '@aces/lib/hooks/views/views-context'
-import { VotesProvider } from '@aces/lib/hooks/votes/use-votes'
-import { WebSocketProvider } from '@aces/lib/socket/web-socket-provider'
+import RoundProviders from '@aces/app/rounds/[roundId]/round-providers'
+import { View } from '@aces/interfaces/view'
+import getFavoriteViews from '@aces/lib/linear/get-views'
+import getSession from '@aces/lib/server/auth/session'
 
 
 interface RoundPageProps {
   params: { roundId: string }
 }
 
-function RoundPage({ params }: RoundPageProps): React.ReactElement {
-  const { csrfToken } = useCsrfToken()
-  useMigrateCookie(csrfToken)
+async function RoundPage({ params }: RoundPageProps) {
+  const session = await getSession()
+  let views: View[] | null
+
+  if (!session.user || !session.user.token) {
+    views = []
+  }
+  else {
+    const favorites = await getFavoriteViews(session.user)
+    views = favorites
+  }
 
   return (
-    <ViewsProvider>
-      <IssuesProvider>
-        <VotesProvider>
-          <WebSocketProvider>
-            <RoundComponent params={params} />
-          </WebSocketProvider>
-        </VotesProvider>
-      </IssuesProvider>
-    </ViewsProvider>
+    <RoundProviders views={views}>
+      <RoundComponent views={views} roundId={params.roundId} />
+    </RoundProviders>
   )
 }
 

@@ -1,43 +1,34 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+'use client'
+
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
 import { View } from '@aces/interfaces/view'
-import { getViews } from '@aces/lib/api/views/get-favorite-views'
 
 
 interface ViewsContextProps {
   views: View[]
   selectedView: View | null
   setSelectedView: (view: View) => void
-  isLoading: boolean
 }
 
 const ViewsContext = createContext<ViewsContextProps | undefined>(undefined)
 
-const ViewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [views, setViews] = useState<View[]>([])
-  const [selectedView, setSelectedView] = useState<View | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+interface ViewsProviderProps {
+  children: ReactNode
+  views: View[]
+}
+
+const ViewsProvider: React.FC<ViewsProviderProps> = ({ children, views }) => {
+  const [selectedView, setSelectedView] = useState<View | null>(() => views[0] || null)
 
   useEffect(() => {
-    const loadViews = async () => {
-      setIsLoading(true)
-      try {
-        const fetchedViews = await getViews()
-        setViews(fetchedViews)
-        setSelectedView(fetchedViews[0] || null) // Default to first view
-      }
-      catch (error) {
-        console.error('Failed to fetch views:', error)
-      }
-      finally {
-        setIsLoading(false)
-      }
+    if (!selectedView && views.length > 0) {
+      setSelectedView(views[0])
     }
-    loadViews()
-  }, [])
+  }, [views, selectedView])
 
   return (
-    <ViewsContext.Provider value={{ views, selectedView, setSelectedView, isLoading }}>
+    <ViewsContext.Provider value={{ views, selectedView, setSelectedView }}>
       {children}
     </ViewsContext.Provider>
   )
