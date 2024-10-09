@@ -1,14 +1,9 @@
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import React from 'react'
 
 import { View } from '@aces/interfaces/view'
-import { getViews } from '@aces/lib/api/views/get-favorite-views'
 import useViews, { ViewsProvider } from '@aces/lib/hooks/views/views-context'
 
-
-jest.mock('@aces/lib/api/views/get-favorite-views')
-
-const mockGetViews = getViews as jest.MockedFunction<typeof getViews>
 
 describe('ViewsContext', () => {
   const mockViews = [
@@ -16,77 +11,27 @@ describe('ViewsContext', () => {
     { id: '2', name: 'View 2' },
   ] as View[]
 
-  beforeEach(() => {
-    jest.clearAllMocks()
+  it('should initialize with provided views and select the first view', () => {
+    const { result } = renderHook(() => useViews(), {
+      wrapper: ({ children }) => <ViewsProvider views={mockViews}>{children}</ViewsProvider>,
+    })
+
+    expect(result.current.views).toEqual(mockViews)
+    expect(result.current.selectedView).toEqual(mockViews[0])
   })
 
-  it('should initialize with empty views and loading state', () => {
+  it('should initialize with empty views and null selected view when no views are provided', () => {
     const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
+      wrapper: ({ children }) => <ViewsProvider views={[]}>{children}</ViewsProvider>,
     })
 
     expect(result.current.views).toEqual([])
     expect(result.current.selectedView).toBeNull()
-    expect(result.current.isLoading).toBe(true)
   })
 
-  it('should fetch views and set the first view as selected', async () => {
-    mockGetViews.mockResolvedValue(mockViews)
-
+  it('should update selected view', () => {
     const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
-    })
-
-    await waitFor(() => {
-      expect(result.current.views).toEqual(mockViews)
-      expect(result.current.selectedView).toEqual(mockViews[0])
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    expect(mockGetViews).toHaveBeenCalledTimes(1)
-  })
-
-  it('should handle empty views array', async () => {
-    mockGetViews.mockResolvedValue([])
-
-    const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
-    })
-
-    await waitFor(() => {
-      expect(result.current.views).toEqual([])
-      expect(result.current.selectedView).toBeNull()
-      expect(result.current.isLoading).toBe(false)
-    })
-  })
-
-  it('should handle API error', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-    mockGetViews.mockRejectedValue(new Error('API Error'))
-
-    const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
-    })
-
-    await waitFor(() => {
-      expect(result.current.views).toEqual([])
-      expect(result.current.selectedView).toBeNull()
-      expect(result.current.isLoading).toBe(false)
-    })
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch views:', expect.any(Error))
-    consoleErrorSpy.mockRestore()
-  })
-
-  it('should update selected view', async () => {
-    mockGetViews.mockResolvedValue(mockViews)
-
-    const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
-    })
-
-    await waitFor(() => {
-      expect(result.current.selectedView).toEqual(mockViews[0])
+      wrapper: ({ children }) => <ViewsProvider views={mockViews}>{children}</ViewsProvider>,
     })
 
     act(() => {
@@ -107,23 +52,20 @@ describe('ViewsContext', () => {
   it('should not throw error when useViews is used within ViewsProvider', () => {
     expect(() =>
       renderHook(() => useViews(), {
-        wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
+        wrapper: ({ children }) => <ViewsProvider views={mockViews}>{children}</ViewsProvider>,
       })
     ).not.toThrow()
   })
 
-  it('should select the first view when multiple views are returned', async () => {
-    const multipleViews = [...mockViews, { id: '3', name: 'View 3' } as View]
-    mockGetViews.mockResolvedValue(multipleViews)
-
+  it('should maintain selected view when it exists in the provided views', () => {
     const { result } = renderHook(() => useViews(), {
-      wrapper: ({ children }) => <ViewsProvider>{children}</ViewsProvider>,
+      wrapper: ({ children }) => <ViewsProvider views={mockViews}>{children}</ViewsProvider>,
     })
 
-    await waitFor(() => {
-      expect(result.current.views).toEqual(multipleViews)
-      expect(result.current.selectedView).toEqual(multipleViews[0])
-      expect(result.current.isLoading).toBe(false)
+    act(() => {
+      result.current.setSelectedView(mockViews[1])
     })
+
+    expect(result.current.selectedView).toEqual(mockViews[1])
   })
 })
