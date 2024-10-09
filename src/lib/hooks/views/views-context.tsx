@@ -8,7 +8,7 @@ import { View } from '@aces/interfaces/view'
 interface ViewsContextProps {
   views: View[]
   selectedView: View | null
-  setSelectedView: (view: View) => void
+  setView: (view: View) => void
 }
 
 const ViewsContext = createContext<ViewsContextProps | undefined>(undefined)
@@ -19,16 +19,16 @@ interface ViewsProviderProps {
 }
 
 const ViewsProvider: React.FC<ViewsProviderProps> = ({ children, views }) => {
-  const [selectedView, setSelectedView] = useState<View | null>(() => views[0] || null)
+  const [selectedView, setView] = useState<View | null>(() => views[0] || null)
 
   useEffect(() => {
     if (!selectedView && views.length > 0) {
-      setSelectedView(views[0])
+      setView(views[0])
     }
   }, [views, selectedView])
 
   return (
-    <ViewsContext.Provider value={{ views, selectedView, setSelectedView }}>
+    <ViewsContext.Provider value={{ views, selectedView, setView }}>
       {children}
     </ViewsContext.Provider>
   )
