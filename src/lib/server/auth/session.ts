@@ -1,4 +1,3 @@
-import 'server-only'
 import { User } from '@prisma/client'
 import { getIronSession, IronSession } from 'iron-session'
 import { cookies } from 'next/headers'

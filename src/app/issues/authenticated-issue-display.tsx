@@ -1,5 +1,4 @@
-'use client'
-import React, { useCallback } from 'react'
+import React, { Suspense, useCallback } from 'react'
 
 import IssueContent from '@aces/components/issues/issue-content'
 import LoadingRound from '@aces/components/rounds/loading-round'
@@ -10,15 +9,15 @@ import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useViews from '@aces/lib/hooks/views/views-context'
 
 
-function AuthenticatedIssueDisplay() {
+function AuthenticatedIssueDisplay({ views }: { views: View[] }): React.ReactElement {
   const { user } = useCurrentUser()
-  const { isLoading: viewsLoading, selectedView, setSelectedView } = useViews()
+  const { selectedView, setView } = useViews()
 
   const handleViewSelect = useCallback((view: View) => {
-    setSelectedView(view)
-  }, [setSelectedView])
+    setView(view)
+  }, [setView])
 
-  const setView = useCallback((view: View | ((prev: View | null) => View | null)) => {
+  const setViewHandler = useCallback((view: View | ((prev: View | null) => View | null)) => {
     if (typeof view === 'function') {
       const selectedViewResult: View | null = view(selectedView)
       if (selectedViewResult) {
@@ -31,19 +30,18 @@ function AuthenticatedIssueDisplay() {
   }, [handleViewSelect, selectedView])
 
 
-  if (viewsLoading) return <LoadingRound />
   return (
-    <div className="space-y-6">
-      {user && (
-        <div>
-          <ViewDropdown selectedView={selectedView} setSelectedView={setView} />
-        </div>
-      )}
-      <Separator />
-      {selectedView && (
+    <Suspense fallback={<LoadingRound />}>
+      <div className="space-y-6">
+        {user && (
+          <div>
+            <ViewDropdown views={views} selectedView={selectedView} setView={setViewHandler} />
+          </div>
+        )}
+        <Separator />
         <IssueContent />
-      )}
-    </div>
+      </div>
+    </Suspense>
   )
 }
 

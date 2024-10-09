@@ -163,7 +163,7 @@ describe('IssuesProvider', () => {
       expect(screen.getByTestId('current-issue')).toHaveTextContent('issue1')
     })
 
-    mockUseViews.mockReturnValue({ selectedView: null, isLoading: false } as ReturnType<typeof useViews>)
+    mockUseViews.mockReturnValue({ selectedView: null } as unknown as ReturnType<typeof useViews>)
 
     rerender(
       <IssuesProvider>

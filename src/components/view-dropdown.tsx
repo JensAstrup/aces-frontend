@@ -4,30 +4,27 @@ import React, { useEffect } from 'react'
 import { Button } from '@aces/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@aces/components/ui/dropdown-menu'
 import { View } from '@aces/interfaces/view'
-import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
 
 
 interface ViewDropdownProps {
+  views: View[]
   selectedView: View | null
-  setSelectedView: (view: View) => void
+  setView: (view: View) => void
 }
 
-const ViewDropdown: React.FC<ViewDropdownProps> = ({ selectedView, setSelectedView }) => {
-  const { favoriteViews, isError, isLoading } = useGetFavoriteViews()
 
+const ViewDropdown: React.FC<ViewDropdownProps> = ({ views, selectedView, setView }) => {
   useEffect(() => {
-    if (favoriteViews && favoriteViews.length > 0 && !selectedView) {
-      setSelectedView(favoriteViews[0])
+    if (views.length > 0 && !selectedView) {
+      setView(views[0])
     }
-  }, [favoriteViews, selectedView, setSelectedView])
+  }, [views, selectedView, setView])
 
-  if (isError) return <div>Failed to load views</div>
-
-  const favoriteViewItems = favoriteViews?.map(view => (
+  const favoriteViewItems = views.map(view => (
     <DropdownMenuItem
       key={view.id}
       onClick={() => {
-        setSelectedView(view)
+        setView(view)
       }}
     >
       {view.name}
@@ -46,17 +43,13 @@ const ViewDropdown: React.FC<ViewDropdownProps> = ({ selectedView, setSelectedVi
       <DropdownMenuContent align="end" className="w-[200px]">
         <DropdownMenuLabel>Select a view</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {isLoading
+        {favoriteViewItems.length > 0
           ? (
-            <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+            favoriteViewItems
           )
-          : favoriteViewItems && favoriteViewItems.length > 0
-            ? (
-              favoriteViewItems
-            )
-            : (
-              <DropdownMenuItem disabled>No views available</DropdownMenuItem>
-            )}
+          : (
+            <DropdownMenuItem disabled>No views available</DropdownMenuItem>
+          )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
