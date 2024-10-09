@@ -8,23 +8,23 @@ import { View } from '@aces/interfaces/view'
 
 interface ViewDropdownProps {
   views: View[]
-    selectedView: View | null
-  setSelectedView: (view: View) => void
+  selectedView: View | null
+  setView: (view: View) => void
 }
 
 
-const ViewDropdown: React.FC<ViewDropdownProps> = ({ views, selectedView, setSelectedView }) => {
+const ViewDropdown: React.FC<ViewDropdownProps> = ({ views, selectedView, setView }) => {
   useEffect(() => {
     if (views.length > 0 && !selectedView) {
-      setSelectedView(views[0])
+      setView(views[0])
     }
-  }, [views, selectedView, setSelectedView])
+  }, [views, selectedView, setView])
 
   const favoriteViewItems = views.map(view => (
     <DropdownMenuItem
       key={view.id}
       onClick={() => {
-        setSelectedView(view)
+        setView(view)
       }}
     >
       {view.name}
