@@ -34,49 +34,49 @@ describe('ViewDropdown', () => {
   ] as View[]
 
   it('should render the component', () => {
-    render(<ViewDropdown views={mockViews} selectedView={null} setSelectedView={() => {}} />)
+    render(<ViewDropdown views={mockViews} selectedView={null} setView={() => {}} />)
     expect(screen.getAllByText('Select a view')).toHaveLength(2)
     expect(screen.getByTestId('list-bullet-icon')).toBeInTheDocument()
   })
 
   it('should display the selected view name when a view is selected', () => {
-    render(<ViewDropdown views={mockViews} selectedView={mockViews[0]} setSelectedView={() => {}} />)
+    render(<ViewDropdown views={mockViews} selectedView={mockViews[0]} setView={() => {}} />)
     expect(screen.getByText('View 2')).toBeInTheDocument()
   })
 
   it('should render all view options', () => {
-    render(<ViewDropdown views={mockViews} selectedView={null} setSelectedView={() => {}} />)
+    render(<ViewDropdown views={mockViews} selectedView={null} setView={() => {}} />)
     mockViews.forEach((view) => {
       expect(screen.getByText(view.name)).toBeInTheDocument()
     })
   })
 
-  it('should call setSelectedView when a view is clicked', () => {
-    const mockSetSelectedView = jest.fn()
-    render(<ViewDropdown views={mockViews} selectedView={null} setSelectedView={mockSetSelectedView} />)
+  it('should call setView when a view is clicked', () => {
+    const mockSetView = jest.fn()
+    render(<ViewDropdown views={mockViews} selectedView={null} setView={mockSetView} />)
 
     fireEvent.click(screen.getByText('View 2'))
-    expect(mockSetSelectedView).toHaveBeenCalledWith(mockViews[1])
+    expect(mockSetView).toHaveBeenCalledWith(mockViews[1])
   })
 
   it('should display "No views available" when views array is empty', () => {
-    render(<ViewDropdown views={[]} selectedView={null} setSelectedView={() => {}} />)
+    render(<ViewDropdown views={[]} selectedView={null} setView={() => {}} />)
     expect(screen.getByText('No views available')).toBeInTheDocument()
   })
 
   it('should automatically select the first view if no view is selected', () => {
-    const mockSetSelectedView = jest.fn()
+    const mockSetView = jest.fn()
     act(() => {
-      render(<ViewDropdown views={mockViews} selectedView={null} setSelectedView={mockSetSelectedView} />)
+      render(<ViewDropdown views={mockViews} selectedView={null} setView={mockSetView} />)
     })
-    expect(mockSetSelectedView).toHaveBeenCalledWith(mockViews[0])
+    expect(mockSetView).toHaveBeenCalledWith(mockViews[0])
   })
 
   it('should not automatically select a view if one is already selected', () => {
-    const mockSetSelectedView = jest.fn()
+    const mockSetView = jest.fn()
     act(() => {
-      render(<ViewDropdown views={mockViews} selectedView={mockViews[1]} setSelectedView={mockSetSelectedView} />)
+      render(<ViewDropdown views={mockViews} selectedView={mockViews[1]} setView={mockSetView} />)
     })
-    expect(mockSetSelectedView).not.toHaveBeenCalled()
+    expect(mockSetView).not.toHaveBeenCalled()
   })
 })
