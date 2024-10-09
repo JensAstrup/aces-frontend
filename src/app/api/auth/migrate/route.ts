@@ -9,6 +9,15 @@ import getSession from '@aces/lib/server/auth/session'
 
 const prisma = new PrismaClient()
 
+/**
+ * Migrate the express-session cookie to the new session store
+ *
+ * This is a one-time operation to migrate the existing express-session
+ * cookie to the Next.js session store. This allows us to access sensitive
+ * data in the session without having to decrypt the cookie on every request.
+ *
+ * @returns {Promise<NextResponse>} The response
+ **/
 async function POST() {
   const cookieStore = cookies()
   const session = await getSession()
