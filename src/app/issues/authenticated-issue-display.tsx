@@ -10,13 +10,13 @@ import useViews from '@aces/lib/hooks/views/views-context'
 
 function AuthenticatedIssueDisplay({ views }: { views: View[] }): React.ReactElement {
   const { user } = useCurrentUser()
-  const { selectedView, setSelectedView } = useViews()
+  const { selectedView, setView } = useViews()
 
   const handleViewSelect = useCallback((view: View) => {
-    setSelectedView(view)
-  }, [setSelectedView])
+    setView(view)
+  }, [setView])
 
-  const setView = useCallback((view: View | ((prev: View | null) => View | null)) => {
+  const setViewHandler = useCallback((view: View | ((prev: View | null) => View | null)) => {
     if (typeof view === 'function') {
       const selectedViewResult: View | null = view(selectedView)
       if (selectedViewResult) {
@@ -33,7 +33,7 @@ function AuthenticatedIssueDisplay({ views }: { views: View[] }): React.ReactEle
     <div className="space-y-6">
       {user && (
         <div>
-          <ViewDropdown views={views} selectedView={selectedView} setSelectedView={setView} />
+          <ViewDropdown views={views} selectedView={selectedView} setView={setViewHandler} />
         </div>
       )}
       <Separator />
