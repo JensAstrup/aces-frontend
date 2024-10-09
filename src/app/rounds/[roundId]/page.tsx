@@ -13,7 +13,7 @@ interface RoundPageProps {
 
 async function RoundPage({ params }: RoundPageProps) {
   const session = await getSession()
-  let views: View[] | null
+  let views: View[]
 
   if (!session.user || !session.user.token) {
     views = []
