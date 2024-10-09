@@ -35,7 +35,7 @@ describe('ViewsContext', () => {
     })
 
     act(() => {
-      result.current.setSelectedView(mockViews[1])
+      result.current.setView(mockViews[1])
     })
 
     expect(result.current.selectedView).toEqual(mockViews[1])
@@ -63,7 +63,7 @@ describe('ViewsContext', () => {
     })
 
     act(() => {
-      result.current.setSelectedView(mockViews[1])
+      result.current.setView(mockViews[1])
     })
 
     expect(result.current.selectedView).toEqual(mockViews[1])

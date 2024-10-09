@@ -19,13 +19,13 @@ jest.mock('@aces/components/ui/separator', () => ({
 }))
 jest.mock('@aces/components/view-dropdown', () => ({
   __esModule: true,
-  default: ({ views, setSelectedView }: { views: View[], selectedView: View | null, setSelectedView: (view: View) => void }) => (
+  default: ({ views, setView }: { views: View[], selectedView: View | null, setView: (view: View) => void }) => (
     <div data-testid="view-dropdown">
       {views.map(view => (
         <button
           key={view.id}
           onClick={() => {
-            setSelectedView(view)
+            setView(view)
           }}
         >
           {view.name}
@@ -53,7 +53,7 @@ describe('AuthenticatedIssueDisplay', () => {
     mockUseCurrentUser.mockReturnValue({ user: mockUser } as unknown as ReturnType<typeof useCurrentUser>)
     mockUseViews.mockReturnValue({
       selectedView: null,
-      setSelectedView: jest.fn(),
+      setView: jest.fn(),
       views: mockViews,
     })
 
@@ -66,7 +66,7 @@ describe('AuthenticatedIssueDisplay', () => {
     mockUseCurrentUser.mockReturnValue({ user: null } as unknown as ReturnType<typeof useCurrentUser>)
     mockUseViews.mockReturnValue({
       selectedView: null,
-      setSelectedView: jest.fn(),
+      setView: jest.fn(),
       views: mockViews,
     })
 
@@ -79,7 +79,7 @@ describe('AuthenticatedIssueDisplay', () => {
     mockUseCurrentUser.mockReturnValue({ user: mockUser } as unknown as ReturnType<typeof useCurrentUser>)
     mockUseViews.mockReturnValue({
       selectedView: null,
-      setSelectedView: jest.fn(),
+      setView: jest.fn(),
       views: mockViews,
     })
 
@@ -90,11 +90,11 @@ describe('AuthenticatedIssueDisplay', () => {
   })
 
   it('should handle view selection correctly', () => {
-    const setSelectedViewMock = jest.fn()
+    const setViewMock = jest.fn()
     mockUseCurrentUser.mockReturnValue({ user: mockUser } as unknown as ReturnType<typeof useCurrentUser>)
     mockUseViews.mockReturnValue({
       selectedView: null,
-      setSelectedView: setSelectedViewMock,
+      setView: setViewMock,
       views: mockViews,
     })
 
@@ -103,15 +103,15 @@ describe('AuthenticatedIssueDisplay', () => {
     const viewButton = screen.getByText('View 1')
     fireEvent.click(viewButton)
 
-    expect(setSelectedViewMock).toHaveBeenCalledWith(mockViews[0])
+    expect(setViewMock).toHaveBeenCalledWith(mockViews[0])
   })
 
   it('should handle view selection with function correctly', () => {
-    const setSelectedViewMock = jest.fn()
+    const setViewMock = jest.fn()
     mockUseCurrentUser.mockReturnValue({ user: mockUser } as unknown as ReturnType<typeof useCurrentUser>)
     mockUseViews.mockReturnValue({
       selectedView: mockViews[0],
-      setSelectedView: setSelectedViewMock,
+      setView: setViewMock,
       views: mockViews,
     })
 
@@ -120,6 +120,6 @@ describe('AuthenticatedIssueDisplay', () => {
     const viewButton = screen.getByText('View 2')
     fireEvent.click(viewButton)
 
-    expect(setSelectedViewMock).toHaveBeenCalledWith(mockViews[1])
+    expect(setViewMock).toHaveBeenCalledWith(mockViews[1])
   })
 })

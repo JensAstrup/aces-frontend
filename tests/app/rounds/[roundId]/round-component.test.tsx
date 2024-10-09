@@ -129,6 +129,7 @@ describe('RoundComponent', () => {
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
     expect(mockUseMigrateCookie).toHaveBeenCalledWith(mockCsrfToken)
+    expect(mockUseMigrateCookie).toHaveBeenCalledTimes(1)
   })
 
   it('should handle connection state updates correctly', () => {
