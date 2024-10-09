@@ -1,13 +1,9 @@
 import { ListBulletIcon } from '@radix-ui/react-icons'
-import { GetServerSideProps } from 'next'
 import React, { useEffect } from 'react'
 
 import { Button } from '@aces/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@aces/components/ui/dropdown-menu'
 import { View } from '@aces/interfaces/view'
-import useGetFavoriteViews from '@aces/lib/api/views/get-favorite-views'
-import getFavoriteViews from '@aces/lib/linear/get-views'
-import getSession from '@aces/lib/server/auth/session'
 
 
 interface ViewDropdownProps {
