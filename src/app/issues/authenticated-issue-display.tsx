@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react'
+import React, { Suspense, useCallback } from 'react'
 
 import IssueContent from '@aces/components/issues/issue-content'
+import LoadingRound from '@aces/components/rounds/loading-round'
 import { Separator } from '@aces/components/ui/separator'
 import ViewDropdown from '@aces/components/view-dropdown'
 import { View } from '@aces/interfaces/view'
@@ -30,15 +31,17 @@ function AuthenticatedIssueDisplay({ views }: { views: View[] }): React.ReactEle
 
 
   return (
-    <div className="space-y-6">
-      {user && (
-        <div>
-          <ViewDropdown views={views} selectedView={selectedView} setView={setViewHandler} />
-        </div>
-      )}
-      <Separator />
-      <IssueContent />
-    </div>
+    <Suspense fallback={<LoadingRound />}>
+      <div className="space-y-6">
+        {user && (
+          <div>
+            <ViewDropdown views={views} selectedView={selectedView} setView={setViewHandler} />
+          </div>
+        )}
+        <Separator />
+        <IssueContent />
+      </div>
+    </Suspense>
   )
 }
 
