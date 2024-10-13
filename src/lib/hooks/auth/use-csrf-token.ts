@@ -16,7 +16,7 @@ async function fetcher(url: string) {
 }
 
 function useCsrfToken() {
-  const { data, error } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`, fetcher)
+  const { data, error } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/auth/csrf-token`, fetcher, { revalidateOnFocus: false })
 
   return {
     csrfToken: data?.csrfToken,
