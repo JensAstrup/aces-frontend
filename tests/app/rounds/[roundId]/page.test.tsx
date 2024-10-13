@@ -15,11 +15,16 @@ jest.mock('@aces/app/rounds/[roundId]/round-component')
 jest.mock('@aces/app/rounds/[roundId]/round-providers')
 jest.mock('@aces/lib/linear/get-views')
 jest.mock('@aces/lib/server/auth/session')
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  Suspense: ({ children }: { children: React.ReactNode }) => <div data-testid="suspense">{children}</div>
+}))
 
 const mockRoundComponent = RoundComponent as jest.MockedFunction<typeof RoundComponent>
 const mockRoundProviders = RoundProviders as jest.MockedFunction<typeof RoundProviders>
 const mockGetFavoriteViews = getFavoriteViews as jest.MockedFunction<typeof getFavoriteViews>
 const mockGetSession = getSession as jest.MockedFunction<typeof getSession>
+
 
 describe('RoundPage', () => {
   const mockViews: View[] = [{ id: '1', name: 'View 1' }, { id: '2', name: 'View 2' }] as View[]
@@ -42,6 +47,7 @@ describe('RoundPage', () => {
 
     await renderRoundPage()
 
+    expect(screen.getByTestId('suspense')).toBeInTheDocument()
     expect(screen.getByTestId('round-providers')).toBeInTheDocument()
     expect(screen.getByTestId('round-component')).toBeInTheDocument()
     expect(mockRoundProviders).toHaveBeenCalledWith(expect.objectContaining({ views: mockViews }), {})

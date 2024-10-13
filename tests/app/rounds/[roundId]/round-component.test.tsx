@@ -5,14 +5,9 @@ import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
 import { View } from '@aces/interfaces/view'
 
 
-jest.mock('@aces/app/issues/anonymous-issue-display', () => ({
+jest.mock('@aces/components/issues/issue-display', () => ({
   __esModule: true,
-  default: () => <div data-testid="unauthenticated-issue-display" />,
-}))
-
-jest.mock('@aces/app/issues/authenticated-issue-display', () => ({
-  __esModule: true,
-  default: () => <div data-testid="authenticated-issue-display" />,
+  default: () => <div data-testid="issue-display" />,
 }))
 
 jest.mock('@aces/components/rounds/sidebar', () => ({
@@ -63,8 +58,7 @@ describe('RoundComponent', () => {
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
     expect(screen.getByTestId('disconnected')).toBeInTheDocument()
-    expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('issue-display')).not.toBeInTheDocument()
     expect(screen.queryByTestId('round-sidebar')).not.toBeInTheDocument()
     expect(screen.queryByTestId('web-socket-connection')).not.toBeInTheDocument()
   })
@@ -74,8 +68,7 @@ describe('RoundComponent', () => {
 
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
-    expect(screen.getByTestId('unauthenticated-issue-display')).toBeInTheDocument()
-    expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
     expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
@@ -86,8 +79,7 @@ describe('RoundComponent', () => {
 
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
-    expect(screen.getByTestId('authenticated-issue-display')).toBeInTheDocument()
-    expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
     expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
@@ -98,8 +90,7 @@ describe('RoundComponent', () => {
 
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
-    expect(screen.getByTestId('unauthenticated-issue-display')).toBeInTheDocument()
-    expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
     expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
@@ -135,7 +126,7 @@ describe('RoundComponent', () => {
   it('should handle connection state updates correctly', () => {
     const { rerender } = render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
-    expect(screen.getByTestId('unauthenticated-issue-display')).toBeInTheDocument()
+    expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
     expect(screen.getByTestId('web-socket-connection')).toBeInTheDocument()
 
@@ -144,8 +135,7 @@ describe('RoundComponent', () => {
     rerender(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
     expect(screen.getByTestId('disconnected')).toBeInTheDocument()
-    expect(screen.queryByTestId('unauthenticated-issue-display')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('authenticated-issue-display')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('issue-display')).not.toBeInTheDocument()
     expect(screen.queryByTestId('round-sidebar')).not.toBeInTheDocument()
     expect(screen.queryByTestId('web-socket-connection')).not.toBeInTheDocument()
   })
