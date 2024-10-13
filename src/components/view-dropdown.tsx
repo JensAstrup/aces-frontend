@@ -4,16 +4,17 @@ import React, { useEffect } from 'react'
 import { Button } from '@aces/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@aces/components/ui/dropdown-menu'
 import { View } from '@aces/interfaces/view'
+import useViews from '@aces/lib/hooks/views/views-context'
 
 
 interface ViewDropdownProps {
   views: View[]
-  selectedView: View | null
-  setView: (view: View) => void
 }
 
 
-const ViewDropdown: React.FC<ViewDropdownProps> = ({ views, selectedView, setView }) => {
+const ViewDropdown: React.FC<ViewDropdownProps> = ({ views }) => {
+  const { selectedView, setView } = useViews()
+
   useEffect(() => {
     if (views.length > 0 && !selectedView) {
       setView(views[0])
@@ -43,13 +44,7 @@ const ViewDropdown: React.FC<ViewDropdownProps> = ({ views, selectedView, setVie
       <DropdownMenuContent align="end" className="w-[200px]">
         <DropdownMenuLabel>Select a view</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {favoriteViewItems.length > 0
-          ? (
-            favoriteViewItems
-          )
-          : (
-            <DropdownMenuItem disabled>No views available</DropdownMenuItem>
-          )}
+        {favoriteViewItems}
       </DropdownMenuContent>
     </DropdownMenu>
   )
