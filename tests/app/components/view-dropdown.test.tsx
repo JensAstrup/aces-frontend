@@ -1,13 +1,19 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import React from 'react'
+import '@testing-library/jest-dom'
+
 
 import ViewDropdown from '@aces/components/view-dropdown'
 import { View } from '@aces/interfaces/view'
+import useViews from '@aces/lib/hooks/views/views-context'
 
 
+jest.mock('@aces/lib/hooks/views/views-context')
 jest.mock('@radix-ui/react-icons', () => ({
   ListBulletIcon: () => <div data-testid="list-bullet-icon" />,
 }))
+
+const mockUseViews = useViews as jest.MockedFunction<typeof useViews>
 
 jest.mock('@aces/components/ui/button', () => ({
   Button: ({ children, ...props }: React.PropsWithChildren<object>) => (
@@ -33,50 +39,69 @@ describe('ViewDropdown', () => {
     { id: '3', name: 'View 3' },
   ] as View[]
 
-  it('should render the component', () => {
-    render(<ViewDropdown views={mockViews} selectedView={null} setView={() => {}} />)
-    expect(screen.getAllByText('Select a view')).toHaveLength(2)
-    expect(screen.getByTestId('list-bullet-icon')).toBeInTheDocument()
-  })
+  const mockSetView = jest.fn()
 
-  it('should display the selected view name when a view is selected', () => {
-    render(<ViewDropdown views={mockViews} selectedView={mockViews[0]} setView={() => {}} />)
-    expect(screen.getByText('View 2')).toBeInTheDocument()
-  })
-
-  it('should render all view options', () => {
-    render(<ViewDropdown views={mockViews} selectedView={null} setView={() => {}} />)
-    mockViews.forEach((view) => {
-      expect(screen.getByText(view.name)).toBeInTheDocument()
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockUseViews.mockReturnValue({
+      selectedView: null,
+      setView: mockSetView,
+      views: mockViews,
     })
   })
 
-  it('should call setView when a view is clicked', () => {
-    const mockSetView = jest.fn()
-    render(<ViewDropdown views={mockViews} selectedView={null} setView={mockSetView} />)
+  it('should render the dropdown button with "Select a view" when no view is selected', () => {
+    render(<ViewDropdown views={mockViews} />)
+    expect(screen.getAllByText('Select a view')).toHaveLength(2)
+  })
 
+  it('should render the dropdown button with the selected view name when a view is selected', () => {
+    mockUseViews.mockReturnValue({
+      selectedView: mockViews[0],
+      setView: mockSetView,
+      views: mockViews,
+    })
+    render(<ViewDropdown views={mockViews} />)
+    expect(screen.getAllByText('View 1')).toHaveLength(2)
+  })
+
+  it('should render the list of views in the dropdown menu', () => {
+    render(<ViewDropdown views={mockViews} />)
+    fireEvent.click(screen.getAllByRole('button')[0])
+    expect(screen.getByText('View 1')).toBeInTheDocument()
+    expect(screen.getByText('View 2')).toBeInTheDocument()
+    expect(screen.getByText('View 3')).toBeInTheDocument()
+  })
+
+  it('should call setView when a view is selected', () => {
+    render(<ViewDropdown views={mockViews} />)
+    fireEvent.click(screen.getAllByRole('button')[0])
     fireEvent.click(screen.getByText('View 2'))
     expect(mockSetView).toHaveBeenCalledWith(mockViews[1])
   })
 
-  it('should display "No views available" when views array is empty', () => {
-    render(<ViewDropdown views={[]} selectedView={null} setView={() => {}} />)
-    expect(screen.getByText('No views available')).toBeInTheDocument()
-  })
-
-  it('should automatically select the first view if no view is selected', () => {
-    const mockSetView = jest.fn()
+  it('should set the first view as selected when views are available and no view is selected', () => {
+    jest.useFakeTimers()
+    render(<ViewDropdown views={mockViews} />)
     act(() => {
-      render(<ViewDropdown views={mockViews} selectedView={null} setView={mockSetView} />)
+      jest.runAllTimers()
     })
     expect(mockSetView).toHaveBeenCalledWith(mockViews[0])
+    jest.useRealTimers()
   })
 
-  it('should not automatically select a view if one is already selected', () => {
-    const mockSetView = jest.fn()
+  it('should not set a view when views are empty', () => {
+    jest.useFakeTimers()
+    render(<ViewDropdown views={[]} />)
     act(() => {
-      render(<ViewDropdown views={mockViews} selectedView={mockViews[1]} setView={mockSetView} />)
+      jest.runAllTimers()
     })
     expect(mockSetView).not.toHaveBeenCalled()
+    jest.useRealTimers()
+  })
+
+  it('should render the ListBulletIcon', () => {
+    render(<ViewDropdown views={mockViews} />)
+    expect(screen.getByTestId('list-bullet-icon')).toBeInTheDocument()
   })
 })

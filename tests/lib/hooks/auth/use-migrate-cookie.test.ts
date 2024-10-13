@@ -25,7 +25,8 @@ describe('useMigrateCookie', () => {
 
     expect(mockUseSWR).toHaveBeenCalledWith(
       ['/api/auth/migrate', csrfToken],
-      expect.any(Function)
+      expect.any(Function),
+      { revalidateOnFocus: false }
     )
   })
 
@@ -34,7 +35,7 @@ describe('useMigrateCookie', () => {
       useMigrateCookie('')
     })
 
-    expect(mockUseSWR).toHaveBeenCalledWith(null, expect.any(Function))
+    expect(mockUseSWR).toHaveBeenCalledWith(null, expect.any(Function), { revalidateOnFocus: false })
   })
 
   it('should call fetch with correct parameters in migrateCookie function', async () => {

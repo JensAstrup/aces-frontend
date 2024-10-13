@@ -44,13 +44,7 @@ const ViewDropdown: React.FC<ViewDropdownProps> = ({ views }) => {
       <DropdownMenuContent align="end" className="w-[200px]">
         <DropdownMenuLabel>Select a view</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {favoriteViewItems.length > 0
-          ? (
-            favoriteViewItems
-          )
-          : (
-            <DropdownMenuItem disabled>No views available</DropdownMenuItem>
-          )}
+        {favoriteViewItems}
       </DropdownMenuContent>
     </DropdownMenu>
   )
