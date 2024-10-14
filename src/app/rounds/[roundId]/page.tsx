@@ -5,7 +5,7 @@ import RoundProviders from '@aces/app/rounds/[roundId]/round-providers'
 import LoadingRound from '@aces/components/rounds/loading-round'
 import { View } from '@aces/interfaces/view'
 import getFavoriteViews from '@aces/lib/linear/get-views'
-import getSession from '@aces/lib/server/auth/session'
+import migrateSession from '@aces/lib/utils/migrate-session'
 
 
 interface RoundPageProps {
@@ -13,10 +13,10 @@ interface RoundPageProps {
 }
 
 async function RoundPage({ params }: RoundPageProps) {
-  const session = await getSession()
+  const session = await migrateSession()
   let views: View[]
 
-  if (!session.user || !session.user.token) {
+  if (!session || !session.user || !session.user.token) {
     views = []
   }
   else {

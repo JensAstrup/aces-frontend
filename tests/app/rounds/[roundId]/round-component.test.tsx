@@ -33,8 +33,6 @@ jest.mock('@aces/lib/hooks/auth/use-migrate-cookie')
 const mockUseCurrentUser = jest.requireMock('@aces/lib/hooks/auth/use-current-user').default
 const mockUseRegisterViewer = jest.requireMock('@aces/lib/hooks/auth/use-register-viewer').default
 const mockUseWebSocket = jest.requireMock('@aces/lib/socket/web-socket-provider').useWebSocket
-const mockUseCsrfToken = jest.requireMock('@aces/lib/hooks/auth/use-csrf-token').useCsrfToken
-const mockUseMigrateCookie = jest.requireMock('@aces/lib/hooks/auth/use-migrate-cookie').default
 
 describe('RoundComponent', () => {
   const mockRoundId = 'test-round-id'
@@ -48,8 +46,6 @@ describe('RoundComponent', () => {
     mockUseCurrentUser.mockReturnValue({ user: null, isLoading: false })
     mockUseRegisterViewer.mockReturnValue({})
     mockUseWebSocket.mockReturnValue({ isConnected: true })
-    mockUseCsrfToken.mockReturnValue({ csrfToken: 'mock-csrf-token', isLoading: false, isError: false })
-    mockUseMigrateCookie.mockReturnValue(undefined)
   })
 
   it('should render Disconnected component when not connected', () => {
@@ -111,16 +107,6 @@ describe('RoundComponent', () => {
     render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
 
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: mockRoundId }, undefined)
-  })
-
-  it('should call useMigrateCookie with csrfToken', () => {
-    const mockCsrfToken = 'mock-csrf-token'
-    mockUseCsrfToken.mockReturnValue({ csrfToken: mockCsrfToken, isLoading: false, isError: false })
-
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
-
-    expect(mockUseMigrateCookie).toHaveBeenCalledWith(mockCsrfToken)
-    expect(mockUseMigrateCookie).toHaveBeenCalledTimes(1)
   })
 
   it('should handle connection state updates correctly', () => {
