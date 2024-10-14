@@ -21,7 +21,7 @@ async function migrateCookie(csrfToken: string) {
 }
 
 function useMigrateCookie(csrfToken: string): void {
-  useSWR(csrfToken ? ['/api/auth/migrate', csrfToken] : null, () => migrateCookie(csrfToken))
+  useSWR(csrfToken ? ['/api/auth/migrate', csrfToken] : null, () => migrateCookie(csrfToken), { revalidateOnFocus: false })
 }
 
 export default useMigrateCookie

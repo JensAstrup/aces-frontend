@@ -112,7 +112,8 @@ describe('useCsrfToken', () => {
 
     expect(mockedUseSWR).toHaveBeenCalledWith(
       `${mockApiUrl}/auth/csrf-token`,
-      expect.any(Function)
+      expect.any(Function),
+      { revalidateOnFocus: false }
     )
   })
 

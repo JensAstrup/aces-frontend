@@ -1,10 +1,11 @@
 'use client'
 import React from 'react'
 
-import UnauthenticatedIssueDisplay from '@aces/app/issues/anonymous-issue-display'
-import AuthenticatedIssueDisplay from '@aces/app/issues/authenticated-issue-display'
 import Disconnected from '@aces/components/disconnected/disconnected'
+import IssueDisplay from '@aces/components/issues/issue-display'
+import LoadingRound from '@aces/components/rounds/loading-round'
 import { RoundSidebar } from '@aces/components/rounds/sidebar'
+import { View } from '@aces/interfaces/view'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
 import useRegisterViewer from '@aces/lib/hooks/auth/use-register-viewer'
 import WebSocketConnection from '@aces/lib/socket/web-socket-connection'
@@ -12,11 +13,11 @@ import { useWebSocket } from '@aces/lib/socket/web-socket-provider'
 
 
 interface RoundComponentProps {
-  params: { roundId: string }
+  roundId: string
+  views: View[]
 }
 
-function RoundComponent({ params }: RoundComponentProps): React.ReactElement {
-  const { roundId } = params
+function RoundComponent({ roundId, views }: RoundComponentProps): React.ReactElement {
   const { user, isLoading: isUserLoading } = useCurrentUser()
   useRegisterViewer({ roundId }, isUserLoading ? undefined : user)
   const { isConnected } = useWebSocket()
@@ -25,15 +26,17 @@ function RoundComponent({ params }: RoundComponentProps): React.ReactElement {
     return <Disconnected />
   }
 
+  if (isUserLoading) {
+    return <LoadingRound />
+  }
+
   return (
     <div className="grid md:grid-cols-5 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
       <div className="md:col-span-3">
-        {user?.linearId ? <AuthenticatedIssueDisplay /> : <UnauthenticatedIssueDisplay />}
+        <IssueDisplay views={views} />
       </div>
       <div className="space-y-8 md:col-span-2">
-        <RoundSidebar
-          roundId={roundId}
-        />
+        <RoundSidebar roundId={roundId} />
       </div>
       <WebSocketConnection roundId={roundId} />
     </div>
