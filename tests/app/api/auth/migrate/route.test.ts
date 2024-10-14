@@ -6,7 +6,6 @@ import { SessionData } from '@aces/lib/server/auth/session'
 import migrateSession from '@aces/lib/utils/migrate-session'
 
 
-
 jest.mock('@sentry/nextjs')
 jest.mock('@aces/lib/utils/migrate-session')
 jest.mock('next/server', () => ({
@@ -14,6 +13,7 @@ jest.mock('next/server', () => ({
     json: jest.fn((body, init) => new Response(JSON.stringify(body), init)),
   },
 }))
+const mockMigrateSession = jest.mocked(migrateSession)
 
 describe('POST migrate route', () => {
   beforeEach(() => {
@@ -24,8 +24,7 @@ describe('POST migrate route', () => {
     const mockSession = {
       save: jest.fn(),
     }
-    const mockMigrateSession = migrateSession as jest.MockedFunction<typeof migrateSession>
-    mockMigrateSession.mockResolvedValue(mockSession as unknown as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue(mockSession as unknown as IronSession< SessionData>)
 
     const response = await POST()
 
@@ -36,7 +35,6 @@ describe('POST migrate route', () => {
   })
 
   it('should return 404 if no session to migrate', async () => {
-    const mockMigrateSession = migrateSession as jest.MockedFunction<typeof migrateSession>
     mockMigrateSession.mockResolvedValue(null)
 
     const response = await POST()
@@ -48,7 +46,6 @@ describe('POST migrate route', () => {
 
   it('should return 500 and capture exception if an error occurs', async () => {
     const mockError = new Error('Migration failed')
-    const mockMigrateSession = migrateSession as jest.MockedFunction<typeof migrateSession>
     mockMigrateSession.mockRejectedValue(mockError)
 
     const mockCaptureException = Sentry.captureException as jest.MockedFunction<typeof Sentry.captureException>
