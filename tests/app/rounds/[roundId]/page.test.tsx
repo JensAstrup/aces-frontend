@@ -8,13 +8,14 @@ import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
 import RoundProviders from '@aces/app/rounds/[roundId]/round-providers'
 import { View } from '@aces/interfaces/view'
 import getFavoriteViews from '@aces/lib/linear/get-views'
-import getSession, { SessionData } from '@aces/lib/server/auth/session'
+import { SessionData } from '@aces/lib/server/auth/session'
+import migrateSession from '@aces/lib/utils/migrate-session'
 
 
 jest.mock('@aces/app/rounds/[roundId]/round-component')
 jest.mock('@aces/app/rounds/[roundId]/round-providers')
 jest.mock('@aces/lib/linear/get-views')
-jest.mock('@aces/lib/server/auth/session')
+jest.mock('@aces/lib/utils/migrate-session')
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
   Suspense: ({ children }: { children: React.ReactNode }) => <div data-testid="suspense">{children}</div>
@@ -23,7 +24,7 @@ jest.mock('react', () => ({
 const mockRoundComponent = RoundComponent as jest.MockedFunction<typeof RoundComponent>
 const mockRoundProviders = RoundProviders as jest.MockedFunction<typeof RoundProviders>
 const mockGetFavoriteViews = getFavoriteViews as jest.MockedFunction<typeof getFavoriteViews>
-const mockGetSession = getSession as jest.MockedFunction<typeof getSession>
+const mockMigrateSession = migrateSession as jest.MockedFunction<typeof migrateSession>
 
 
 describe('RoundPage', () => {
@@ -42,7 +43,7 @@ describe('RoundPage', () => {
   }
 
   it('should render RoundProviders and RoundComponent with views when user is authenticated', async () => {
-    mockGetSession.mockResolvedValue({ user: { token: 'user-token' } as User, anonymous: false } as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue({ user: { token: 'user-token' } as User, anonymous: false } as IronSession<SessionData>)
     mockGetFavoriteViews.mockResolvedValue(mockViews)
 
     await renderRoundPage()
@@ -55,7 +56,7 @@ describe('RoundPage', () => {
   })
 
   it('should render RoundProviders and RoundComponent with empty views when user is not authenticated', async () => {
-    mockGetSession.mockResolvedValue({ user: null } as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue({ user: null } as IronSession<SessionData>)
 
     await renderRoundPage()
 
@@ -66,7 +67,7 @@ describe('RoundPage', () => {
   })
 
   it('should render RoundProviders and RoundComponent with empty views when user has no token', async () => {
-    mockGetSession.mockResolvedValue({ user: { token: null } } as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue({ user: { token: null } } as IronSession<SessionData>)
 
     await renderRoundPage()
 
@@ -78,7 +79,7 @@ describe('RoundPage', () => {
 
   it('should call getFavoriteViews with the user when authenticated', async () => {
     const mockUser = { token: 'user-token' }
-    mockGetSession.mockResolvedValue({ user: mockUser } as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue({ user: mockUser } as IronSession<SessionData>)
     mockGetFavoriteViews.mockResolvedValue(mockViews)
 
     await renderRoundPage()
@@ -87,7 +88,7 @@ describe('RoundPage', () => {
   })
 
   it('should not call getFavoriteViews when user is not authenticated', async () => {
-    mockGetSession.mockResolvedValue({ user: null } as IronSession<SessionData>)
+    mockMigrateSession.mockResolvedValue({ user: null } as IronSession<SessionData>)
 
     await renderRoundPage()
 
