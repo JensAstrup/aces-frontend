@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import getInactiveRounds from '@aces/app/crons/finishInactiveRounds/getInactiveRounds'
 import { GET } from '@aces/app/crons/finishInactiveRounds/route'
 
 
@@ -9,8 +10,9 @@ jest.mock('next/server', () => ({
   },
 }))
 
-jest.mock('@aces/app/crons/finishInactiveRounds/getInactiveRounds', () => jest.fn())
+jest.mock('@aces/app/crons/finishInactiveRounds/getInactiveRounds', () => jest.fn().mockResolvedValue(5))
 const mockNextResponse = jest.mocked(NextResponse)
+const mockGetInactiveRounds = jest.mocked(getInactiveRounds)
 
 
 describe('finishInactiveRounds route', () => {
@@ -36,6 +38,7 @@ describe('finishInactiveRounds route', () => {
       }
     } as unknown as NextRequest
     await GET(request)
+    expect(mockGetInactiveRounds).toHaveBeenCalledTimes(1)
     expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
   })
 })
