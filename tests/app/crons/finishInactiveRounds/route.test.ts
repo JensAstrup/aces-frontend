@@ -26,7 +26,7 @@ describe('finishInactiveRounds route', () => {
       }
     } as unknown as NextRequest
     await GET(request)
-    expect(mockNextResponse.json).toHaveBeenCalledWith('Unauthorized', { status: 401 })
+    expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Unauthorized: Invalid or missing authorization header' }, { status: 401 })
   })
 
   it('should return 200 if the authorization header is correct', async () => {
