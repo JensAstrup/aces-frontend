@@ -39,6 +39,6 @@ describe('finishInactiveRounds route', () => {
     } as unknown as NextRequest
     await GET(request)
     expect(mockGetInactiveRounds).toHaveBeenCalledTimes(1)
-    expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
+    expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true, updatedRounds: 5 })
   })
 })

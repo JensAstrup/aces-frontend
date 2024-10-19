@@ -12,5 +12,5 @@ export async function GET(request: NextRequest) {
 
   const updatedRounds = await getInactiveRounds()
   logger.info(`Updated ${updatedRounds} rounds`)
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, updatedRounds })
 }
