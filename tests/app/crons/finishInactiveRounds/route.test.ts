@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import getInactiveRounds from '@aces/app/crons/finishInactiveRounds/getInactiveRounds'
 import { GET } from '@aces/app/crons/finishInactiveRounds/route'
+import logger from '@aces/lib/logger'
 
 
 jest.mock('next/server', () => ({
@@ -10,9 +11,17 @@ jest.mock('next/server', () => ({
   },
 }))
 
+jest.mock('@aces/lib/logger', () => ({
+  __esModule: true,
+  default: {
+    info: jest.fn(),
+  },
+}))
+
 jest.mock('@aces/app/crons/finishInactiveRounds/getInactiveRounds', () => jest.fn().mockResolvedValue(5))
 const mockNextResponse = jest.mocked(NextResponse)
 const mockGetInactiveRounds = jest.mocked(getInactiveRounds)
+const mockLogger = jest.mocked(logger)
 
 
 describe('finishInactiveRounds route', () => {
@@ -38,7 +47,8 @@ describe('finishInactiveRounds route', () => {
       }
     } as unknown as NextRequest
     await GET(request)
+    expect(mockLogger.info).toHaveBeenCalledWith('Updated 5 rounds')
     expect(mockGetInactiveRounds).toHaveBeenCalledTimes(1)
-    expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
+    expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true, updatedRounds: 5 })
   })
 })
