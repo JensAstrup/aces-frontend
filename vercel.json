@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/crons/finishActiveRounds",
+      "schedule": "0 4 * * *"
+    }
+  ]
+}
