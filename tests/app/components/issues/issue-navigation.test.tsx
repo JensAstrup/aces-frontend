@@ -30,8 +30,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
-      isLoading: false,
+      isLoading: false
     })
   })
 
@@ -67,8 +66,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
-      isLoading: false,
+      isLoading: false
     })
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })
@@ -81,8 +79,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
-      isLoading: false,
+      isLoading: false
     })
     render(<IssueNavigation />)
     const nextButton = screen.getByRole('button', { name: /next/i })
@@ -95,8 +92,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
-      isLoading: false,
+      isLoading: false
     })
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })
@@ -112,8 +108,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
-      isLoading: false,
+      isLoading: false
     })
     render(<IssueNavigation />)
     const prevButton = screen.getByRole('button', { name: /previous/i })

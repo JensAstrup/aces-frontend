@@ -8,7 +8,7 @@ import { View } from '@aces/interfaces/view'
 interface ViewsContextProps {
   views: View[]
   selectedView: View | null
-  setView: (view: View) => void
+  setView: (view: View | null) => void
 }
 
 const ViewsContext = createContext<ViewsContextProps | undefined>(undefined)

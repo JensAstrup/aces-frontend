@@ -37,7 +37,7 @@ describe('CommentList', () => {
   })
 
   it('should render nothing when issue is undefined', () => {
-    mockUseIssues.mockReturnValue({ currentIssue: null, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
+    mockUseIssues.mockReturnValue({ currentIssue: null, isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     const { container } = render(<CommentList />)
     expect(container.firstChild).toBeNull()
   })
@@ -46,7 +46,7 @@ describe('CommentList', () => {
     const issue: Issue = {
       comments: { nodes: [] },
     } as unknown as Issue
-    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
+    mockUseIssues.mockReturnValue({ currentIssue: issue, isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
 
     mockGetHumanComments.mockReturnValue([])
     mockSortComments.mockReturnValue([])
@@ -83,9 +83,9 @@ describe('CommentList', () => {
 
     const issue: Issue = {
       comments: { nodes: comments },
-    } as Issue
+    } as unknown as Issue
 
-    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
+    mockUseIssues.mockReturnValue({ currentIssue: issue, isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     mockGetHumanComments.mockReturnValue(comments)
     mockSortComments.mockReturnValue(comments)
     mockRenderComment.mockImplementation(comment => <div key={comment.id}>{comment.body}</div>)
@@ -123,9 +123,9 @@ describe('CommentList', () => {
 
     const issue: Issue = {
       comments: { nodes: comments },
-    } as Issue
+    } as unknown as Issue
 
-    mockUseIssues.mockReturnValue({ currentIssue: issue, loadIssues: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
+    mockUseIssues.mockReturnValue({ currentIssue: issue, isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] })
     mockGetHumanComments.mockReturnValue(comments)
     mockSortComments.mockReturnValue(comments)
     mockRenderComment.mockImplementation(comment => <div key={comment.id}>{comment.body}</div>)
