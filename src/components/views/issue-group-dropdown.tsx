@@ -5,8 +5,8 @@ import { Button } from '@aces/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@aces/components/ui/dropdown-menu'
 import Team from '@aces/interfaces/team'
 import { View } from '@aces/interfaces/view'
+import useTeams from '@aces/lib/hooks/teams/teams-context'
 import useViews from '@aces/lib/hooks/views/views-context'
-import useTeams from '@aces/lib/teams/teams-context'
 
 
 interface IssueGroupDropdownProps {
@@ -48,7 +48,7 @@ const IssueGroupDropdown: React.FC<IssueGroupDropdownProps> = ({ views, teams })
       <DropdownMenuTrigger asChild>
         <Button className="flex items-center gap-1 pr-0" size="sm" variant="outline">
           <ListBulletIcon className="h-4 w-4" />
-          <span className="pl-2">{selectedTeam?.name || selectedView?.name || 'Select a team'}</span>
+          <span className="pl-2">{selectedTeam?.name || selectedView?.name || 'Select a view'}</span>
           <div className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

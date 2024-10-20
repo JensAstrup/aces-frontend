@@ -1,6 +1,7 @@
-import { Issue, Team } from '@linear/sdk'
 import useSWR, { SWRResponse } from 'swr'
 
+import { Issue } from '@aces/interfaces/issue'
+import Team from '@aces/interfaces/team'
 import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
