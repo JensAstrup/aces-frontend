@@ -37,7 +37,6 @@ jest.mock('@radix-ui/react-icons', () => ({
 }))
 
 const mockUseViews = useViews as jest.MockedFunction<typeof useViews>
-const mockUseTeams = useTeams as jest.MockedFunction<typeof useTeams>
 
 jest.mock('@aces/components/ui/button', () => ({
   Button: ({ children, ...props }: React.PropsWithChildren<object>) => (

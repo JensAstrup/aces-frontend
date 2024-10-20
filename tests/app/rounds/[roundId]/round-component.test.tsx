@@ -34,7 +34,6 @@ jest.mock('@aces/lib/hooks/auth/use-csrf-token', () => ({
 }))
 jest.mock('@aces/lib/hooks/auth/use-migrate-cookie')
 
-const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 const mockUseCurrentUser = jest.requireMock('@aces/lib/hooks/auth/use-current-user').default
 const mockUseRegisterViewer = jest.requireMock('@aces/lib/hooks/auth/use-register-viewer').default
 const mockUseWebSocket = jest.requireMock('@aces/lib/socket/web-socket-provider').useWebSocket
