@@ -30,7 +30,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
       isLoading: false,
     })
   })
@@ -67,7 +67,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
       isLoading: false,
     })
     render(<IssueNavigation />)
@@ -81,7 +81,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
       isLoading: false,
     })
     render(<IssueNavigation />)
@@ -95,7 +95,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
       isLoading: false,
     })
     render(<IssueNavigation />)
@@ -112,7 +112,7 @@ describe('IssueNavigation', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: mockIssues,
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
       isLoading: false,
     })
     render(<IssueNavigation />)

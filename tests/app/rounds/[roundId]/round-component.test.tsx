@@ -1,8 +1,10 @@
+import { Team } from '@linear/sdk'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
 import { View } from '@aces/interfaces/view'
+import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 jest.mock('@aces/components/issues/issue-display', () => ({
@@ -27,9 +29,12 @@ jest.mock('@aces/lib/socket/web-socket-connection', () => ({
 jest.mock('@aces/lib/hooks/auth/use-current-user')
 jest.mock('@aces/lib/hooks/auth/use-register-viewer')
 jest.mock('@aces/lib/socket/web-socket-provider')
-jest.mock('@aces/lib/hooks/auth/use-csrf-token')
+jest.mock('@aces/lib/hooks/auth/use-csrf-token', () => ({
+  useCsrfToken: () => jest.fn(),
+}))
 jest.mock('@aces/lib/hooks/auth/use-migrate-cookie')
 
+const mockedUseCsrfToken = useCsrfToken as jest.MockedFunction<typeof useCsrfToken>
 const mockUseCurrentUser = jest.requireMock('@aces/lib/hooks/auth/use-current-user').default
 const mockUseRegisterViewer = jest.requireMock('@aces/lib/hooks/auth/use-register-viewer').default
 const mockUseWebSocket = jest.requireMock('@aces/lib/socket/web-socket-provider').useWebSocket
@@ -41,6 +46,11 @@ describe('RoundComponent', () => {
     { id: 'view2', name: 'View 2' },
   ] as View[]
 
+  const mockTeams = [
+    { id: 1, name: 'Team 1' },
+    { id: 2, name: 'Team 2' },
+  ] as unknown as Team[]
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseCurrentUser.mockReturnValue({ user: null, isLoading: false })
@@ -51,7 +61,7 @@ describe('RoundComponent', () => {
   it('should render Disconnected component when not connected', () => {
     mockUseWebSocket.mockReturnValue({ isConnected: false })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('disconnected')).toBeInTheDocument()
     expect(screen.queryByTestId('issue-display')).not.toBeInTheDocument()
@@ -62,7 +72,7 @@ describe('RoundComponent', () => {
   it('should render UnauthenticatedIssueDisplay when user is not authenticated and connected', () => {
     mockUseCurrentUser.mockReturnValue({ user: null, isLoading: false })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
@@ -73,7 +83,7 @@ describe('RoundComponent', () => {
   it('should render AuthenticatedIssueDisplay when user is authenticated with linearId and connected', () => {
     mockUseCurrentUser.mockReturnValue({ user: { linearId: 'test-linear-id' }, isLoading: false })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.queryByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
@@ -84,7 +94,7 @@ describe('RoundComponent', () => {
   it('should render UnauthenticatedIssueDisplay when user is authenticated without linearId and connected', () => {
     mockUseCurrentUser.mockReturnValue({ user: { id: 'test-id' }, isLoading: false })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.getByTestId('round-sidebar')).toBeInTheDocument()
@@ -96,7 +106,7 @@ describe('RoundComponent', () => {
     const mockUser = { id: 'test-id' }
     mockUseCurrentUser.mockReturnValue({ user: mockUser, isLoading: false })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: mockRoundId }, mockUser)
   })
@@ -104,13 +114,13 @@ describe('RoundComponent', () => {
   it('should call useRegisterViewer with undefined user when isUserLoading is true', () => {
     mockUseCurrentUser.mockReturnValue({ user: null, isLoading: true })
 
-    render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(mockUseRegisterViewer).toHaveBeenCalledWith({ roundId: mockRoundId }, undefined)
   })
 
   it('should handle connection state updates correctly', () => {
-    const { rerender } = render(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    const { rerender } = render(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('issue-display')).toBeInTheDocument()
     expect(screen.queryByTestId('disconnected')).not.toBeInTheDocument()
@@ -118,7 +128,7 @@ describe('RoundComponent', () => {
 
     mockUseWebSocket.mockReturnValue({ isConnected: false })
 
-    rerender(<RoundComponent roundId={mockRoundId} views={mockViews} />)
+    rerender(<RoundComponent roundId={mockRoundId} views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('disconnected')).toBeInTheDocument()
     expect(screen.queryByTestId('issue-display')).not.toBeInTheDocument()

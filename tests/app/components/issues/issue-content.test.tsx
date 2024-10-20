@@ -23,7 +23,7 @@ describe('IssueContent', () => {
       issues: [mockIssue],
       setCurrentIssue: jest.fn(),
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
     })
 
     render(<IssueContent />)
@@ -39,7 +39,7 @@ describe('IssueContent', () => {
       issues: [],
       setCurrentIssue: jest.fn(),
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
     })
 
     render(<IssueContent />)
@@ -54,7 +54,7 @@ describe('IssueContent', () => {
       issues: [],
       setCurrentIssue: jest.fn(),
       setIssues: jest.fn(),
-      loadIssues: jest.fn(),
+      loadIssuesForViews: jest.fn(),
     })
 
     render(<IssueContent />)
