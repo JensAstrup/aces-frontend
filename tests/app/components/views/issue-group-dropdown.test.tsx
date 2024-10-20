@@ -76,12 +76,12 @@ describe('IssueGroupDropdown', () => {
     jest.clearAllMocks()
     mockUseViewsReturn.selectedView = null
     mockUseViewsReturn.setView = mockSetView
-    // @ts-ignore
+    // @ts-expect-error mockUseViewsReturn.views is not assignable to type View[]
     mockUseViewsReturn.views = mockViews
 
     mockUseTeamsReturn.selectedTeam = null
     mockUseTeamsReturn.setTeam = mockSetTeam
-    // @ts-ignore
+    // @ts-expect-error mockUseViewsReturn.teams is not assignable to type Team[]
     mockUseTeamsReturn.teams = mockTeams
   })
 
