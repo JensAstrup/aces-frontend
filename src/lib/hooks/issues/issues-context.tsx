@@ -59,7 +59,7 @@ const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     finally {
       setIsLoading(false)
     }
-  }, [roundId, selectedTeam])
+  }, [roundId, selectedTeam, selectedView])
 
   useEffect(() => {
     if ((selectedView && selectedTeam) || selectedView) {
