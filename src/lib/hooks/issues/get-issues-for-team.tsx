@@ -31,10 +31,15 @@ const fetcher = async (url: string, csrfToken: string) => {
 
 function useGetIssuesForTeam(selectedTeam: Team | null) {
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
+  const shouldFetch = selectedTeam?.id && csrfToken && !csrfLoading && !csrfError
 
-  const result: SWRResponse | undefined = useSWR(selectedTeam?.id ? [`api/issues/teams/${selectedTeam.id}`, csrfToken] : null, ([url, csrfToken]) => {
-    return fetcher(url, csrfToken)
-  })
+
+  const result: SWRResponse | undefined = useSWR(
+    shouldFetch ? [`api/issues/teams/${selectedTeam.id}`, csrfToken] : null,
+    ([url, csrfToken]) => {
+      return fetcher(url, csrfToken)
+    }
+  )
 
   return {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
