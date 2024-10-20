@@ -20,7 +20,7 @@ jest.mock('@aces/components/issues/loading-issues', () => ({
 }))
 jest.mock('@aces/components/views/issue-group-dropdown', () => ({
   __esModule: true,
-  default: () => <div data-testid="view-dropdown">View Dropdown</div>
+  default: () => <div data-testid="issue-group-dropdown">Issue Group Dropdown</div>
 }))
 jest.mock('@aces/components/ui/separator', () => ({
   __esModule: true,
@@ -75,7 +75,7 @@ describe('IssueDisplay', () => {
 
     render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
-    expect(screen.getByTestId('view-dropdown')).toBeInTheDocument()
+    expect(screen.getByTestId('issue-group-dropdown')).toBeInTheDocument()
     expect(screen.queryByText('Current Issue')).not.toBeInTheDocument()
   })
 
@@ -89,7 +89,7 @@ describe('IssueDisplay', () => {
     render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByText('Current Issue')).toBeInTheDocument()
-    expect(screen.queryByTestId('view-dropdown')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('issue-group-dropdown')).not.toBeInTheDocument()
   })
 
   it('should always render IssueContent when not loading', () => {

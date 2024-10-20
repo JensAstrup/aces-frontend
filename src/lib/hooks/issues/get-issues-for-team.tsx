@@ -6,7 +6,11 @@ import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 async function fetchIssuesForTeam(teamId: string): Promise<{ issues: Issue[] }> {
-  const { csrfToken } = await getCsrfToken()
+  const csrfResponse = await getCsrfToken()
+  if (!csrfResponse.csrfToken) {
+    throw new Error('Failed to retrieve CSRF token.')
+  }
+  const { csrfToken } = csrfResponse
   const data = await fetcher(`/api/issues/teams/${teamId}`, csrfToken)
   return data
 }
