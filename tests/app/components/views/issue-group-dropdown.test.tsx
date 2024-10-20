@@ -6,7 +6,6 @@ import '@testing-library/jest-dom'
 import IssueGroupDropdown from '@aces/components/views/issue-group-dropdown'
 import Team from '@aces/interfaces/team'
 import { View } from '@aces/interfaces/view'
-import useTeams from '@aces/lib/hooks/teams/teams-context'
 import useViews from '@aces/lib/hooks/views/views-context'
 
 

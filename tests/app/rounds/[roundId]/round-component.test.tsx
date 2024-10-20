@@ -4,7 +4,6 @@ import React from 'react'
 
 import RoundComponent from '@aces/app/rounds/[roundId]/round-component'
 import { View } from '@aces/interfaces/view'
-import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
 jest.mock('@aces/components/issues/issue-display', () => ({
