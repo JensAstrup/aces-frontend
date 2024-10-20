@@ -19,7 +19,6 @@ async function getTeams(user: User): Promise<Team[]> {
       name: team.name
     } as Team
   })
-  console.log(teams)
   return teams
 }
 

@@ -23,7 +23,7 @@ jest.mock('@aces/components/ui/hover-card', () => ({
 jest.mock('@aces/lib/hooks/issues/issues-context')
 const mockUseIssues = useIssues as jest.MockedFunction<typeof useIssues>
 
-const useIssuesReturnValue = { currentIssue: null, loadIssuesForViews: jest.fn(), isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] }
+const useIssuesReturnValue = { currentIssue: null, isLoading: false, setCurrentIssue: jest.fn(), setIssues: jest.fn(), issues: [] }
 
 describe('IssueTitle', () => {
   const mockIssue: Issue = {

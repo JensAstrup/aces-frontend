@@ -62,8 +62,7 @@ describe('WebSocketConnection', () => {
       setCurrentIssue: mockSetCurrentIssue,
       issues: [],
       setIssues: jest.fn(),
-      isLoading: false,
-      loadIssuesForViews: jest.fn()
+      isLoading: false
     })
 
     mockUseCurrentUser.mockReturnValue({

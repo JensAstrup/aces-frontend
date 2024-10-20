@@ -1,6 +1,7 @@
 'use server'
+import { NextResponse } from 'next/server'
+
 import getIssuesForTeam from '@aces/lib/linear/get-issues-for-team'
-import getSession from '@aces/lib/server/auth/session'
 
 
 interface TeamRouteProps {
@@ -9,7 +10,7 @@ interface TeamRouteProps {
 
 async function POST(request: Request, { params }: TeamRouteProps) {
   const issues = await getIssuesForTeam(params.teamId)
-  return Response.json(issues)
+  return NextResponse.json(issues, { status: 200 })
 }
 
 export { POST }

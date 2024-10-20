@@ -42,8 +42,7 @@ describe('RoundSidebar', () => {
       isLoading: true,
       issues: [],
       setCurrentIssue: jest.fn(),
-      setIssues: jest.fn(),
-      loadIssuesForViews: jest.fn(),
+      setIssues: jest.fn()
     })
     mockUseVotes.mockReturnValue({
       votes: [],
@@ -63,8 +62,7 @@ describe('RoundSidebar', () => {
       isLoading: false,
       issues: [],
       setCurrentIssue: jest.fn(),
-      setIssues: jest.fn(),
-      loadIssuesForViews: jest.fn()
+      setIssues: jest.fn()
     })
     mockUseVotes.mockReturnValue({
       votes: [],
@@ -84,8 +82,7 @@ describe('RoundSidebar', () => {
       isLoading: false,
       issues: [],
       setCurrentIssue: jest.fn(),
-      setIssues: jest.fn(),
-      loadIssuesForViews: jest.fn()
+      setIssues: jest.fn()
     })
     mockUseVotes.mockReturnValue({
       votes: [1, 2],
@@ -106,8 +103,7 @@ describe('RoundSidebar', () => {
       isLoading: false,
       issues: [],
       setCurrentIssue: jest.fn(),
-      setIssues: jest.fn(),
-      loadIssuesForViews: jest.fn()
+      setIssues: jest.fn()
     })
     mockUseVotes.mockReturnValue({
       votes: [1, 2, 3],

@@ -9,7 +9,6 @@ import decrypt from '@aces/lib/utils/decrypt'
 
 async function getIssuesForTeam(teamId: string, nextPage?: string): Promise<{ issues: Issue[] }> {
   const session = await getSession()
-  console.log(session)
   const user = session.user
   if (!user || !user.token) {
     throw new Error('User must be logged in')
