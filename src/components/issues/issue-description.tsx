@@ -3,7 +3,7 @@ import Markdown from 'react-markdown'
 
 
 interface IssueDescriptionProps {
-  description: string | null
+  description?: string
 }
 
 const IssueDescription: React.FC<IssueDescriptionProps> = ({ description }) => {
