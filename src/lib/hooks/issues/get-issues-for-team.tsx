@@ -1,18 +1,18 @@
+import { Issue, Team } from '@linear/sdk'
 import useSWR, { SWRResponse } from 'swr'
 
-import { Issue } from '@aces/interfaces/issue'
-import { View } from '@aces/interfaces/view'
 import { getCsrfToken, useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 
-async function getIssuesForView(viewId: string): Promise<{ issues: Issue[], nextPage: string }> {
+async function fetchIssuesForTeam(teamId: string): Promise<{ issues: Issue[] }> {
   const { csrfToken } = await getCsrfToken()
-  const issues = await fetcher(`${process.env.NEXT_PUBLIC_API_URL}/views/${viewId}/issues`, csrfToken)
-  return issues
+  const data = await fetcher(`/api/issues/teams/${teamId}`, csrfToken)
+  return data
 }
 
 const fetcher = async (url: string, csrfToken: string) => {
   const response = await fetch(url, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': csrfToken,
@@ -28,13 +28,13 @@ const fetcher = async (url: string, csrfToken: string) => {
 }
 
 
-function useGetIssuesForView(selectedView: View | null) {
+function useGetIssuesForTeam(selectedTeam: Team | null) {
   const { csrfToken, isLoading: csrfLoading, isError: csrfError } = useCsrfToken()
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-  const result: SWRResponse | undefined = useSWR(selectedView?.id ? [`${API_URL}/views/${selectedView.id}/issues`, csrfToken] : null, ([url, csrfToken]) => {
+  const result: SWRResponse | undefined = useSWR(selectedTeam?.id ? [`api/issues/teams/${selectedTeam.id}`, csrfToken] : null, ([url, csrfToken]) => {
     return fetcher(url, csrfToken)
   })
+
   return {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     data: result?.data,
@@ -45,5 +45,5 @@ function useGetIssuesForView(selectedView: View | null) {
   }
 }
 
-export default useGetIssuesForView
-export { getIssuesForView }
+export default useGetIssuesForTeam
+export { fetchIssuesForTeam }

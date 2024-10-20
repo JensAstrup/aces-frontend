@@ -1,11 +1,13 @@
+import { Issue } from '@linear/sdk'
 import { useParams } from 'next/navigation'
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
-import { Issue } from '@aces/interfaces/issue'
-import { getIssuesForView } from '@aces/lib/api/get-issues-for-view'
+import { getIssuesForView } from '@aces/lib/api/issues/get-issues-for-view'
 import useCurrentUser from '@aces/lib/hooks/auth/use-current-user'
+import { fetchIssuesForTeam } from '@aces/lib/hooks/issues/get-issues-for-team'
 import { setRoundIssue } from '@aces/lib/hooks/rounds/use-set-round-issue'
 import useViews from '@aces/lib/hooks/views/views-context'
+import useTeams from '@aces/lib/teams/teams-context'
 
 
 interface IssuesContextProps {
@@ -14,7 +16,7 @@ interface IssuesContextProps {
   setCurrentIssue: (issue: Issue | null) => Promise<void>
   setIssues: (issues: Issue[]) => void
   isLoading: boolean
-  loadIssues: () => void
+  loadIssuesForViews: () => void
 }
 
 const IssuesContext = createContext<IssuesContextProps | undefined>(undefined)
@@ -25,19 +27,45 @@ const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { roundId } = useParams<{ roundId: string }>()
   const { selectedView } = useViews()
+  const { selectedTeam } = useTeams()
   const { user } = useCurrentUser()
 
+
+  async function loadIssuesForTeams() {
+    setIsLoading(true)
+    try {
+      const { issues } = await fetchIssuesForTeam(selectedTeam!.id)
+      console.log('issues:', issues)
+      setIssues(issues)
+      const firstIssue: Issue | null = issues[0] || null
+      setCurrentIssue(firstIssue)
+      await setRoundIssue(roundId, firstIssue.id)
+    }
+    catch (error) {
+      console.error('Failed to fetch issues:', error)
+      setIssues([])
+      setCurrentIssue(null)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
-    if (selectedView) {
-      loadIssues()
+    if ((selectedView && selectedTeam) || selectedView) {
+      loadIssuesForViews()
+    }
+    if (!selectedView && selectedTeam) {
+      console.log('loading issues for teams')
+      loadIssuesForTeams()
     }
     else {
       setIssues([])
       setCurrentIssue(null)
     }
-  }, [selectedView])
+  }, [selectedView, selectedTeam])
 
-  async function loadIssues() {
+  async function loadIssuesForViews() {
     setIsLoading(true)
     try {
       const { issues } = await getIssuesForView(selectedView!.id)
@@ -71,7 +99,7 @@ const IssuesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCurrentIssue: handleIssueChanged,
         setIssues,
         isLoading,
-        loadIssues,
+        loadIssuesForViews,
       }}
     >
       {children}
