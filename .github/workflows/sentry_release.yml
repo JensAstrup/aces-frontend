@@ -4,9 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - develop
   push:
     branches:
       - main
+      - develop
+      - ace-128-add-support-for-sentry-releases_2
 
 jobs:
   create_sentry_release:
@@ -22,7 +25,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Get version from package.json
         id: get_version
@@ -30,8 +33,9 @@ jobs:
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ variables.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ variables.SENTRY_PROJECT }}
         with:
           version: ${{ steps.get_version.outputs.version }}
-          sentry_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          org: jens-astrup
-          project: aces-of-spades
