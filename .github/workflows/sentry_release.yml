@@ -31,8 +31,9 @@ jobs:
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ variables.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ variables.SENTRY_PROJECT }}
         with:
           version: ${{ steps.get_version.outputs.version }}
-          sentry_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          org: jens-astrup
-          project: aces-of-spades
