@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - main
+      - develop
+      - ace-128-add-support-for-sentry-releases_2
 
 jobs:
   create_sentry_release:
