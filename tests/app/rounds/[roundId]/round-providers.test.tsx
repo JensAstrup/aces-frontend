@@ -1,3 +1,4 @@
+import { Team } from '@linear/sdk'
 import { render } from '@testing-library/react'
 import React from 'react'
 
@@ -28,9 +29,14 @@ describe('RoundProviders', () => {
     { id: '2', name: 'View 2' },
   ] as View[]
 
+  const mockTeams = [
+    { id: 1, name: 'Team 1' },
+    { id: 2, name: 'Team 2' },
+  ] as unknown as Team[]
+
   it('should render all providers in the correct order', () => {
     const { getByTestId } = render(
-      <RoundProviders views={mockViews}>
+      <RoundProviders views={mockViews} teams={mockTeams}>
         <div data-testid="child-component">Child Component</div>
       </RoundProviders>
     )
@@ -49,7 +55,7 @@ describe('RoundProviders', () => {
 
   it('should pass views prop to ViewsProvider', () => {
     render(
-      <RoundProviders views={mockViews}>
+      <RoundProviders views={mockViews} teams={mockTeams}>
         <div>Child Component</div>
       </RoundProviders>
     )
@@ -64,7 +70,7 @@ describe('RoundProviders', () => {
 
   it('should render child components', () => {
     const { getByText } = render(
-      <RoundProviders views={mockViews}>
+      <RoundProviders views={mockViews} teams={mockTeams}>
         <div>Test Child</div>
       </RoundProviders>
     )

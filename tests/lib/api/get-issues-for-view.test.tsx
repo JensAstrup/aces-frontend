@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react'
 import useSWR from 'swr'
 
 import { View } from '@aces/interfaces/view'
-import useGetIssuesForView from '@aces/lib/api/get-issues-for-view'
+import useGetIssuesForView from '@aces/lib/api/issues/get-issues-for-view'
 import { useCsrfToken } from '@aces/lib/hooks/auth/use-csrf-token'
 
 

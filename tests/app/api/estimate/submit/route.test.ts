@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
 
-
-jest.mock('@aces/lib/utils/decrypt', () => jest.fn())
 import { POST } from '@aces/app/api/estimate/submit/route'
 import setEstimate from '@aces/lib/estimates/api/estimate'
 
 
+jest.mock('@aces/lib/utils/decrypt', () => jest.fn())
 jest.mock('@aces/lib/estimates/api/estimate')
 jest.mock('next/server', () => ({
   NextResponse: {

@@ -1,3 +1,4 @@
+import { Team } from '@linear/sdk'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
@@ -17,9 +18,9 @@ jest.mock('@aces/components/issues/loading-issues', () => ({
   __esModule: true,
   default: () => <div data-testid="loading-issues">Loading Issues</div>
 }))
-jest.mock('@aces/components/view-dropdown', () => ({
+jest.mock('@aces/components/views/issue-group-dropdown', () => ({
   __esModule: true,
-  default: () => <div data-testid="view-dropdown">View Dropdown</div>
+  default: () => <div data-testid="issue-group-dropdown">Issue Group Dropdown</div>
 }))
 jest.mock('@aces/components/ui/separator', () => ({
   __esModule: true,
@@ -34,6 +35,11 @@ describe('IssueDisplay', () => {
     { id: '2', name: 'View 2' }
   ] as View[]
 
+  const mockTeams = [
+    { id: '1', name: 'Team 1' },
+    { id: '2', name: 'Team 2' }
+  ] as Team[]
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -45,13 +51,13 @@ describe('IssueDisplay', () => {
       error: null
     })
 
-    render(<IssueDisplay views={mockViews} />)
+    render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('loading-issues')).toBeInTheDocument()
     expect(screen.queryByTestId('issue-content')).not.toBeInTheDocument()
   })
 
-  it('should render ViewDropdown for authenticated users', () => {
+  it('should render IssueGroupDropdown for authenticated users', () => {
     const mockUser: User = {
       linearId: 'user1',
       id: '',
@@ -67,9 +73,9 @@ describe('IssueDisplay', () => {
       error: null
     })
 
-    render(<IssueDisplay views={mockViews} />)
+    render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
-    expect(screen.getByTestId('view-dropdown')).toBeInTheDocument()
+    expect(screen.getByTestId('issue-group-dropdown')).toBeInTheDocument()
     expect(screen.queryByText('Current Issue')).not.toBeInTheDocument()
   })
 
@@ -80,10 +86,10 @@ describe('IssueDisplay', () => {
       error: null
     })
 
-    render(<IssueDisplay views={mockViews} />)
+    render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByText('Current Issue')).toBeInTheDocument()
-    expect(screen.queryByTestId('view-dropdown')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('issue-group-dropdown')).not.toBeInTheDocument()
   })
 
   it('should always render IssueContent when not loading', () => {
@@ -93,7 +99,7 @@ describe('IssueDisplay', () => {
       error: null
     })
 
-    render(<IssueDisplay views={mockViews} />)
+    render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByTestId('issue-content')).toBeInTheDocument()
   })
@@ -105,7 +111,7 @@ describe('IssueDisplay', () => {
       error: null
     })
 
-    render(<IssueDisplay views={mockViews} />)
+    render(<IssueDisplay views={mockViews} teams={mockTeams} />)
 
     expect(screen.getByRole('separator')).toBeInTheDocument()
   })
