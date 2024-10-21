@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  create_sentry_release:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Get version from package.json
         id: get_version
-        run: echo "::set-output name=version::$(jq -r .version package.json)"
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
@@ -35,13 +35,3 @@ jobs:
           sentry_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           org: jens-astrup
           project: aces-of-spades
-
-      - name: Deploy to Staging
-        if: github.event_name == 'pull_request'
-        run: echo "Deploying to staging environment..."
-
-      - name: Deploy to Production
-        if: github.event_name == 'push'
-        run: |
-          echo "Deploying to production environment..."
-          npm run deploy
