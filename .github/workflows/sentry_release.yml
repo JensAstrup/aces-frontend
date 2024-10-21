@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
   push:
     branches:
       - main
@@ -22,7 +23,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Get version from package.json
         id: get_version
